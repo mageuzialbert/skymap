@@ -1,0 +1,54 @@
+{
+  "name": "Skymap Logistics",
+  "short_name": "Skymap",
+  "description": "Modern Logistics & Delivery Platform - Track your shipments with Skymap",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0b5a54",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "logistics", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Quick Order",
+      "short_name": "Order",
+      "description": "Create a quick delivery order",
+      "url": "/quick-order",
+      "icons": [{ "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "My Deliveries",
+      "short_name": "Deliveries",
+      "description": "View your delivery history",
+      "url": "/dashboard/business/deliveries",
+      "icons": [{ "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ]
+}

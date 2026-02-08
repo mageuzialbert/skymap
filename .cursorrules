@@ -1,0 +1,150 @@
+# Logistics Delivery Platform - MVP Build Rules
+
+## Project Overview
+B2B logistics delivery platform where businesses request deliveries and are billed weekly via invoices.
+
+## Branding
+- **Company Name**: Kasi Courier Services
+- **Brand Colors**:
+  - Primary Green: #22c55e (vibrant green)
+  - Secondary Yellow/Gold: #eab308 (golden yellow)
+  - Accent Blue: #3b82f6 (solid blue)
+- **Logo**: Stylized "K" with forward-moving arrow design
+
+## Technology Stack (DO NOT CHANGE)
+- **Frontend/Backend**: Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui
+- **Backend**: Supabase (PostgreSQL, Auth, RLS, Edge Functions, Cron Jobs)
+- **Notifications**: SMS Provider (BongoLive API)
+- **Deployment**: Vercel (frontend), Supabase (backend)
+
+## User Roles & Permissions
+Roles: ADMIN, STAFF, RIDER, BUSINESS
+
+### Permissions Matrix
+| Feature | Admin | Staff | Rider | Business |
+|---------|-------|-------|-------|----------|
+| View all deliveries | ✅ | ✅ | ❌ | ❌ |
+| View assigned deliveries | ❌ | ❌ | ✅ | ❌ |
+| Create delivery | ❌ | ✅ | ❌ | ✅ |
+| Assign rider | ❌ | ✅ | ❌ | ❌ |
+| Update delivery status | ❌ | ❌ | ✅ | ❌ |
+| View invoices | ✅ | ✅ | ❌ | ✅ |
+| Generate invoices | ✅ | ❌ | ❌ | ❌ |
+| Reports | ✅ | ❌ | ❌ | ❌ |
+
+## Application Structure
+```
+/app
+  /(auth)
+    /login
+    /register
+  /(public)
+    /page.tsx           → Landing page
+  /dashboard
+    /admin
+    /staff
+    /rider
+    /business
+/lib
+  supabase.ts
+  auth.ts
+  roles.ts
+  sms.ts
+  invoice.ts
+/components
+  /ui                  → shadcn components
+  /layout
+  /tables
+  /forms
+/database
+  schema.sql
+  rls.sql
+/supabase
+  /functions
+    generate-weekly-invoices.ts
+    send-sms.ts
+```
+
+## Database Schema Requirements
+
+### Tables Required:
+1. **users** - id (uuid, pk), name, phone (username), role, active, created_at
+2. **businesses** - id, name, phone (username), user_id (fk to users), billing_cycle ('WEEKLY'), active, created_at
+3. **deliveries** - id, business_id, pickup_address, pickup_name, pickup_phone, dropoff_address, dropoff_name, dropoff_phone, package_description, status, assigned_rider_id, created_by, created_at, delivered_at
+4. **delivery_events** - id, delivery_id, status, note, created_by, created_at
+5. **charges** - id, delivery_id, business_id, amount, description, created_at
+6. **invoices** - id, business_id, week_start, week_end, invoice_number, total_amount, status, generated_at
+7. **invoice_items** - id, invoice_id, delivery_id, amount, description
+8. **sms_logs** - id, to_phone, message, status, provider_response, created_at
+
+## Delivery Lifecycle
+Status Flow: CREATED → ASSIGNED → PICKED_UP → IN_TRANSIT → DELIVERED
+                                                      ↘ FAILED
+
+### Status Rules:
+- Only Staff can assign riders
+- Only Riders can update delivery status
+- Every status change creates a delivery_events record
+
+## SMS Notification Rules
+- **Rider assigned** → Send to Rider
+- **Picked up** → Send to Drop-off customer
+- **Delivered** → Send to Business + Customer
+- **Failed** → Send to Business
+
+### SMS Implementation:
+- Use lib/sms.ts
+- Never call provider directly from UI
+- Log every SMS in sms_logs
+- Use BongoLive API with credentials from documentation
+
+## Weekly Invoice Automation
+- Edge Function: `generate-weekly-invoices`
+- Runs weekly via Supabase Cron
+- Logic: For each business, fetch DELIVERED deliveries in week, create invoice + items, sum totals, set status = SENT
+
+## Authentication Requirements
+- **Business Registration**: Simple form with:
+  - Business name
+  - Phone number (used as username)
+  - Password
+- **Login Options**:
+  - Phone + Password
+  - Phone + SMS Code (OTP)
+- **SMS OTP**: Use BongoLive API to send verification codes
+
+## Pages Required (MVP)
+- **Public**: /, /login, /register
+- **Business**: /dashboard/business, /dashboard/business/deliveries, /dashboard/business/invoices
+- **Staff**: /dashboard/staff/deliveries, /dashboard/staff/assign
+- **Rider**: /dashboard/rider/jobs (mobile-first)
+- **Admin**: /dashboard/admin/businesses, /dashboard/admin/users, /dashboard/admin/reports
+
+## Security Rules (MANDATORY)
+- Supabase Auth required
+- Role-based access checks
+- Row Level Security (RLS) policies
+- No client-side role trust
+- Server-side validation for all mutations
+
+## UI Rules
+- Use shadcn/ui components only
+- Tables for deliveries & invoices
+- Status badges with colors
+- Mobile-friendly rider UI
+- Clean admin dashboard
+
+## Constraints
+- DO NOT over-engineer
+- DO NOT add payments yet
+- DO NOT add maps yet
+- Focus on working demo, not perfection
+
+## MVP Completion Criteria
+✅ Business can request delivery
+✅ Staff can assign rider
+✅ Rider updates delivery status
+✅ SMS notifications are sent
+✅ Weekly invoice is generated
+✅ Business can view invoice
+✅ App is deployed on Vercel

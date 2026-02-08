@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light only;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Logo horizontal animation */
+@keyframes slideHorizontal {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+}
+
+.animate-slide-horizontal {
+  animation: slideHorizontal 3s ease-in-out infinite;
+}
+
+/* Infinite marquee animation for business logos */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Ensure smooth 60fps animation */
+.marquee-container {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Print styles - Hide dashboard layout header and sidebar */
+@media print {
+  /* Hide all navigation bars (dashboard header) */
+  nav[class*="bg-white"][class*="border-b"] {
+    display: none !important;
+  }
+  /* Hide all sidebars */
+  aside[class*="bg-white"][class*="border-r"],
+  aside[class*="fixed"],
+  aside[class*="static"] {
+    display: none !important;
+  }
+  /* Remove padding from main content area */
+  main[class*="flex-1"],
+  main[class*="p-"] {
+    padding: 0 !important;
+  }
+  /* Hide mobile menu overlay */
+  div[class*="fixed"][class*="inset-0"][class*="bg-black"] {
+    display: none !important;
+  }
+}
