@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLoadScript } from '@react-google-maps/api';
 import LandingMap from '@/components/landing/LandingMap';
 import OrderPanel from '@/components/landing/OrderPanel';
@@ -8,7 +8,7 @@ import HeroSlider from '@/components/landing/HeroSlider';
 import SlideMenu from '@/components/landing/SlideMenu';
 import Link from 'next/link';
 import { LocationState } from '@/components/landing/types';
-import { Loader2, Menu } from 'lucide-react';
+import { Loader2, Menu, Video, VolumeX } from 'lucide-react';
 
 const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = ['places'];
 
@@ -32,6 +32,49 @@ export default function Home() {
   const [dropoff, setDropoff] = useState<LocationState>(initialLocation);
   const [isCheckingPhone, setIsCheckingPhone] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Autoplay audio on mount — if browser blocks, start on first user interaction
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const tryPlay = () => {
+      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+    };
+
+    // Try immediate autoplay
+    audio.play().then(() => {
+      setIsPlaying(true);
+    }).catch(() => {
+      // Browser blocked autoplay — start on first user interaction
+      setIsPlaying(false);
+      const startOnInteraction = () => {
+        tryPlay();
+        document.removeEventListener('click', startOnInteraction);
+        document.removeEventListener('touchstart', startOnInteraction);
+      };
+      document.addEventListener('click', startOnInteraction);
+      document.addEventListener('touchstart', startOnInteraction);
+
+      return () => {
+        document.removeEventListener('click', startOnInteraction);
+        document.removeEventListener('touchstart', startOnInteraction);
+      };
+    });
+  }, []);
+
+  const handleToggleAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused) {
+      audio.play().then(() => setIsPlaying(true));
+    } else {
+      audio.pause();
+      setIsPlaying(false);
+    }
+  };
 
   const handlePickupChange = (field: keyof LocationState, value: any) => {
     setPickup(prev => ({ ...prev, [field]: value }));
@@ -129,8 +172,18 @@ export default function Home() {
             <span className="text-lg font-bold text-white drop-shadow-lg">Skymap</span>
           </div>
 
-          {/* Spacer for balance */}
-          <div className="w-11" />
+          {/* Audio Play/Pause Button */}
+          <button
+            onClick={handleToggleAudio}
+            className="pointer-events-auto p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg active:scale-95 transition-transform"
+            title={isPlaying ? 'Pause audio' : 'Play audio'}
+          >
+            {isPlaying ? (
+              <Video className="w-6 h-6 text-primary" />
+            ) : (
+              <VolumeX className="w-6 h-6 text-gray-700" />
+            )}
+          </button>
         </div>
 
         {/* Promotions Slider - Prominent */}
@@ -150,6 +203,8 @@ export default function Home() {
           onPhoneBlur={handlePhoneBlur}
           isCheckingPhone={isCheckingPhone}
         />
+        {/* Background Audio (loops until paused) — hosted on Supabase Storage */}
+        <audio ref={audioRef} src="https://ergemtnsxdvbboyjxdyy.supabase.co/storage/v1/object/public/assets/audio/skymap-audio.mp3" preload="auto" loop />
       </main>
     </>
   );
