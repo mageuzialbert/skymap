@@ -115,9 +115,9 @@ export default function Home() {
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
           <div className="mb-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/icon.svg" alt="Skymap" className="w-16 h-16 mx-auto" />
+            <img src="/icons/icon.svg" alt="The Skaymap" className="w-16 h-16 mx-auto" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Skymap</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">The Skaymap</h1>
           <p className="text-gray-600 mb-6">Fast, Reliable Delivery</p>
           
           {!apiKey && (
@@ -168,8 +168,8 @@ export default function Home() {
           {/* Logo - Centered */}
           <div className="pointer-events-auto flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/icon.svg" alt="Skymap" className="w-8 h-8" />
-            <span className="text-lg font-bold text-white drop-shadow-lg">Skymap</span>
+            <img src="/icons/icon.svg" alt="The Skaymap" className="w-8 h-8" />
+            <span className="text-lg font-bold text-white drop-shadow-lg">The Skaymap</span>
           </div>
 
           {/* Audio Play/Pause Button */}

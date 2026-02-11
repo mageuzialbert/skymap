@@ -1,7 +1,7 @@
 {
-  "name": "Skymap Logistics",
-  "short_name": "Skymap",
-  "description": "Modern Logistics & Delivery Platform - Track your shipments with Skymap",
+  "name": "The Skaymap Logistics",
+  "short_name": "The Skaymap",
+  "description": "Modern Logistics & Delivery Platform - Track your shipments with The Skaymap",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

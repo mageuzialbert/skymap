@@ -72,7 +72,7 @@ export default function QuickOrderPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('autoload') === 'true') {
       try {
-        const storedOrder = localStorage.getItem('skymap_temp_order');
+        const storedOrder = localStorage.getItem('the_skaymap_temp_order');
         if (storedOrder) {
           const { pickup } = JSON.parse(storedOrder);
           if (pickup?.phone) {

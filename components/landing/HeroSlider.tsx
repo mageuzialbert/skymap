@@ -116,7 +116,7 @@ export default function HeroSlider({ slides = [], height = 'normal' }: HeroSlide
     return (
       <div className={`relative w-full ${heightClasses[height]} bg-gradient-to-r from-primary to-primary-dark flex items-center justify-center rounded-2xl overflow-hidden`}>
         <div className="text-center text-white px-4">
-          <h1 className="text-xl md:text-2xl font-bold">Skymap Logistics</h1>
+          <h1 className="text-xl md:text-2xl font-bold">The Skaymap Logistics</h1>
           <p className="text-sm md:text-base opacity-90">Fast, Reliable Delivery</p>
         </div>
       </div>

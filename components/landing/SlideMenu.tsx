@@ -49,8 +49,8 @@ export default function SlideMenu({ isOpen, onClose }: SlideMenuProps) {
         <div className="p-4 bg-primary flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/icon.svg" alt="Skymap" className="w-10 h-10 bg-white rounded-lg p-1" />
-            <span className="text-xl font-bold text-white">Skymap</span>
+            <img src="/icons/icon.svg" alt="The Skaymap" className="w-10 h-10 bg-white rounded-lg p-1" />
+            <span className="text-xl font-bold text-white">The Skaymap</span>
           </div>
           <button 
             onClick={onClose}
@@ -115,7 +115,7 @@ export default function SlideMenu({ isOpen, onClose }: SlideMenuProps) {
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-gray-50">
           <p className="text-xs text-gray-500 text-center">
-            © {new Date().getFullYear()} Skymap Logistics
+            © {new Date().getFullYear()} The Skaymap Logistics
           </p>
         </div>
       </div>

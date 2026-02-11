@@ -30,13 +30,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const profile = await getCompanyProfile();
   
   return {
-    title: profile?.company_name || "Skymap Logistics",
-    description: "Modern Logistics & Delivery Platform - Track your shipments with Skymap",
+    title: profile?.company_name || "The Skaymap Logistics",
+    description: "Modern Logistics & Delivery Platform - Track your shipments with The Skaymap",
     manifest: '/manifest.json',
     appleWebApp: {
       capable: true,
       statusBarStyle: 'default',
-      title: profile?.company_name || "Skymap",
+      title: profile?.company_name || "The Skaymap",
     },
     formatDetection: {
       telephone: true,
@@ -65,10 +65,10 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* PWA Meta Tags */}
-        <meta name="application-name" content="Skymap" />
+        <meta name="application-name" content="The Skaymap" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Skymap" />
+        <meta name="apple-mobile-web-app-title" content="The Skaymap" />
         <meta name="msapplication-TileColor" content="#0b5a54" />
         <meta name="msapplication-tap-highlight" content="no" />
         
