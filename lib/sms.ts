@@ -132,6 +132,6 @@ export async function sendSMS(to: string, message: string): Promise<SMSResult> {
 }
 
 export async function sendOTPSMS(phone: string, code: string): Promise<SMSResult> {
-  const message = `Your The Skaymap verification code is: ${code}. Valid for 5 minutes.`;
+  const message = `Your The Skymap verification code is: ${code}. Valid for 5 minutes.`;
   return sendSMS(phone, message);
 }

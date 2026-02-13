@@ -10,7 +10,7 @@ interface AboutSectionProps {
 
 export default function AboutSection({ content }: AboutSectionProps) {
   const defaultContent = {
-    title: 'About Kasi Courier Services',
+    title: 'About The Skymap Logistics',
     description: 'Your trusted B2B logistics partner delivering excellence across Tanzania. We connect businesses with reliable, efficient delivery solutions.',
     features: [
       'Fast and Reliable Delivery',

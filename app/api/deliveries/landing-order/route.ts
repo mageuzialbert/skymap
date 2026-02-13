@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       dropoff_name,
       dropoff_phone,
       package_description,
+      package_image_url,
     } = await request.json();
 
     // Validation
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
     if (userCheckError && userCheckError.code === 'PGRST116') {
       // User doesn't exist — create new user + business using pickup details
       const businessName = pickup_name || 'My Business';
-      email = `${phoneNumber.replace(/\+/g, '')}@kasicourier.local`;
+      email = `${phoneNumber.replace(/\+/g, '')}@theskymap.local`;
 
       // Create auth user
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
@@ -297,6 +298,7 @@ export async function POST(request: NextRequest) {
         dropoff_name: dropoff_name || null,
         dropoff_phone,
         package_description: package_description || null,
+        package_image_url: package_image_url || null,
         status: 'CREATED',
         created_by: userId,
       })

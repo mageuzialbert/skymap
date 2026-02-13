@@ -168,8 +168,8 @@ export default function Home() {
           {/* Logo - Centered */}
           <div className="pointer-events-auto flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/icon.svg" alt="The Skaymap" className="w-8 h-8" />
-            <span className="text-lg font-bold text-white drop-shadow-lg">The Skaymap</span>
+            <img src="/icons/icon.png" alt="The Skymap" className="w-8 h-8" />
+            <span className="text-lg font-bold text-white drop-shadow-lg">The Skymap</span>
           </div>
 
           {/* Audio Play/Pause Button */}

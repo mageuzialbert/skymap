@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Loader2, Package, MapPin, Phone, User, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Loader2, Package, MapPin, Phone, User, ShieldCheck, Camera, X, Image as ImageIcon } from 'lucide-react';
 import { LocationState } from './types';
 import AddressInput from './AddressInput';
 import FullscreenMapPicker from './FullscreenMapPicker';
@@ -31,6 +31,12 @@ export default function OrderPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  // Camera/Image state
+  const [packageImage, setPackageImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // --- OTP state (kept for later activation) ---
   // const [phase, setPhase] = useState<'form' | 'otp' | 'submitting'>('form');
@@ -64,6 +70,12 @@ export default function OrderPanel({
     try {
       const phoneNumber = normalizePhone(pickup.phone);
 
+      // Upload image if selected
+      let packageImageUrl = null;
+      if (packageImage) {
+        packageImageUrl = await uploadPackageImage(packageImage);
+      }
+
       // --- OTP flow (skipped for now, will activate later) ---
       // const otpResponse = await fetch('/api/auth/send-otp', {
       //   method: 'POST',
@@ -94,6 +106,7 @@ export default function OrderPanel({
           dropoff_name: dropoff.name,
           dropoff_phone: normalizePhone(dropoff.phone),
           package_description: packageDetails,
+          package_image_url: packageImageUrl,
         }),
       });
 
@@ -160,6 +173,61 @@ export default function OrderPanel({
       onDropoffChange('address', address);
       onDropoffChange('latitude', lat);
       onDropoffChange('longitude', lng);
+    }
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      // Check size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size too large (max 5MB)');
+        return;
+      }
+      setPackageImage(file);
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+      setError('');
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setPackageImage(null);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadPackageImage = async (file: File): Promise<string | null> => {
+    try {
+      setUploadingImage(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('order-attachments')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw new Error('Failed to upload image');
+      }
+
+      const { data } = supabase.storage
+        .from('order-attachments')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      return null;
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -285,16 +353,60 @@ export default function OrderPanel({
           </div>
 
           {/* Package Details */}
-          <div className="relative">
-            <input
-              type="text"
-              value={packageDetails}
-              onChange={(e) => setPackageDetails(e.target.value)}
-              placeholder="Package details (optional)"
-              className="w-full pl-11 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50"
-              disabled={loading}
-            />
-            <Package className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
+          {/* Package Details & Camera */}
+          <div className="space-y-2">
+            <div className="relative">
+              <input
+                type="text"
+                value={packageDetails}
+                onChange={(e) => setPackageDetails(e.target.value)}
+                placeholder="Package details (optional)"
+                className="w-full pl-11 pr-12 py-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50"
+                disabled={loading}
+              />
+              <Package className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
+              
+              {/* Hidden file input */}
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={handleImageSelect}
+              />
+              
+              {/* Camera Button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute right-3 top-2.5 p-1.5 bg-gray-200 rounded-lg hover:bg-gray-300 text-gray-600 transition-colors"
+                title="Take photo of package"
+                disabled={loading}
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative inline-block mt-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={imagePreview} 
+                  alt="Package preview" 
+                  className="h-20 w-auto rounded-lg border border-gray-200 object-cover shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-colors"
+                  disabled={loading}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* --- OTP Section (hidden for now, will activate later) --- */}

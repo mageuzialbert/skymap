@@ -29,7 +29,7 @@ export default function OfflinePage() {
         {/* Brand */}
         <div className="mb-6 py-4 border-t border-b border-gray-100">
           <p className="text-sm text-gray-500">
-            <span className="font-semibold text-primary">Kasi Courier Services</span>
+            <span className="font-semibold text-primary">The Skymap Logistics</span>
           </p>
           <p className="text-xs text-gray-400 mt-1">
             B2B Logistics Delivery Platform

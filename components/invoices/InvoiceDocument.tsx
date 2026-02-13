@@ -101,7 +101,7 @@ export default function InvoiceDocument({
               />
             )}
             <h1 className="text-xl font-bold text-gray-900 mb-1">
-              {companyProfile?.company_name || 'Kasi Courier Services'}
+              {companyProfile?.company_name || 'The Skymap Logistics'}
             </h1>
             <div className="text-xs text-gray-600 space-y-0.5">
               {companyProfile?.address && (
@@ -329,7 +329,7 @@ export default function InvoiceDocument({
         </p>
         <p>
           &copy; {new Date().getFullYear()}{' '}
-          {companyProfile?.company_name || 'Kasi Courier Services'}. All rights reserved.
+          {companyProfile?.company_name || 'The Skymap Logistics'}. All rights reserved.
         </p>
       </div>
 

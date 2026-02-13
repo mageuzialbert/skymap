@@ -30,13 +30,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const profile = await getCompanyProfile();
   
   return {
-    title: profile?.company_name || "The Skaymap Logistics",
-    description: "Modern Logistics & Delivery Platform - Track your shipments with The Skaymap",
+    title: profile?.company_name || "The Skymap Logistics",
+    description: "Modern Logistics & Delivery Platform - Track your shipments with The Skymap",
     manifest: '/manifest.json',
     appleWebApp: {
       capable: true,
       statusBarStyle: 'default',
-      title: profile?.company_name || "The Skaymap",
+      title: profile?.company_name || "The Skymap",
     },
     formatDetection: {
       telephone: true,
@@ -46,9 +46,9 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: profile.favicon_url,
       apple: profile.favicon_url,
     } : {
-      icon: '/icons/icon.svg',
-      shortcut: '/icons/icon.svg',
-      apple: '/icons/icon-maskable.svg',
+      icon: '/icons/icon.png',
+      shortcut: '/icons/icon.png',
+      apple: '/icons/icon.png',
     },
     other: {
       'mobile-web-app-capable': 'yes',
@@ -73,10 +73,10 @@ export default function RootLayout({
         <meta name="msapplication-tap-highlight" content="no" />
         
         {/* Apple Touch Icons */}
-        <link rel="apple-touch-icon" href="/icons/icon-maskable.svg" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-maskable.svg" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-maskable.svg" />
-        <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-maskable.svg" />
+        <link rel="apple-touch-icon" href="/icons/icon.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon.png" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon.png" />
       </head>
       <body>
         {children}

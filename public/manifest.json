@@ -1,7 +1,7 @@
 {
-  "name": "The Skaymap Logistics",
-  "short_name": "The Skaymap",
-  "description": "Modern Logistics & Delivery Platform - Track your shipments with The Skaymap",
+  "name": "The Skymap Logistics",
+  "short_name": "The Skymap",
+  "description": "Modern Logistics & Delivery Platform - Track your shipments with The Skymap",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -10,15 +10,15 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/icons/icon.svg",
+      "src": "/icons/icon.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-maskable.svg",
+      "src": "/icons/icon.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "maskable"
     },
     {
@@ -41,14 +41,14 @@
       "short_name": "Order",
       "description": "Create a quick delivery order",
       "url": "/quick-order",
-      "icons": [{ "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/icons/icon.png", "sizes": "any", "type": "image/png" }]
     },
     {
       "name": "My Deliveries",
       "short_name": "Deliveries",
       "description": "View your delivery history",
       "url": "/dashboard/business/deliveries",
-      "icons": [{ "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/icons/icon.png", "sizes": "any", "type": "image/png" }]
     }
   ]
 }

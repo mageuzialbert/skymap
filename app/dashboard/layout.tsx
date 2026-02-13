@@ -291,7 +291,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               )}
               <Link href={getDashboardBase()} className="flex items-center">
                 <span className="text-2xl font-bold text-primary">
-                  Kasi Courier
+                  The Skymap
                 </span>
               </Link>
             </div>

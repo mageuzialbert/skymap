@@ -339,7 +339,7 @@ export async function POST(request: NextRequest) {
           const shortId = deliveryData.id.substring(0, 8);
           await sendSMS(
             companyProfile.phone,
-            `Kasi Courier: A rider has created and self-assigned delivery ${shortId}. Status: Pending confirmation. Please confirm in Staff Dashboard.`,
+            `The Skymap: A rider has created and self-assigned delivery ${shortId}. Status: Pending confirmation. Please confirm in Staff Dashboard.`,
           );
         }
       } catch (smsErr) {
