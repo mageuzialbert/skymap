@@ -20,6 +20,7 @@ interface Delivery {
   assigned_rider_id: string | null;
   created_at: string;
   delivered_at: string | null;
+  delivery_fee?: number | null;
 }
 
 const statusColors: Record<string, string> = {
@@ -76,7 +77,7 @@ function BusinessDeliveriesContent() {
       // Get deliveries
       const { data, error } = await supabase
         .from('deliveries')
-        .select('*')
+        .select('*, delivery_fee')
         .eq('business_id', business.id)
         .order('created_at', { ascending: false });
 
@@ -298,6 +299,9 @@ function BusinessDeliveriesContent() {
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fee (TZS)
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Created
                 </th>
               </tr>
@@ -334,6 +338,17 @@ function BusinessDeliveriesContent() {
                       >
                         {delivery.status.replace('_', ' ')}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                      {delivery.delivery_fee != null && delivery.delivery_fee > 0 ? (
+                        new Intl.NumberFormat('en-TZ', {
+                          style: 'currency',
+                          currency: 'TZS',
+                          minimumFractionDigits: 0,
+                        }).format(delivery.delivery_fee)
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(delivery.created_at).toLocaleDateString()}

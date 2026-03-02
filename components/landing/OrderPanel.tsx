@@ -51,12 +51,36 @@ export default function OrderPanel({
   // Normalize phone number helper
   const normalizePhone = (phone: string): string => {
     let p = phone.trim();
-    if (!p.startsWith('+255')) {
-      p = '+255' + p.replace(/^\+?255?/, '').replace(/\D/g, '');
-    } else {
-      p = '+255' + p.replace(/^\+255/, '').replace(/\D/g, '');
+    
+    // If the number starts with '+' we assume a country code is provided
+    if (p.startsWith('+')) {
+      p = '+' + p.replace(/\D/g, '');
+      // Remove leading zero after +255
+      if (p.startsWith('+2550')) {
+        p = '+255' + p.substring(5);
+      }
+      return p;
     }
-    return p;
+    
+    // Clean all non-digits
+    p = p.replace(/\D/g, '');
+    if (!p) return '';
+    
+    // If it starts with 255 (Tanzania country code without +)
+    if (p.startsWith('255')) {
+      if (p.startsWith('2550')) {
+        return '+255' + p.substring(4);
+      }
+      return '+' + p;
+    }
+    
+    // If it starts with 0 (Local format)
+    if (p.startsWith('0')) {
+      return '+255' + p.substring(1);
+    }
+    
+    // Fallback: no country code provided
+    return '+255' + p;
   };
 
   // Submit order directly (no OTP verification for now)

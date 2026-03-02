@@ -68,7 +68,7 @@ export default function StaffLoginPage() {
         {/* Logo/Branding */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">
-            Kasi Courier Services
+            The SkayMap
           </h1>
           <p className="text-gray-600">Staff & Admin Portal</p>
         </div>

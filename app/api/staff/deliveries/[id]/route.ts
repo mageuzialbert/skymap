@@ -151,7 +151,7 @@ export async function PUT(
     // Verify delivery exists and get current data
     const { data: delivery, error: fetchError } = await supabaseAdmin
       .from("deliveries")
-      .select("id, business_id, delivery_fee")
+      .select("id, business_id, delivery_fee, pickup_phone, pickup_address, dropoff_address")
       .eq("id", params.id)
       .single();
 
@@ -235,6 +235,32 @@ export async function PUT(
           amount: newFee,
           description: "Delivery fee - Added by staff",
         });
+      }
+    }
+
+    // Send SMS notification if fee was updated to a value > 0 and it changed
+    if (
+      delivery_fee !== undefined &&
+      delivery_fee > 0 &&
+      delivery.delivery_fee !== delivery_fee
+    ) {
+      // Formatted fee using TZS
+      const formattedFee = new Intl.NumberFormat('en-TZ', {
+        style: 'currency',
+        currency: 'TZS',
+        minimumFractionDigits: 0,
+      }).format(Number(delivery_fee));
+
+      try {
+        const { sendEventSMS } = await import("@/lib/sms");
+        await sendEventSMS("delivery_fee_updated", delivery.pickup_phone, {
+          amount: formattedFee,
+          pickup_address: delivery.pickup_address || "Pickup",
+          dropoff_address: delivery.dropoff_address || "Drop-off",
+        });
+      } catch (smsError) {
+        console.error("Failed to send delivery fee SMS notification:", smsError);
+        // We don't fail the request if SMS fails
       }
     }
 

@@ -17,6 +17,7 @@ interface Delivery {
   dropoff_name: string;
   dropoff_phone: string;
   package_description: string | null;
+  package_image_url?: string | null;
   status: string;
   created_at: string;
   assigned_rider?: {
@@ -250,6 +251,27 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
             <div className="bg-amber-50 rounded-lg p-4 border border-amber-100 text-amber-900">
               <p className="whitespace-pre-wrap">{delivery.package_description || 'No description provided.'}</p>
             </div>
+            {delivery.package_image_url && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">Package Image:</p>
+                <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 w-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src={delivery.package_image_url} 
+                    alt="Package" 
+                    className="w-full h-auto object-contain max-h-64"
+                  />
+                  <a 
+                    href={delivery.package_image_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded backdrop-blur-sm transition-colors"
+                  >
+                    View Full
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Rider Info */}

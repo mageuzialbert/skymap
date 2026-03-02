@@ -20,6 +20,7 @@ import {
   Settings,
   CreditCard,
   FolderOpen,
+  MessageSquare,
 } from "lucide-react";
 import { getCurrentUser, logout } from "@/lib/auth";
 import { getUserRole } from "@/lib/roles";
@@ -134,6 +135,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       label: "CMS Content",
       icon: FileText,
     },
+    { href: "/dashboard/admin/sms/templates", label: "SMS", icon: MessageSquare },
   ];
 
   // Staff nav items with permission requirements

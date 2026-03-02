@@ -135,3 +135,78 @@ export async function sendOTPSMS(phone: string, code: string): Promise<SMSResult
   const message = `Your The Skymap verification code is: ${code}. Valid for 5 minutes.`;
   return sendSMS(phone, message);
 }
+
+/**
+ * Send an event-triggered SMS using a predefined template.
+ * Looks up the template by event_key, checks if active, replaces {{tags}}, and sends.
+ * 
+ * @param eventKey - The template event key (e.g. 'client_registration')
+ * @param recipientPhone - Phone number to send to
+ * @param tags - Key-value pairs to replace {{tag}} placeholders in the template body
+ * @returns SMSResult or null if template is inactive/not found
+ */
+export async function sendEventSMS(
+  eventKey: string,
+  recipientPhone: string | null | undefined,
+  tags: Record<string, string>
+): Promise<SMSResult | null> {
+  try {
+    const supabaseAdmin = getSupabaseAdmin();
+
+    // Look up template
+    const { data: template, error } = await supabaseAdmin
+      .from('sms_templates')
+      .select('*')
+      .eq('event_key', eventKey)
+      .single();
+
+    if (error || !template) {
+      console.warn(`SMS template not found for event: ${eventKey}`);
+      return null;
+    }
+
+    // Check if active
+    if (!template.active) {
+      console.log(`SMS template for event "${eventKey}" is inactive, skipping.`);
+      return null;
+    }
+
+    let finalPhone = recipientPhone;
+
+    // If the audience is admin and no phone is provided, get it from company profile
+    if (template.audience === 'admin' && !finalPhone) {
+      const { data: profile } = await supabaseAdmin
+        .from('company_profile')
+        .select('phone')
+        .eq('id', '00000000-0000-0000-0000-000000000001')
+        .single();
+        
+      if (profile?.phone) {
+        finalPhone = profile.phone;
+      } else {
+        console.warn(`Cannot send admin SMS: No phone number configured in company profile.`);
+        return null;
+      }
+    }
+
+    if (!finalPhone) {
+      console.warn(`Cannot send SMS for "${eventKey}": No recipient phone provided.`);
+      return null;
+    }
+
+    // Replace tags in the template body
+    let message = template.body;
+    for (const [key, value] of Object.entries(tags)) {
+      message = message.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
+    }
+
+    // Send via the existing sendSMS function
+    return sendSMS(finalPhone, message);
+  } catch (err) {
+    console.error(`Error sending event SMS for "${eventKey}":`, err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Unknown error',
+    };
+  }
+}

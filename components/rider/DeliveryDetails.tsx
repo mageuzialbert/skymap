@@ -22,6 +22,7 @@ interface Delivery {
   dropoff_region_id: number | null;
   dropoff_district_id: number | null;
   package_description: string | null;
+  package_image_url?: string | null;
   status: string;
   assigned_rider_id: string | null;
   created_at: string;
@@ -287,15 +288,42 @@ export default function DeliveryDetails({
       </div>
 
       {/* Package Description */}
-      {delivery.package_description && (
+      {(delivery.package_description || delivery.package_image_url) && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-2 bg-amber-100 rounded-lg">
               <FileText className="w-5 h-5 text-amber-600" />
             </div>
-            <h3 className="font-semibold text-gray-900">Package Description</h3>
+            <h3 className="font-semibold text-gray-900">Package Details</h3>
           </div>
-          <p className="text-sm text-gray-700 bg-amber-50 p-3 rounded-lg">{delivery.package_description}</p>
+          
+          {delivery.package_description && (
+            <p className="text-sm text-gray-700 bg-amber-50 p-3 rounded-lg mb-3">
+              {delivery.package_description}
+            </p>
+          )}
+
+          {delivery.package_image_url && (
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Package Image:</p>
+              <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={delivery.package_image_url} 
+                  alt="Package" 
+                  className="w-full h-auto object-contain max-h-64"
+                />
+                <a 
+                  href={delivery.package_image_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded backdrop-blur-sm transition-colors"
+                >
+                  View Full
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

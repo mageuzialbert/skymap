@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Building2, Users, BarChart3, Image, FileText, Loader2, Settings, Receipt, CreditCard } from 'lucide-react';
+import { Building2, Users, BarChart3, Image, FileText, Loader2, Settings, Receipt, CreditCard, MessageSquare } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import { useRouter } from 'next/navigation';
 
@@ -116,6 +116,20 @@ export default function AdminDashboard() {
       icon: CreditCard,
       href: '/dashboard/admin/payment-instructions',
       color: 'bg-violet-500',
+    },
+    {
+      title: 'SMS Templates',
+      description: 'Manage predefined SMS templates for events',
+      icon: MessageSquare,
+      href: '/dashboard/admin/sms/templates',
+      color: 'bg-sky-500',
+    },
+    {
+      title: 'Send SMS',
+      description: 'Send custom SMS to clients',
+      icon: MessageSquare,
+      href: '/dashboard/admin/sms/send',
+      color: 'bg-rose-500',
     },
   ];
 
