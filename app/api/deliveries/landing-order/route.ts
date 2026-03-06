@@ -208,15 +208,89 @@ export async function POST(request: NextRequest) {
         .update({ phone_verified: true })
         .eq('id', userId);
 
-      // Get business ID
-      if (existingUser.role === 'BUSINESS') {
-        const { data: businessData } = await supabaseAdmin
+      // Get or create business for this user
+      const { data: existingBusiness } = await supabaseAdmin
+        .from('businesses')
+        .select('id, name')
+        .eq('user_id', userId)
+        .single();
+
+      if (existingBusiness) {
+        businessId = existingBusiness.id;
+
+        // Update business name/phone from pickup details if it was a placeholder
+        const businessName = pickup_name || existingBusiness.name;
+        if (existingBusiness.name === 'My Business' && pickup_name) {
+          await supabaseAdmin
+            .from('businesses')
+            .update({
+              name: businessName,
+              phone: phoneNumber,
+              address: pickup_address || null,
+            })
+            .eq('id', businessId);
+
+          // Also update user name to match
+          await supabaseAdmin
+            .from('users')
+            .update({ name: businessName })
+            .eq('id', userId);
+        }
+      } else {
+        // No business record exists — create one using pickup details
+        const businessName = pickup_name || existingUser.name || 'My Business';
+
+        // Parse coordinates
+        let bizLat = null;
+        let bizLng = null;
+        if (pickup_latitude !== undefined && pickup_latitude !== null) {
+          const lat = parseFloat(pickup_latitude);
+          if (!isNaN(lat) && lat >= -90 && lat <= 90) bizLat = lat;
+        }
+        if (pickup_longitude !== undefined && pickup_longitude !== null) {
+          const lng = parseFloat(pickup_longitude);
+          if (!isNaN(lng) && lng >= -180 && lng <= 180) bizLng = lng;
+        }
+
+        const { data: newBusiness, error: newBizError } = await supabaseAdmin
           .from('businesses')
+          .insert({
+            name: businessName,
+            phone: phoneNumber,
+            user_id: userId,
+            billing_cycle: 'WEEKLY',
+            active: true,
+            address: pickup_address || null,
+            latitude: bizLat,
+            longitude: bizLng,
+          })
           .select('id')
-          .eq('user_id', userId)
           .single();
 
-        businessId = businessData?.id || null;
+        if (!newBizError && newBusiness) {
+          businessId = newBusiness.id;
+
+          // Update user role to BUSINESS if not already
+          if (existingUser.role !== 'BUSINESS') {
+            await supabaseAdmin
+              .from('users')
+              .update({ role: 'BUSINESS', name: businessName })
+              .eq('id', userId);
+          }
+
+          // Send admin SMS notification for new business registration
+          try {
+            const { sendEventSMS } = await import('@/lib/sms');
+            await sendEventSMS('admin_new_business', null, {
+              business_name: businessName,
+              business_phone: phoneNumber,
+            });
+          } catch (smsErr) {
+            console.error('Failed to send admin new business SMS:', smsErr);
+          }
+        } else {
+          console.error('Failed to create business for existing user:', newBizError);
+        }
       }
     } else {
       return NextResponse.json(
