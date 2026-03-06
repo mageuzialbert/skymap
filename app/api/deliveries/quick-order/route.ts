@@ -149,6 +149,27 @@ export async function POST(request: NextRequest) {
         created_by: userId,
       });
 
+    // Send admin SMS notification for new delivery order
+    try {
+      const { sendEventSMS } = await import('@/lib/sms');
+      let businessName = 'Unknown';
+      if (businessId) {
+        const { data: biz } = await supabaseAdmin
+          .from('businesses')
+          .select('name')
+          .eq('id', businessId)
+          .single();
+        if (biz?.name) businessName = biz.name;
+      }
+      const shortId = deliveryData.id.substring(0, 8);
+      await sendEventSMS('admin_new_order', null, {
+        delivery_id: shortId,
+        business_name: businessName,
+      });
+    } catch (smsErr) {
+      console.error('Failed to send admin new order SMS:', smsErr);
+    }
+
     return NextResponse.json({
       success: true,
       deliveryId: deliveryData.id,

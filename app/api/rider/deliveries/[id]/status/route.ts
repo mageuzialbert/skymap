@@ -59,7 +59,7 @@ export async function PUT(
     // Verify delivery exists and is assigned to this rider
     const { data: delivery, error: deliveryError } = await supabaseAdmin
       .from('deliveries')
-      .select('id, status, assigned_rider_id')
+      .select('id, status, assigned_rider_id, businesses:business_id ( name )')
       .eq('id', params.id)
       .single();
 
@@ -129,10 +129,20 @@ export async function PUT(
         created_by: user.id,
       });
 
-    // TODO: Send SMS notifications based on status
-    // - PICKED_UP → Send to dropoff customer
-    // - DELIVERED → Send to business + customer
-    // - FAILED → Send to business
+    // Send admin SMS notification when delivery is completed
+    if (status === 'DELIVERED') {
+      try {
+        const { sendEventSMS } = await import('@/lib/sms');
+        const businessName = (delivery as any).businesses?.name || 'Unknown';
+        const shortId = params.id.substring(0, 8);
+        await sendEventSMS('admin_order_complete', null, {
+          delivery_id: shortId,
+          business_name: businessName,
+        });
+      } catch (smsErr) {
+        console.error('Failed to send admin order complete SMS:', smsErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,

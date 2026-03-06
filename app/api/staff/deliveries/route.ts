@@ -326,6 +326,24 @@ export async function POST(request: NextRequest) {
       created_by: user.id,
     });
 
+    // Send admin SMS notification for new delivery order
+    try {
+      const { sendEventSMS } = await import("@/lib/sms");
+      // Fetch business name for the SMS template
+      const { data: bizForSms } = await supabaseAdmin
+        .from("businesses")
+        .select("name")
+        .eq("id", business_id)
+        .single();
+      const shortId = deliveryData.id.substring(0, 8);
+      await sendEventSMS("admin_new_order", null, {
+        delivery_id: shortId,
+        business_name: bizForSms?.name || "Unknown",
+      });
+    } catch (smsErr) {
+      console.error("Failed to send admin new order SMS:", smsErr);
+    }
+
     // When rider creates and self-assigns, notify company profile so they can confirm
     if (isRider) {
       try {

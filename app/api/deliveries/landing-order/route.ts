@@ -186,6 +186,17 @@ export async function POST(request: NextRequest) {
       }
 
       businessId = businessData.id;
+
+      // Send admin SMS notification for new business registration
+      try {
+        const { sendEventSMS } = await import('@/lib/sms');
+        await sendEventSMS('admin_new_business', null, {
+          business_name: businessName,
+          business_phone: phoneNumber,
+        });
+      } catch (smsErr) {
+        console.error('Failed to send admin new business SMS:', smsErr);
+      }
     } else if (existingUser) {
       // User exists
       userId = existingUser.id;
@@ -333,6 +344,28 @@ export async function POST(request: NextRequest) {
         note: 'Delivery created via landing page',
         created_by: userId,
       });
+
+    // Send admin SMS notification for new delivery order
+    try {
+      const { sendEventSMS } = await import('@/lib/sms');
+      // Determine business name
+      let businessName = pickup_name || 'Unknown';
+      if (businessId) {
+        const { data: biz } = await supabaseAdmin
+          .from('businesses')
+          .select('name')
+          .eq('id', businessId)
+          .single();
+        if (biz?.name) businessName = biz.name;
+      }
+      const shortId = deliveryData.id.substring(0, 8);
+      await sendEventSMS('admin_new_order', null, {
+        delivery_id: shortId,
+        business_name: businessName,
+      });
+    } catch (smsErr) {
+      console.error('Failed to send admin new order SMS:', smsErr);
+    }
 
     return NextResponse.json({
       success: true,

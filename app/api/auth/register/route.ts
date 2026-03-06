@@ -140,6 +140,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Return success (client will need to sign in separately)
+    // Send admin SMS notification for new business registration
+    try {
+      const { sendEventSMS } = await import('@/lib/sms');
+      await sendEventSMS('admin_new_business', null, {
+        business_name: businessName,
+        business_phone: phoneNumber,
+      });
+    } catch (smsErr) {
+      console.error('Failed to send admin new business SMS:', smsErr);
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Registration successful. Please sign in.',
