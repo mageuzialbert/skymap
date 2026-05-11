@@ -56,12 +56,12 @@ export default function AddressInput({
     }
   };
 
-  const iconColor = icon === 'pickup' ? 'text-blue-500' : 'text-amber-500';
-  const iconBg = icon === 'pickup' ? 'bg-blue-50' : 'bg-amber-50';
+  const iconColor = icon === 'pickup' ? 'text-primary' : 'text-secondary-dark';
+  const iconBg = icon === 'pickup' ? 'bg-primary/10' : 'bg-secondary/15';
 
   return (
     <div className="relative">
-      <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
+      <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary transition-all">
         {/* Icon */}
         <div className={`p-3 ${iconBg}`}>
           <MapPin className={`w-5 h-5 ${iconColor}`} />
@@ -75,6 +75,7 @@ export default function AddressInput({
           onChange={(e) => setSearchValue(e.target.value)}
           disabled={!ready}
           placeholder={placeholder}
+          autoComplete="street-address"
           className="flex-1 py-3 pr-2 text-gray-900 placeholder-gray-400 focus:outline-none text-sm"
         />
 

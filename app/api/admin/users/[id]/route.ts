@@ -70,6 +70,8 @@ export async function PUT(
       role: userRole,
       active,
       permissions,
+      profile_picture_url,
+      license_number,
     } = await request.json();
 
     // Verify user exists
@@ -110,6 +112,11 @@ export async function PUT(
       updates.role = userRole;
     }
     if (active !== undefined) updates.active = active;
+    if (profile_picture_url !== undefined) updates.profile_picture_url = profile_picture_url;
+    if (license_number !== undefined) {
+      const finalRole = userRole || existingUser.role;
+      updates.license_number = finalRole === 'RIDER' ? (license_number || null) : null;
+    }
 
     // Update user record
     const { data: updatedUser, error: updateError } = await supabaseAdmin
@@ -184,7 +191,7 @@ export async function PUT(
   }
 }
 
-// DELETE - Deactivate user (soft delete)
+// DELETE - Deactivate (default) or hard-delete user (?hard=true)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -202,7 +209,7 @@ export async function DELETE(
     // Don't allow deleting yourself
     if (params.id === user.id) {
       return NextResponse.json(
-        { error: 'Cannot deactivate your own account' },
+        { error: 'Cannot delete your own account' },
         { status: 400 }
       );
     }
@@ -219,6 +226,24 @@ export async function DELETE(
         { error: 'User not found' },
         { status: 404 }
       );
+    }
+
+    const hardDelete = request.nextUrl.searchParams.get('hard') === 'true';
+
+    if (hardDelete) {
+      // Hard delete: remove the auth user (cascades to public.users via FK ON DELETE CASCADE)
+      const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(params.id);
+      if (authDeleteError) {
+        return NextResponse.json(
+          { error: authDeleteError.message },
+          { status: 500 }
+        );
+      }
+
+      // Defensive: if the FK doesn't cascade in this environment, also remove the row
+      await supabaseAdmin.from('users').delete().eq('id', params.id);
+
+      return NextResponse.json({ success: true, deleted: true });
     }
 
     // Soft delete by setting active to false
@@ -241,7 +266,7 @@ export async function DELETE(
       user: updatedUser,
     });
   } catch (error) {
-    console.error('Error deactivating user:', error);
+    console.error('Error deleting user:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

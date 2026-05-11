@@ -1,36 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useLoadScript } from '@react-google-maps/api';
-import LandingMap from '@/components/landing/LandingMap';
-import OrderPanel from '@/components/landing/OrderPanel';
 import HeroSlider from '@/components/landing/HeroSlider';
 import SlideMenu from '@/components/landing/SlideMenu';
 import Link from 'next/link';
-import { LocationState } from '@/components/landing/types';
-import { Loader2, Menu, Video, VolumeX } from 'lucide-react';
+import { Menu, Video, VolumeX, Phone, MessageCircle, Package, ArrowRight } from 'lucide-react';
 
-const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = ['places'];
-
-const initialLocation: LocationState = {
-  address: '',
-  latitude: null,
-  longitude: null,
-  name: '',
-  phone: '',
-};
+const SKYMAP_PHONE = '+255687371544';
+const SKYMAP_WHATSAPP = '255687371544'; // wa.me format: digits only, no '+'
 
 export default function Home() {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
-  
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: apiKey,
-    libraries,
-  });
-
-  const [pickup, setPickup] = useState<LocationState>(initialLocation);
-  const [dropoff, setDropoff] = useState<LocationState>(initialLocation);
-  const [isCheckingPhone, setIsCheckingPhone] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -44,11 +23,9 @@ export default function Home() {
       audio.play().then(() => setIsPlaying(true)).catch(() => {});
     };
 
-    // Try immediate autoplay
     audio.play().then(() => {
       setIsPlaying(true);
     }).catch(() => {
-      // Browser blocked autoplay — start on first user interaction
       setIsPlaying(false);
       const startOnInteraction = () => {
         tryPlay();
@@ -76,91 +53,19 @@ export default function Home() {
     }
   };
 
-  const handlePickupChange = (field: keyof LocationState, value: any) => {
-    setPickup(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleDropoffChange = (field: keyof LocationState, value: any) => {
-    setDropoff(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handlePhoneBlur = async (phone: string) => {
-    if (!phone || phone.length < 10) return;
-    
-    setIsCheckingPhone(true);
-    try {
-      const response = await fetch('/api/deliveries/check-phone', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.exists && data.name) {
-          handlePickupChange('name', data.name);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking phone:', error);
-    } finally {
-      setIsCheckingPhone(false);
-    }
-  };
-
-  // Fallback without maps
-  if (!apiKey || loadError) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary to-primary-dark p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <div className="mb-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/icon.svg" alt="The Skaymap" className="w-16 h-16 mx-auto" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">The Skaymap</h1>
-          <p className="text-gray-600 mb-6">Fast, Reliable Delivery</p>
-          
-          {!apiKey && (
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm mb-4">
-              Google Maps API key not configured.
-            </div>
-          )}
-          
-          <Link 
-            href="/quick-order" 
-            className="block w-full bg-primary text-white font-semibold py-3 rounded-xl hover:bg-primary-dark transition-colors"
-          >
-            Order Delivery
-          </Link>
-          <div className="mt-4 flex gap-4 justify-center">
-            <Link href="/login" className="text-primary hover:underline">Login</Link>
-            <Link href="/register" className="text-primary hover:underline">Register</Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
     <>
       {/* Slide Menu */}
       <SlideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      <main className="fixed inset-0 overflow-hidden bg-gray-100">
+      <main className="fixed inset-0 overflow-hidden bg-gradient-to-br from-primary/10 via-white to-primary/5">
         {/* Header - Minimal */}
         <div className="absolute top-0 left-0 right-0 z-20 p-3 flex items-center justify-between pointer-events-none">
           {/* Menu Button */}
-          <button 
+          <button
             onClick={() => setMenuOpen(true)}
             className="pointer-events-auto p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg active:scale-95 transition-transform"
+            aria-label="Open menu"
           >
             <Menu className="w-6 h-6 text-gray-700" />
           </button>
@@ -169,7 +74,7 @@ export default function Home() {
           <div className="pointer-events-auto flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/icons/icon.png" alt="The Skymap" className="w-8 h-8" />
-            <span className="text-lg font-bold text-white drop-shadow-lg">The Skymap</span>
+            <span className="text-lg font-bold text-gray-900 drop-shadow-sm">The Skymap</span>
           </div>
 
           {/* Audio Play/Pause Button */}
@@ -177,6 +82,7 @@ export default function Home() {
             onClick={handleToggleAudio}
             className="pointer-events-auto p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg active:scale-95 transition-transform"
             title={isPlaying ? 'Pause audio' : 'Play audio'}
+            aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
           >
             {isPlaying ? (
               <Video className="w-6 h-6 text-primary" />
@@ -186,25 +92,59 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Promotions Slider - Prominent */}
-        <div className="absolute top-16 left-3 right-3 z-10">
-          <HeroSlider height="tall" />
+        {/* Hero Slider - Starts below the top bar, extends to the bottom (behind the CTA overlay) */}
+        <div className="absolute inset-x-0 top-16 bottom-0 z-0">
+          <HeroSlider height="fill" />
         </div>
 
-        {/* Map Background */}
-        <LandingMap pickup={pickup} dropoff={dropoff} />
-
-        {/* Floating Order Panel */}
-        <OrderPanel 
-          pickup={pickup}
-          dropoff={dropoff}
-          onPickupChange={handlePickupChange}
-          onDropoffChange={handleDropoffChange}
-          onPhoneBlur={handlePhoneBlur}
-          isCheckingPhone={isCheckingPhone}
+        {/* Subtle dark fade at the bottom for CTA legibility over any slider image */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-64 z-10 bg-gradient-to-t from-black/70 via-black/30 to-transparent"
         />
+
+        {/* Bottom CTA - Glass overlay on slider */}
+        <div className="absolute bottom-0 left-0 right-0 z-20 p-3 pb-5">
+          <div className="space-y-2.5 max-w-2xl mx-auto">
+            {/* Primary CTA: Order Delivery */}
+            <Link
+              href="/order"
+              className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-white text-base font-bold rounded-2xl shadow-xl shadow-black/30 active:scale-[0.98] transition-transform"
+            >
+              <Package className="w-5 h-5" />
+              <span>Order Delivery</span>
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+
+            {/* Contact CTAs - glassmorphism */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <a
+                href={`tel:${SKYMAP_PHONE}`}
+                className="flex items-center justify-center gap-2 py-3 bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white font-semibold rounded-2xl transition-colors active:scale-[0.98] shadow-lg shadow-black/20"
+              >
+                <Phone className="w-5 h-5" />
+                <span>Call</span>
+              </a>
+              <a
+                href={`https://wa.me/${SKYMAP_WHATSAPP}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 py-3 bg-green-500/30 hover:bg-green-500/50 backdrop-blur-md border border-white/30 text-white font-semibold rounded-2xl transition-colors active:scale-[0.98] shadow-lg shadow-black/20"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span>WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
         {/* Background Audio (loops until paused) — hosted on Supabase Storage */}
-        <audio ref={audioRef} src="https://ergemtnsxdvbboyjxdyy.supabase.co/storage/v1/object/public/assets/audio/skymap-audio.mp3" preload="auto" loop />
+        <audio
+          ref={audioRef}
+          src="https://ergemtnsxdvbboyjxdyy.supabase.co/storage/v1/object/public/assets/audio/skymap-audio.mp3"
+          preload="auto"
+          loop
+        />
       </main>
     </>
   );

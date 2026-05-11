@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, X, Loader2 } from 'lucide-react';
-import { getUserRole } from '@/lib/roles';
 import { usePermissions } from '@/lib/permissions-context';
 import UsersTable from '@/components/users/UsersTable';
 import UserForm, { UserFormData } from '@/components/users/UserForm';
+import UserDetailsModal, { RiderUser } from '@/components/users/UserDetailsModal';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 
 interface User {
   id: string;
@@ -17,7 +18,14 @@ interface User {
   active: boolean;
   created_at: string;
   permissions?: string[];
+  profile_picture_url?: string | null;
+  license_number?: string | null;
 }
+
+type ConfirmAction =
+  | { kind: 'toggleActive'; user: User }
+  | { kind: 'softDelete'; userId: string }
+  | { kind: 'hardDelete'; user: User };
 
 export default function AdminUsersPage() {
   const router = useRouter();
@@ -31,7 +39,11 @@ export default function AdminUsersPage() {
   const [error, setError] = useState('');
   const [loadingPermissions, setLoadingPermissions] = useState(false);
 
-  // Check if user can access this page
+  const [detailsUser, setDetailsUser] = useState<User | null>(null);
+
+  const [confirm, setConfirm] = useState<ConfirmAction | null>(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
   const canAccess = currentRole === 'ADMIN' || hasModuleAccess('users');
   const canCreate = currentRole === 'ADMIN' || hasPermission('users.create');
   const canEdit = currentRole === 'ADMIN' || hasPermission('users.update');
@@ -39,12 +51,12 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     if (permissionsLoading) return;
-    
+
     if (!canAccess) {
       router.push('/dashboard/business');
       return;
     }
-    
+
     loadUsers();
   }, [canAccess, permissionsLoading, router]);
 
@@ -55,8 +67,8 @@ export default function AdminUsersPage() {
         const data = await response.json();
         setUsers(data);
       }
-    } catch (error) {
-      console.error('Error loading users:', error);
+    } catch (err) {
+      console.error('Error loading users:', err);
     } finally {
       setLoading(false);
     }
@@ -70,8 +82,8 @@ export default function AdminUsersPage() {
         const data = await response.json();
         setEditingPermissions(data.permissions || []);
       }
-    } catch (error) {
-      console.error('Error loading user permissions:', error);
+    } catch (err) {
+      console.error('Error loading user permissions:', err);
       setEditingPermissions([]);
     } finally {
       setLoadingPermissions(false);
@@ -84,7 +96,6 @@ export default function AdminUsersPage() {
 
     try {
       if (editingUser) {
-        // Update user
         const response = await fetch(`/api/admin/users/${editingUser.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -96,7 +107,6 @@ export default function AdminUsersPage() {
           throw new Error(errorData.error || 'Failed to update user');
         }
       } else {
-        // Create user
         const response = await fetch('/api/admin/users', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -120,30 +130,70 @@ export default function AdminUsersPage() {
     }
   }
 
-  async function handleDeactivate(userId: string) {
-    if (!confirm('Are you sure you want to deactivate this user?')) return;
-
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to deactivate user');
-      }
-
-      loadUsers();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to deactivate user');
-    }
-  }
-
   async function handleEdit(user: User) {
     setEditingUser(user);
     setShowForm(true);
-    // Load user permissions when editing
+    setDetailsUser(null);
     await loadUserPermissions(user.id);
+  }
+
+  function handleView(user: User) {
+    setDetailsUser(user);
+  }
+
+  function handleAskToggleActive(user: User) {
+    setDetailsUser(null);
+    setConfirm({ kind: 'toggleActive', user });
+  }
+
+  function handleAskDelete(user: User) {
+    setDetailsUser(null);
+    setConfirm({ kind: 'hardDelete', user });
+  }
+
+  function handleAskSoftDelete(userId: string) {
+    setConfirm({ kind: 'softDelete', userId });
+  }
+
+  async function executeConfirm() {
+    if (!confirm) return;
+    setConfirmLoading(true);
+    try {
+      if (confirm.kind === 'toggleActive') {
+        const u = confirm.user;
+        const response = await fetch(`/api/admin/users/${u.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: !u.active }),
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update status');
+        }
+      } else if (confirm.kind === 'softDelete') {
+        const response = await fetch(`/api/admin/users/${confirm.userId}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to deactivate user');
+        }
+      } else if (confirm.kind === 'hardDelete') {
+        const response = await fetch(`/api/admin/users/${confirm.user.id}?hard=true`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to delete user');
+        }
+      }
+      setConfirm(null);
+      loadUsers();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Action failed');
+    } finally {
+      setConfirmLoading(false);
+    }
   }
 
   if (loading || permissionsLoading) {
@@ -154,13 +204,51 @@ export default function AdminUsersPage() {
     );
   }
 
-  // Filter to show only STAFF and RIDER users
+  // Filter to show only STAFF and RIDER users (riders + supporting staff)
   const staffAndRiders = users.filter((u) => u.role === 'STAFF' || u.role === 'RIDER');
+
+  // Build confirm dialog props
+  const getConfirmProps = () => {
+    if (!confirm) return null;
+    if (confirm.kind === 'toggleActive') {
+      const u = confirm.user;
+      return {
+        title: u.active ? 'Deactivate user?' : 'Activate user?',
+        message: u.active
+          ? `${u.name} will no longer be able to sign in or appear in active lists. You can re-activate them at any time.`
+          : `${u.name} will be able to sign in again and appear in active lists.`,
+        confirmLabel: u.active ? 'Deactivate' : 'Activate',
+        tone: u.active ? ('warning' as const) : ('info' as const),
+      };
+    }
+    if (confirm.kind === 'softDelete') {
+      return {
+        title: 'Deactivate user?',
+        message: 'This user will be marked inactive. They can be reactivated later from this page.',
+        confirmLabel: 'Deactivate',
+        tone: 'warning' as const,
+      };
+    }
+    return {
+      title: `Permanently delete ${confirm.user.name}?`,
+      message:
+        "This will permanently remove this rider's account, login credentials and profile data. This action cannot be undone.",
+      confirmLabel: 'Delete permanently',
+      tone: 'danger' as const,
+    };
+  };
+
+  const confirmProps = getConfirmProps();
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Riders & Staff</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage rider accounts, profile photos and license numbers.
+          </p>
+        </div>
         {!showForm && canCreate && (
           <button
             onClick={() => {
@@ -168,10 +256,10 @@ export default function AdminUsersPage() {
               setEditingUser(null);
               setEditingPermissions([]);
             }}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors cursor-pointer"
           >
             <Plus className="w-5 h-5" />
-            Create User
+            Add Rider / Staff
           </button>
         )}
       </div>
@@ -189,7 +277,7 @@ export default function AdminUsersPage() {
                 setEditingPermissions([]);
                 setError('');
               }}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -219,10 +307,35 @@ export default function AdminUsersPage() {
 
       <UsersTable
         users={staffAndRiders}
+        onView={handleView}
         onEdit={canEdit ? handleEdit : undefined}
-        onDeactivate={canDelete ? handleDeactivate : undefined}
+        onDeactivate={canDelete ? handleAskSoftDelete : undefined}
         showActions={canEdit || canDelete}
       />
+
+      <UserDetailsModal
+        isOpen={!!detailsUser}
+        user={detailsUser as RiderUser}
+        canEdit={canEdit}
+        canDelete={canDelete}
+        onClose={() => setDetailsUser(null)}
+        onEdit={(u) => handleEdit(u as User)}
+        onToggleActive={(u) => handleAskToggleActive(u as User)}
+        onDelete={(u) => handleAskDelete(u as User)}
+      />
+
+      {confirmProps && (
+        <ConfirmDialog
+          isOpen={!!confirm}
+          title={confirmProps.title}
+          message={confirmProps.message}
+          confirmLabel={confirmProps.confirmLabel}
+          tone={confirmProps.tone}
+          loading={confirmLoading}
+          onConfirm={executeConfirm}
+          onCancel={() => !confirmLoading && setConfirm(null)}
+        />
+      )}
     </div>
   );
 }

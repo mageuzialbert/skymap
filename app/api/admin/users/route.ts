@@ -88,6 +88,8 @@ export async function POST(request: NextRequest) {
       password,
       role: userRole,
       permissions,
+      profile_picture_url,
+      license_number,
     } = await request.json();
 
     // Validation
@@ -165,6 +167,8 @@ export async function POST(request: NextRequest) {
         phone: phoneNumber,
         role: userRole,
         active: true,
+        profile_picture_url: profile_picture_url || null,
+        license_number: userRole === 'RIDER' ? (license_number || null) : null,
       }, {
         onConflict: 'id'
       });

@@ -15,7 +15,7 @@ interface SliderImage {
 
 interface HeroSliderProps {
   slides?: SliderImage[];
-  height?: 'compact' | 'normal' | 'tall';
+  height?: 'compact' | 'normal' | 'tall' | 'fill';
 }
 
 export default function HeroSlider({ slides = [], height = 'normal' }: HeroSliderProps) {
@@ -103,18 +103,23 @@ export default function HeroSlider({ slides = [], height = 'normal' }: HeroSlide
   const heightClasses = {
     compact: 'h-32 md:h-40',
     normal: 'h-48 md:h-64',
-    tall: 'h-56 md:h-80'
+    tall: 'h-56 md:h-80',
+    fill: 'h-full',
   };
+
+  // Fill variant: edge-to-edge, no rounded corners
+  const isFill = height === 'fill';
+  const radiusClass = isFill ? '' : 'rounded-2xl';
 
   if (isLoading) {
     return (
-      <div className={`relative w-full ${heightClasses[height]} bg-gradient-to-r from-primary/20 to-primary-dark/20 animate-pulse rounded-2xl`} />
+      <div className={`relative w-full ${heightClasses[height]} bg-gradient-to-r from-primary/20 to-primary-dark/20 animate-pulse ${radiusClass}`} />
     );
   }
 
   if (dynamicSlides.length === 0) {
     return (
-      <div className={`relative w-full ${heightClasses[height]} bg-gradient-to-r from-primary to-primary-dark flex items-center justify-center rounded-2xl overflow-hidden`}>
+      <div className={`relative w-full ${heightClasses[height]} bg-gradient-to-r from-primary to-primary-dark flex items-center justify-center ${radiusClass} overflow-hidden`}>
         <div className="text-center text-white px-4">
           <h1 className="text-xl md:text-2xl font-bold">The Skymap Logistics</h1>
           <p className="text-sm md:text-base opacity-90">Fast, Reliable Delivery</p>
@@ -126,8 +131,8 @@ export default function HeroSlider({ slides = [], height = 'normal' }: HeroSlide
   const currentSlide = dynamicSlides[currentIndex];
 
   return (
-    <div 
-      className={`relative w-full ${heightClasses[height]} overflow-hidden rounded-2xl`}
+    <div
+      className={`relative w-full ${heightClasses[height]} overflow-hidden ${radiusClass}`}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
