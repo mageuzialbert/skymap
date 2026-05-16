@@ -12,46 +12,72 @@ const SKYMAP_WHATSAPP = '255687371544'; // wa.me format: digits only, no '+'
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
-  // Autoplay audio on mount — if browser blocks, start on first user interaction
+  // Browsers block unmuted autoplay without prior engagement, but muted autoplay
+  // is always allowed. So: start muted+playing, try to unmute immediately, and
+  // fall back to unmuting on the first user interaction anywhere on the page.
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const tryPlay = () => {
-      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+    const unmute = (e: Event) => {
+      // Don't auto-unmute clicks on the audio toggle button itself —
+      // let its own handler decide what to do.
+      const target = e.target as Element | null;
+      if (target?.closest('[data-audio-toggle]')) return;
+      audio.muted = false;
+      setIsMuted(false);
+      if (audio.paused) {
+        audio.play().then(() => setIsPlaying(true)).catch(() => {});
+      }
+      removeListeners();
     };
 
-    audio.play().then(() => {
-      setIsPlaying(true);
-    }).catch(() => {
-      setIsPlaying(false);
-      const startOnInteraction = () => {
-        tryPlay();
-        document.removeEventListener('click', startOnInteraction);
-        document.removeEventListener('touchstart', startOnInteraction);
-      };
-      document.addEventListener('click', startOnInteraction);
-      document.addEventListener('touchstart', startOnInteraction);
+    const removeListeners = () => {
+      document.removeEventListener('click', unmute);
+      document.removeEventListener('touchstart', unmute);
+      document.removeEventListener('keydown', unmute);
+    };
 
-      return () => {
-        document.removeEventListener('click', startOnInteraction);
-        document.removeEventListener('touchstart', startOnInteraction);
-      };
-    });
+    // First attempt: unmuted autoplay (succeeds for returning visitors / installed PWA)
+    audio.muted = false;
+    audio.play()
+      .then(() => {
+        setIsPlaying(true);
+        setIsMuted(false);
+      })
+      .catch(() => {
+        // Blocked. Mute + autoplay (always allowed) and arm interaction listeners.
+        audio.muted = true;
+        setIsMuted(true);
+        audio.play()
+          .then(() => setIsPlaying(true))
+          .catch(() => setIsPlaying(false));
+        document.addEventListener('click', unmute);
+        document.addEventListener('touchstart', unmute);
+        document.addEventListener('keydown', unmute);
+      });
+
+    return removeListeners;
   }, []);
 
   const handleToggleAudio = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (audio.paused) {
-      audio.play().then(() => setIsPlaying(true));
-    } else {
+    // If audio is audible right now → mute/pause it. Otherwise enable sound.
+    if (!audio.paused && !audio.muted) {
       audio.pause();
       setIsPlaying(false);
+    } else {
+      audio.muted = false;
+      setIsMuted(false);
+      audio.play().then(() => setIsPlaying(true)).catch(() => {});
     }
   };
+
+  const isAudible = isPlaying && !isMuted;
 
   return (
     <>
@@ -79,12 +105,13 @@ export default function Home() {
 
           {/* Audio Play/Pause Button */}
           <button
+            data-audio-toggle
             onClick={handleToggleAudio}
             className="pointer-events-auto p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg active:scale-95 transition-transform"
-            title={isPlaying ? 'Pause audio' : 'Play audio'}
-            aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
+            title={isAudible ? 'Mute audio' : 'Play audio'}
+            aria-label={isAudible ? 'Mute audio' : 'Play audio'}
           >
-            {isPlaying ? (
+            {isAudible ? (
               <Volume2 className="w-6 h-6 text-primary" />
             ) : (
               <VolumeX className="w-6 h-6 text-gray-700" />
@@ -138,11 +165,15 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Background Audio (loops until paused) — hosted on Supabase Storage */}
+        {/* Background Audio (loops until paused) — hosted on Supabase Storage.
+            autoPlay+muted is the only autoplay combo browsers reliably honor; the
+            effect above unmutes ASAP or on first user interaction. */}
         <audio
           ref={audioRef}
           src="https://ergemtnsxdvbboyjxdyy.supabase.co/storage/v1/object/public/assets/audio/skymap-audio.mp3"
           preload="auto"
+          autoPlay
+          muted
           loop
         />
       </main>
