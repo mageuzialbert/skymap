@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import HeroSlider from '@/components/landing/HeroSlider';
 import SlideMenu from '@/components/landing/SlideMenu';
 import Link from 'next/link';
-import { Menu, Video, VolumeX, Phone, MessageCircle, Package, ArrowRight } from 'lucide-react';
+import { Menu, Volume2, VolumeX, Phone, MessageCircle, Package, ArrowRight } from 'lucide-react';
 
 const SKYMAP_PHONE = '+255687371544';
 const SKYMAP_WHATSAPP = '255687371544'; // wa.me format: digits only, no '+'
@@ -73,7 +73,7 @@ export default function Home() {
           {/* Logo - Centered */}
           <div className="pointer-events-auto flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/icon.png" alt="The Skymap" className="w-8 h-8" />
+            <img src="/icons/logo.png" alt="The Skymap" className="w-8 h-8" />
             <span className="text-lg font-bold text-gray-900 drop-shadow-sm">The Skymap</span>
           </div>
 
@@ -85,7 +85,7 @@ export default function Home() {
             aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
           >
             {isPlaying ? (
-              <Video className="w-6 h-6 text-primary" />
+              <Volume2 className="w-6 h-6 text-primary" />
             ) : (
               <VolumeX className="w-6 h-6 text-gray-700" />
             )}

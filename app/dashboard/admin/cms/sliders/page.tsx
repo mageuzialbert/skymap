@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Plus, X, Loader2, Upload, Image as ImageIcon, Trash2 } from 'lucide-react';
+import { Plus, X, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface Slider {
   id: string;
@@ -11,6 +12,27 @@ interface Slider {
   cta_link: string | null;
   order_index: number;
   active: boolean;
+}
+
+interface PendingFile {
+  file: File;
+  previewUrl: string;
+}
+
+const MAX_FILES = 10;
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const SLIDER_BUCKET = 'slider-images';
+
+async function readError(response: Response): Promise<string> {
+  const text = await response.text().catch(() => '');
+  if (!text) return `Request failed (HTTP ${response.status})`;
+  try {
+    const data = JSON.parse(text);
+    return data?.error || `Request failed (HTTP ${response.status})`;
+  } catch {
+    return text.length > 200 ? `${text.slice(0, 200)}…` : text;
+  }
 }
 
 export default function AdminSlidersPage() {
@@ -28,30 +50,35 @@ export default function AdminSlidersPage() {
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  
+
   // File upload states
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isEditMode = editingSlider !== null;
+  const isBatchMode = !isEditMode && pendingFiles.length > 1;
 
   useEffect(() => {
     loadSliders();
   }, []);
 
-  // Set preview URL when editing an existing slider
+  // Clean up preview object URLs when component unmounts or files change
   useEffect(() => {
-    if (editingSlider && formData.image_url) {
-      setPreviewUrl(formData.image_url);
-    }
-  }, [editingSlider, formData.image_url]);
+    return () => {
+      pendingFiles.forEach((pf) => {
+        if (pf.previewUrl.startsWith('blob:')) URL.revokeObjectURL(pf.previewUrl);
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function loadSliders() {
     try {
       const response = await fetch('/api/admin/cms/sliders');
-      if (!response.ok) throw new Error('Failed to load sliders');
+      if (!response.ok) throw new Error(await readError(response));
       const data = await response.json();
       setSliders(data);
     } catch (err) {
@@ -61,30 +88,65 @@ export default function AdminSlidersPage() {
     }
   }
 
-  // Handle file selection
-  const handleFileSelect = useCallback((file: File) => {
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      setError('Invalid file type. Please upload JPEG, PNG, or WebP images.');
-      return;
-    }
-    
-    // Validate file size (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setError('File size exceeds 10MB limit.');
-      return;
-    }
-    
-    setError('');
-    setSelectedFile(file);
-    
-    // Create preview URL
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-  }, []);
+  // Validate and add files to the pending queue
+  const addFiles = useCallback(
+    (incoming: FileList | File[]) => {
+      const files = Array.from(incoming);
+      if (!files.length) return;
 
-  // Handle drag and drop
+      setError('');
+
+      const valid: PendingFile[] = [];
+      const errors: string[] = [];
+
+      for (const file of files) {
+        if (!ALLOWED_TYPES.includes(file.type)) {
+          errors.push(`${file.name}: unsupported type (use JPEG, PNG, or WebP)`);
+          continue;
+        }
+        if (file.size > MAX_FILE_SIZE) {
+          errors.push(`${file.name}: exceeds 50MB`);
+          continue;
+        }
+        valid.push({ file, previewUrl: URL.createObjectURL(file) });
+      }
+
+      setPendingFiles((prev) => {
+        const limit = isEditMode ? 1 : MAX_FILES;
+        // In edit mode, a new selection replaces the existing one; revoke its URL first.
+        if (isEditMode) {
+          prev.forEach((pf) => {
+            if (pf.previewUrl.startsWith('blob:')) URL.revokeObjectURL(pf.previewUrl);
+          });
+          return valid.slice(0, 1);
+        }
+        const next = [...prev, ...valid];
+        if (next.length > limit) {
+          // Revoke object URLs of overflow files we drop
+          next.slice(limit).forEach((pf) => {
+            if (pf.previewUrl.startsWith('blob:')) URL.revokeObjectURL(pf.previewUrl);
+          });
+          errors.push(`Only the first ${limit} images were added (max ${limit} per upload).`);
+          return next.slice(0, limit);
+        }
+        return next;
+      });
+
+      if (errors.length) setError(errors.join(' • '));
+    },
+    [isEditMode]
+  );
+
+  const removeFile = (index: number) => {
+    setPendingFiles((prev) => {
+      const target = prev[index];
+      if (target && target.previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -95,71 +157,40 @@ export default function AdminSlidersPage() {
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileSelect(files[0]);
-    }
-  }, [handleFileSelect]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
+    },
+    [addFiles]
+  );
 
-  // Handle file input change
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileSelect(files[0]);
-    }
+    if (e.target.files && e.target.files.length > 0) addFiles(e.target.files);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // Upload file to Supabase
-  const uploadFile = async (): Promise<string | null> => {
-    if (!selectedFile) return formData.image_url || null;
-    
-    setUploading(true);
-    setUploadProgress(10);
-    
-    try {
-      const uploadFormData = new FormData();
-      uploadFormData.append('file', selectedFile);
-      
-      setUploadProgress(30);
-      
-      const response = await fetch('/api/admin/cms/sliders/upload', {
-        method: 'POST',
-        body: uploadFormData,
-      });
-      
-      setUploadProgress(70);
-      
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to upload image');
-      }
-      
-      const data = await response.json();
-      setUploadProgress(100);
-      
-      return data.url;
-    } catch (err) {
-      throw err;
-    } finally {
-      setUploading(false);
-      setUploadProgress(0);
-    }
+  // Upload a single file directly to Supabase Storage (bypasses Next.js body limits)
+  const uploadOne = async (file: File): Promise<string> => {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const fileName = `slider-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+    const { error: uploadErr } = await supabase.storage
+      .from(SLIDER_BUCKET)
+      .upload(fileName, file, { upsert: false, contentType: file.type });
+
+    if (uploadErr) throw new Error(uploadErr.message);
+
+    const { data } = supabase.storage.from(SLIDER_BUCKET).getPublicUrl(fileName);
+    return data.publicUrl;
   };
 
-  // Clear file selection
-  const clearFileSelection = () => {
-    setSelectedFile(null);
-    if (previewUrl && !editingSlider) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    setPreviewUrl(editingSlider ? formData.image_url : '');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+  const clearPendingFiles = () => {
+    pendingFiles.forEach((pf) => {
+      if (pf.previewUrl.startsWith('blob:')) URL.revokeObjectURL(pf.previewUrl);
+    });
+    setPendingFiles([]);
   };
 
   async function handleSubmit(e: React.FormEvent) {
@@ -168,34 +199,53 @@ export default function AdminSlidersPage() {
     setSubmitting(true);
 
     try {
-      // Upload file first if selected
-      let imageUrl = formData.image_url;
-      if (selectedFile) {
-        const uploadedUrl = await uploadFile();
-        if (!uploadedUrl) {
-          throw new Error('Failed to upload image');
+      // EDIT MODE — single slider, optional new image
+      if (editingSlider) {
+        let imageUrl = formData.image_url;
+        if (pendingFiles[0]) {
+          setUploading(true);
+          setUploadProgress({ current: 0, total: 1 });
+          imageUrl = await uploadOne(pendingFiles[0].file);
+          setUploadProgress({ current: 1, total: 1 });
+          setUploading(false);
         }
-        imageUrl = uploadedUrl;
-      }
-      
-      if (!imageUrl) {
-        throw new Error('Please upload an image');
-      }
+        if (!imageUrl) throw new Error('Please upload an image');
 
-      const url = editingSlider
-        ? `/api/admin/cms/sliders/${editingSlider.id}`
-        : '/api/admin/cms/sliders';
-      const method = editingSlider ? 'PUT' : 'POST';
+        const response = await fetch(`/api/admin/cms/sliders/${editingSlider.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...formData, image_url: imageUrl }),
+        });
+        if (!response.ok) throw new Error(await readError(response));
+      } else {
+        // CREATE MODE — one or many sliders
+        if (pendingFiles.length === 0) throw new Error('Please select at least one image');
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, image_url: imageUrl }),
-      });
+        setUploading(true);
+        setUploadProgress({ current: 0, total: pendingFiles.length });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to save slider');
+        for (let i = 0; i < pendingFiles.length; i++) {
+          const url = await uploadOne(pendingFiles[i].file);
+          setUploadProgress({ current: i + 1, total: pendingFiles.length });
+
+          const isBatch = pendingFiles.length > 1;
+          const response = await fetch('/api/admin/cms/sliders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image_url: url,
+              // In batch mode caption/cta would be ambiguous; leave empty so the
+              // admin can edit each slider individually afterward.
+              caption: isBatch ? null : formData.caption || null,
+              cta_text: isBatch ? null : formData.cta_text || null,
+              cta_link: isBatch ? null : formData.cta_link || null,
+              order_index: formData.order_index + i,
+              active: formData.active,
+            }),
+          });
+          if (!response.ok) throw new Error(await readError(response));
+        }
+        setUploading(false);
       }
 
       // Reset form
@@ -209,25 +259,22 @@ export default function AdminSlidersPage() {
         order_index: 0,
         active: true,
       });
-      setSelectedFile(null);
-      setPreviewUrl('');
+      clearPendingFiles();
       loadSliders();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save slider');
     } finally {
       setSubmitting(false);
+      setUploading(false);
+      setUploadProgress({ current: 0, total: 0 });
     }
   }
 
   async function handleDelete(id: string) {
     if (!confirm('Are you sure you want to delete this slider?')) return;
-
     try {
-      const response = await fetch(`/api/admin/cms/sliders/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) throw new Error('Failed to delete slider');
+      const response = await fetch(`/api/admin/cms/sliders/${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error(await readError(response));
       loadSliders();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete slider');
@@ -244,8 +291,7 @@ export default function AdminSlidersPage() {
       order_index: slider.order_index,
       active: slider.active,
     });
-    setSelectedFile(null);
-    setPreviewUrl(slider.image_url);
+    clearPendingFiles();
     setShowForm(true);
   }
 
@@ -260,8 +306,7 @@ export default function AdminSlidersPage() {
       order_index: sliders.length,
       active: true,
     });
-    setSelectedFile(null);
-    setPreviewUrl('');
+    clearPendingFiles();
     setError('');
   }
 
@@ -272,6 +317,10 @@ export default function AdminSlidersPage() {
       </div>
     );
   }
+
+  // Determine what to show in the image area
+  const showExistingImage = isEditMode && pendingFiles.length === 0 && formData.image_url;
+  const remainingSlots = isEditMode ? 0 : MAX_FILES - pendingFiles.length;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -314,18 +363,19 @@ export default function AdminSlidersPage() {
             {/* Image Upload Section */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Slider Image *
+                Slider Image{isEditMode ? '' : 's'} *
               </label>
-              
-              {/* Preview or Upload Zone */}
-              {previewUrl ? (
+
+              {/* Existing image in edit mode (no new file picked) */}
+              {showExistingImage && (
                 <div className="relative rounded-xl overflow-hidden bg-gray-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={previewUrl}
-                    alt="Preview"
+                    src={formData.image_url}
+                    alt="Current"
                     className="w-full h-48 sm:h-64 object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
@@ -334,22 +384,55 @@ export default function AdminSlidersPage() {
                       <Upload className="w-4 h-4" />
                       Replace
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Selected files grid */}
+              {pendingFiles.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {pendingFiles.map((pf, i) => (
+                    <div
+                      key={`${pf.file.name}-${i}`}
+                      className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={pf.previewUrl}
+                        alt={pf.file.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeFile(i)}
+                        className="absolute top-1.5 right-1.5 p-1.5 bg-black/60 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label="Remove"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
+                        <p className="text-[10px] text-white truncate">{pf.file.name}</p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Add more tile (create mode only, while under limit) */}
+                  {!isEditMode && remainingSlots > 0 && (
                     <button
                       type="button"
-                      onClick={clearFileSelection}
-                      className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors flex items-center gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-1 text-gray-500 hover:text-primary"
                     >
-                      <Trash2 className="w-4 h-4" />
-                      Remove
+                      <Plus className="w-6 h-6" />
+                      <span className="text-xs font-medium">Add more</span>
+                      <span className="text-[10px]">{remainingSlots} left</span>
                     </button>
-                  </div>
-                  {selectedFile && (
-                    <div className="absolute bottom-3 left-3 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
-                      New image selected
-                    </div>
                   )}
                 </div>
-              ) : (
+              )}
+
+              {/* Empty dropzone (no existing image, no pending files) */}
+              {!showExistingImage && pendingFiles.length === 0 && (
                 <div
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
@@ -358,110 +441,143 @@ export default function AdminSlidersPage() {
                   className={`
                     border-2 border-dashed rounded-xl p-8 sm:p-12 text-center cursor-pointer
                     transition-all duration-200 ease-out
-                    ${isDragging 
-                      ? 'border-primary bg-primary/5 scale-[1.02]' 
-                      : 'border-gray-300 hover:border-primary hover:bg-gray-50'
+                    ${
+                      isDragging
+                        ? 'border-primary bg-primary/5 scale-[1.02]'
+                        : 'border-gray-300 hover:border-primary hover:bg-gray-50'
                     }
                   `}
                 >
                   <div className="flex flex-col items-center gap-3">
-                    <div className={`
-                      w-14 h-14 rounded-full flex items-center justify-center
-                      ${isDragging ? 'bg-primary/20' : 'bg-gray-100'}
-                      transition-colors
-                    `}>
-                      <ImageIcon className={`w-7 h-7 ${isDragging ? 'text-primary' : 'text-gray-400'}`} />
+                    <div
+                      className={`
+                        w-14 h-14 rounded-full flex items-center justify-center
+                        ${isDragging ? 'bg-primary/20' : 'bg-gray-100'}
+                        transition-colors
+                      `}
+                    >
+                      <ImageIcon
+                        className={`w-7 h-7 ${isDragging ? 'text-primary' : 'text-gray-400'}`}
+                      />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-700">
-                        {isDragging ? 'Drop image here' : 'Click to upload or drag and drop'}
+                        {isDragging
+                          ? 'Drop image here'
+                          : isEditMode
+                          ? 'Click to upload or drag and drop'
+                          : `Click to upload or drag and drop (up to ${MAX_FILES})`}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        JPEG, PNG or WebP (max 10MB)
-                      </p>
+                      <p className="text-xs text-gray-500 mt-1">JPEG, PNG or WebP (max 50MB each)</p>
                     </div>
                   </div>
                 </div>
               )}
-              
-              {/* Hidden file input */}
+
+              {/* Hidden file input — allows multiple in create mode */}
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/jpeg,image/jpg,image/png,image/webp"
+                multiple={!isEditMode}
                 onChange={handleFileInputChange}
                 className="hidden"
               />
-              
-              {/* Upload Progress */}
+
+              {/* Upload progress */}
               {uploading && (
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-gray-600">Uploading...</span>
-                    <span className="text-primary font-medium">{uploadProgress}%</span>
+                    <span className="text-gray-600">
+                      Uploading {uploadProgress.current} of {uploadProgress.total}…
+                    </span>
+                    <span className="text-primary font-medium">
+                      {uploadProgress.total > 0
+                        ? Math.round((uploadProgress.current / uploadProgress.total) * 100)
+                        : 0}
+                      %
+                    </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-primary h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
+                      style={{
+                        width:
+                          uploadProgress.total > 0
+                            ? `${(uploadProgress.current / uploadProgress.total) * 100}%`
+                            : '0%',
+                      }}
                     />
                   </div>
                 </div>
               )}
+
+              {/* Batch-mode notice */}
+              {isBatchMode && (
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-xs">
+                  Batch mode: {pendingFiles.length} sliders will be created starting at order{' '}
+                  #{formData.order_index}. Captions and CTAs are skipped — you can add them by
+                  editing each slider individually after upload.
+                </div>
+              )}
             </div>
 
-            {/* Caption */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Caption
-              </label>
-              <input
-                type="text"
-                value={formData.caption}
-                onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
-                placeholder="Enter slider caption"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
-              />
-            </div>
-
-            {/* CTA Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Caption — single-image only */}
+            {!isBatchMode && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  CTA Button Text
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Caption</label>
                 <input
                   type="text"
-                  value={formData.cta_text}
-                  onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
-                  placeholder="e.g., Learn More"
+                  value={formData.caption}
+                  onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
+                  placeholder="Enter slider caption"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  CTA Link URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.cta_link}
-                  onChange={(e) => setFormData({ ...formData, cta_link: e.target.value })}
-                  placeholder="https://"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
-                />
+            )}
+
+            {/* CTA Fields — single-image only */}
+            {!isBatchMode && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    CTA Button Text
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.cta_text}
+                    onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
+                    placeholder="e.g., Learn More"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    CTA Link URL
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.cta_link}
+                    onChange={(e) => setFormData({ ...formData, cta_link: e.target.value })}
+                    placeholder="https://"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Order and Active */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Display Order
+                  {isBatchMode ? 'Starting Display Order' : 'Display Order'}
                 </label>
                 <input
                   type="number"
                   value={formData.order_index}
-                  onChange={(e) => setFormData({ ...formData, order_index: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, order_index: Number(e.target.value) })
+                  }
                   min={0}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
                 />
@@ -492,11 +608,22 @@ export default function AdminSlidersPage() {
               </button>
               <button
                 type="submit"
-                disabled={submitting || uploading || (!selectedFile && !formData.image_url)}
+                disabled={
+                  submitting ||
+                  uploading ||
+                  (!editingSlider && pendingFiles.length === 0) ||
+                  (editingSlider !== null && pendingFiles.length === 0 && !formData.image_url)
+                }
                 className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
               >
                 {(submitting || uploading) && <Loader2 className="w-4 h-4 animate-spin" />}
-                {submitting ? 'Saving...' : uploading ? 'Uploading...' : 'Save Slider'}
+                {uploading
+                  ? `Uploading ${uploadProgress.current}/${uploadProgress.total}…`
+                  : submitting
+                  ? 'Saving...'
+                  : isBatchMode
+                  ? `Save ${pendingFiles.length} Sliders`
+                  : 'Save Slider'}
               </button>
             </div>
           </form>
@@ -532,6 +659,7 @@ export default function AdminSlidersPage() {
                       #{slider.order_index}
                     </td>
                     <td className="px-6 py-4">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={slider.image_url}
                         alt={slider.caption || 'Slider'}
@@ -584,6 +712,7 @@ export default function AdminSlidersPage() {
             sliders.map((slider) => (
               <div key={slider.id} className="p-4">
                 <div className="flex gap-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={slider.image_url}
                     alt={slider.caption || 'Slider'}

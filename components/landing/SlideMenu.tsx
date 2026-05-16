@@ -49,7 +49,7 @@ export default function SlideMenu({ isOpen, onClose }: SlideMenuProps) {
         <div className="p-4 bg-primary flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/icon.png" alt="The Skymap" className="w-10 h-10 bg-white rounded-lg p-1" />
+            <img src="/icons/logo.png" alt="The Skymap" className="w-10 h-10 bg-white rounded-lg p-1" />
             <span className="text-xl font-bold text-white">The Skymap</span>
           </div>
           <button 

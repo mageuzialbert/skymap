@@ -57,11 +57,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (max 10MB for banner images)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Validate file size (max 50MB for banner images)
+    const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File size exceeds 10MB limit' },
+        { error: 'File size exceeds 50MB limit' },
         { status: 400 }
       );
     }

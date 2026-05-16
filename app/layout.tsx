@@ -46,9 +46,9 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: profile.favicon_url,
       apple: profile.favicon_url,
     } : {
-      icon: '/icons/icon.png',
-      shortcut: '/icons/icon.png',
-      apple: '/icons/icon.png',
+      icon: '/icons/logo.png',
+      shortcut: '/icons/logo.png',
+      apple: '/icons/logo.png',
     },
     other: {
       'mobile-web-app-capable': 'yes',
@@ -73,10 +73,10 @@ export default function RootLayout({
         <meta name="msapplication-tap-highlight" content="no" />
         
         {/* Apple Touch Icons */}
-        <link rel="apple-touch-icon" href="/icons/icon.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon.png" />
-        <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon.png" />
+        <link rel="apple-touch-icon" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/icons/logo.png" />
       </head>
       <body>
         {children}

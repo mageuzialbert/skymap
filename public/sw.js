@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kasi-courier-v1';
+const CACHE_NAME = 'kasi-courier-v3';
 const OFFLINE_URL = '/offline';
 
 // Assets to cache immediately on install
@@ -6,8 +6,7 @@ const PRECACHE_ASSETS = [
   '/',
   '/offline',
   '/manifest.json',
-  '/icons/icon.svg',
-  '/icons/icon-maskable.svg'
+  '/icons/logo.png'
 ];
 
 // Install event - cache essential assets
@@ -107,8 +106,8 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: '/icons/icon.svg',
-      badge: '/icons/icon.svg',
+      icon: '/icons/logo.png',
+      badge: '/icons/logo.png',
       vibrate: [100, 50, 100],
       data: {
         url: data.url || '/'

@@ -7,13 +7,13 @@ VALUES (
   'slider-images',
   'slider-images',
   true, -- Public bucket so slider images are accessible on homepage
-  10485760, -- 10MB limit (10 * 1024 * 1024) - larger for banner images
+  52428800, -- 50MB limit (50 * 1024 * 1024) for high-resolution banner images
   ARRAY['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
 )
 ON CONFLICT (id) DO UPDATE
-SET 
+SET
   public = true,
-  file_size_limit = 10485760,
+  file_size_limit = 52428800,
   allowed_mime_types = ARRAY['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
 -- Create storage policy: Allow admins to upload slider images
@@ -44,6 +44,6 @@ ON storage.objects FOR SELECT
 TO public
 USING (bucket_id = 'slider-images');
 
--- Note: The API route uses service role key for uploads (admin-only access),
--- so RLS policies are secondary. The bucket being public allows the images
--- to be displayed on the homepage without authentication.
+-- Note: Uploads happen client-side from the admin sliders page using the user's
+-- authenticated session. The RLS policies above gate access. The bucket is public-read
+-- so slider images are accessible on the homepage without authentication.
