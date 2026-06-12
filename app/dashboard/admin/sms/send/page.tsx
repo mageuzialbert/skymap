@@ -147,15 +147,24 @@ export default function SmsSendPage() {
 
       if (!res.ok) throw new Error(data.error || 'Failed to send');
 
+      const sent = data.total_sent ?? 0;
+      const failed = data.total_failed ?? 0;
+      const reason = Array.isArray(data.errors) && data.errors.length ? ` — ${data.errors.join('; ')}` : '';
+      const allFailed = sent === 0 && failed > 0;
+
       setSendResult({
-        success: true,
-        message: `Sent: ${data.total_sent} | Failed: ${data.total_failed} | Total: ${data.total_recipients}`,
+        success: failed === 0,
+        message: allFailed
+          ? `None sent (${failed} failed)${reason}`
+          : `Sent: ${sent} | Failed: ${failed} | Total: ${data.total_recipients}${failed ? reason : ''}`,
       });
 
-      // Reset form
-      setMessage('');
-      setSubject('');
-      setSelectedRecipients([]);
+      // Keep the message in the box if everything failed so it can be retried.
+      if (!allFailed) {
+        setMessage('');
+        setSubject('');
+        setSelectedRecipients([]);
+      }
       loadHistory();
     } catch (err) {
       setSendResult({

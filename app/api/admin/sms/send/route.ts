@@ -49,9 +49,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No valid recipients found' }, { status: 400 });
     }
 
-    // Send SMS to each recipient
+    // Extract the human-readable provider message from a sendSMS error string.
+    const providerMessage = (err?: string): string => {
+      if (!err) return 'Unknown error';
+      const m = err.match(/"message"\s*:\s*"([^"]+)"/);
+      if (m) return m[1];
+      return err.length > 160 ? `${err.slice(0, 160)}…` : err;
+    };
+
+    // Send SMS to each recipient, collecting distinct failure reasons.
     let totalSent = 0;
     let totalFailed = 0;
+    const errors = new Set<string>();
 
     for (const recipient of phones) {
       const result = await sendSMS(recipient.phone, message);
@@ -59,6 +68,7 @@ export async function POST(request: NextRequest) {
         totalSent++;
       } else {
         totalFailed++;
+        errors.add(providerMessage(result.error));
       }
     }
 
@@ -78,6 +88,7 @@ export async function POST(request: NextRequest) {
       total_sent: totalSent,
       total_failed: totalFailed,
       total_recipients: phones.length,
+      errors: Array.from(errors).slice(0, 3),
     });
   } catch (error) {
     console.error('Error sending SMS broadcast:', error);
