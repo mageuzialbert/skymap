@@ -20,7 +20,8 @@ export type OtpChannel = 'sms' | 'email';
 export async function verifyOtpCode(
   channel: OtpChannel,
   identifier: string,
-  code: string
+  code: string,
+  purpose?: string
 ): Promise<{ valid: boolean; error?: string }> {
   if (!identifier || !code) {
     return { valid: false, error: 'Verification code is required' };
@@ -28,14 +29,19 @@ export async function verifyOtpCode(
 
   const column = channel === 'email' ? 'email' : 'phone';
 
-  const { data: otp, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('otp_codes')
     .select('*')
     .eq('channel', channel)
     .eq(column, identifier)
     .eq('code', code.toString())
     .eq('used', false)
-    .gt('expires_at', new Date().toISOString())
+    .gt('expires_at', new Date().toISOString());
+
+  // When a purpose is supplied, only match codes issued for that purpose.
+  if (purpose) query = query.eq('purpose', purpose);
+
+  const { data: otp, error } = await query
     .order('created_at', { ascending: false })
     .limit(1)
     .single();

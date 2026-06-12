@@ -120,6 +120,11 @@ export default function StaffLoginPage() {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            <div className="text-right mt-1.5">
+              <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                Forgot password?
+              </Link>
+            </div>
           </div>
           <button
             type="submit"

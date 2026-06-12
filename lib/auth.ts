@@ -182,6 +182,42 @@ export async function sendVerificationCode(params: {
   return { success: true, channel: data.channel as 'sms' | 'email', debugOtp: data.debugOtp };
 }
 
+/**
+ * Forgot-password step 1: send a reset code to an existing account by SMS or email.
+ */
+export async function requestPasswordReset(params: { channel: 'sms' | 'email'; phone?: string; email?: string }) {
+  const response = await fetch('/api/auth/forgot-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to send reset code');
+  return { success: true, channel: data.channel as 'sms' | 'email', debugOtp: data.debugOtp as string | undefined };
+}
+
+/**
+ * Forgot-password step 2: verify the reset code and set a new password.
+ * Returns the account role so the caller can route to the right login page.
+ */
+export async function confirmPasswordReset(params: {
+  channel: 'sms' | 'email';
+  phone?: string;
+  email?: string;
+  code: string;
+  newPassword: string;
+  confirmPassword: string;
+}) {
+  const response = await fetch('/api/auth/forgot-password/reset', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to reset password');
+  return { success: true, role: data.role as string | null };
+}
+
 export async function verifyOTP(phone: string, code: string) {
   // Normalize phone number
   let phoneNumber = phone.trim();
