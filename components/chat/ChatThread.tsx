@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   MessageCircle, Send, Volume2, VolumeX, Loader2, Check, CheckCheck, ArrowLeft, X,
   Plus, Camera, Image as ImageIcon, FileText, MapPin, Mic, Play, Pause, Trash2, Download, Video,
+  MoreVertical, Pencil, Ban,
 } from 'lucide-react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -30,6 +31,8 @@ export interface ChatThreadMessage {
   created_at: string;
   delivered_at: string | null;
   read_at: string | null;
+  edited_at: string | null;
+  deleted_at: string | null;
 }
 
 interface ChatThreadProps {
@@ -234,6 +237,8 @@ export default function ChatThread({
   const [listening, setListening] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
+  const [menuFor, setMenuFor] = useState<string | null>(null); // message id whose action menu is open
+  const [editingId, setEditingId] = useState<string | null>(null); // message id being edited
 
   const selfIdRef = useRef<string | null>(null);
   const lastIdRef = useRef<string | null>(null);
@@ -365,11 +370,63 @@ export default function ChatThread({
   async function sendText() {
     const body = draft.trim();
     if (!body || sending) return;
+    // When editing, save the edit instead of sending a new message.
+    if (editingId) return saveEdit();
     setSending(true);
     setDraft('');
     const ok = await postMessage({ body });
     if (!ok) setDraft(body);
     setSending(false);
+  }
+
+  function startEdit(m: ChatThreadMessage) {
+    setMenuFor(null);
+    setEditingId(m.id);
+    setDraft(m.body || '');
+    setAttachOpen(false);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setDraft('');
+  }
+
+  async function saveEdit() {
+    const id = editingId;
+    const body = draft.trim();
+    if (!id || !body || sending) return;
+    setSending(true);
+    try {
+      const res = await fetch(`${endpoint}/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body }),
+      });
+      if (res.ok) {
+        setEditingId(null);
+        setDraft('');
+        await refresh();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setError(d.error || 'Could not edit message');
+      }
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function deleteMessage(id: string, scope: 'me' | 'everyone') {
+    setMenuFor(null);
+    try {
+      const res = await fetch(`${endpoint}/${id}?scope=${scope}`, { method: 'DELETE' });
+      if (res.ok) await refresh();
+      else {
+        const d = await res.json().catch(() => ({}));
+        setError(d.error || 'Could not delete message');
+      }
+    } catch {
+      setError('Could not delete message');
+    }
   }
 
   async function uploadFile(file: File): Promise<Omit<ChatAttachment, 'type'> | null> {
@@ -573,25 +630,64 @@ export default function ChatThread({
                     </span>
                   </div>
                 )}
-                <div className={`flex ${mine ? 'justify-end' : 'justify-start'} ${sameAsPrev ? 'mt-0.5' : 'mt-2'}`}>
-                  <div
-                    className={`relative max-w-[82%] p-1.5 ${hasAttachment ? '' : 'pl-3 pr-2'} text-sm shadow-sm ${
-                      mine
-                        ? 'bg-[#dcf8c6] text-gray-900 rounded-2xl rounded-br-md'
-                        : 'bg-white text-gray-800 rounded-2xl rounded-bl-md'
-                    }`}
-                  >
-                    {hasAttachment && (
-                      <div className={m.body ? 'mb-1' : ''}>
-                        <AttachmentView a={m.attachment as ChatAttachment} mine={mine} />
-                      </div>
-                    )}
-                    {m.body && <p className={`whitespace-pre-wrap break-words leading-snug ${hasAttachment ? 'px-1.5' : ''}`}>{m.body}</p>}
-                    <div className={`flex items-center justify-end gap-1 mt-0.5 ${hasAttachment ? 'px-1.5 pb-0.5' : '-mr-0.5'}`}>
-                      <span className="text-[10px] text-gray-500">{timeLabel(m.created_at)}</span>
-                      {mine && <MessageTicks m={m} />}
+                <div className={`flex items-center gap-1 ${mine ? 'justify-end' : 'justify-start'} ${sameAsPrev ? 'mt-0.5' : 'mt-2'}`}>
+                  {/* Actions menu (left of own messages) */}
+                  {mine && (
+                    <MessageMenu
+                      m={m}
+                      mine={mine}
+                      open={menuFor === m.id}
+                      onToggle={() => setMenuFor(menuFor === m.id ? null : m.id)}
+                      onClose={() => setMenuFor(null)}
+                      onEdit={() => startEdit(m)}
+                      onDelete={deleteMessage}
+                    />
+                  )}
+
+                  {m.deleted_at ? (
+                    <div
+                      className={`max-w-[82%] flex items-center gap-1.5 px-3 py-2 text-sm italic text-gray-500 shadow-sm rounded-2xl ${
+                        mine ? 'bg-[#dcf8c6]/60 rounded-br-md' : 'bg-white rounded-bl-md'
+                      }`}
+                    >
+                      <Ban className="w-4 h-4 shrink-0" />
+                      <span>This message was deleted</span>
+                      <span className="text-[10px] not-italic text-gray-400 ml-1">{timeLabel(m.created_at)}</span>
                     </div>
-                  </div>
+                  ) : (
+                    <div
+                      className={`relative max-w-[82%] p-1.5 ${hasAttachment ? '' : 'pl-3 pr-2'} text-sm shadow-sm ${
+                        mine
+                          ? 'bg-[#dcf8c6] text-gray-900 rounded-2xl rounded-br-md'
+                          : 'bg-white text-gray-800 rounded-2xl rounded-bl-md'
+                      }`}
+                    >
+                      {hasAttachment && (
+                        <div className={m.body ? 'mb-1' : ''}>
+                          <AttachmentView a={m.attachment as ChatAttachment} mine={mine} />
+                        </div>
+                      )}
+                      {m.body && <p className={`whitespace-pre-wrap break-words leading-snug ${hasAttachment ? 'px-1.5' : ''}`}>{m.body}</p>}
+                      <div className={`flex items-center justify-end gap-1 mt-0.5 ${hasAttachment ? 'px-1.5 pb-0.5' : '-mr-0.5'}`}>
+                        {m.edited_at && <span className="text-[10px] text-gray-400 italic mr-0.5">edited</span>}
+                        <span className="text-[10px] text-gray-500">{timeLabel(m.created_at)}</span>
+                        {mine && <MessageTicks m={m} />}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Actions menu (right of others' messages) */}
+                  {!mine && (
+                    <MessageMenu
+                      m={m}
+                      mine={mine}
+                      open={menuFor === m.id}
+                      onToggle={() => setMenuFor(menuFor === m.id ? null : m.id)}
+                      onClose={() => setMenuFor(null)}
+                      onEdit={() => startEdit(m)}
+                      onDelete={deleteMessage}
+                    />
+                  )}
                 </div>
               </div>
             );
@@ -631,6 +727,17 @@ export default function ChatThread({
           </>
         )}
 
+        {/* Editing banner */}
+        {editingId && (
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-100 bg-primary/5">
+            <Pencil className="w-4 h-4 text-primary shrink-0" />
+            <span className="text-xs text-gray-600 flex-1">Editing message</span>
+            <button onClick={cancelEdit} className="p-1 text-gray-400 hover:text-gray-700" aria-label="Cancel edit">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {recording ? (
           <div className="flex items-center gap-3 p-3">
             <button onClick={() => stopRecording(false)} className="p-2 text-red-600 hover:bg-red-50 rounded-full" aria-label="Cancel">
@@ -647,15 +754,17 @@ export default function ChatThread({
           </div>
         ) : (
           <div className="flex items-end gap-1.5 p-2.5">
-            <button
-              type="button"
-              onClick={() => setAttachOpen((o) => !o)}
-              disabled={uploading}
-              className="p-2.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-full transition-colors shrink-0"
-              aria-label="Attach"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
+            {!editingId && (
+              <button
+                type="button"
+                onClick={() => setAttachOpen((o) => !o)}
+                disabled={uploading}
+                className="p-2.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-full transition-colors shrink-0"
+                aria-label="Attach"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            )}
 
             <div className="flex-1 flex items-end bg-gray-100 rounded-3xl px-2">
               <textarea
@@ -692,14 +801,20 @@ export default function ChatThread({
               <div className="p-2.5 shrink-0">
                 <Loader2 className="w-5 h-5 animate-spin text-primary" />
               </div>
-            ) : draft.trim() ? (
+            ) : draft.trim() || editingId ? (
               <button
                 onClick={sendText}
-                disabled={sending}
+                disabled={sending || (!!editingId && !draft.trim())}
                 className="p-2.5 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 shrink-0"
-                aria-label="Send"
+                aria-label={editingId ? 'Save edit' : 'Send'}
               >
-                {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                {sending ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : editingId ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
               </button>
             ) : (
               <button
@@ -725,6 +840,67 @@ export default function ChatThread({
         onChange={(e) => onPick(e, 'file')}
       />
       <CameraCapture isOpen={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={handleCameraCapture} />
+    </div>
+  );
+}
+
+function MessageMenu({
+  m,
+  mine,
+  open,
+  onToggle,
+  onClose,
+  onEdit,
+  onDelete,
+}: {
+  m: ChatThreadMessage;
+  mine: boolean;
+  open: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: (id: string, scope: 'me' | 'everyone') => void;
+}) {
+  const canEdit = mine && !m.deleted_at && !!m.body;
+  const canDeleteEveryone = mine && !m.deleted_at;
+  return (
+    <div className="relative shrink-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="p-1 text-gray-400 hover:text-gray-700 opacity-60 hover:opacity-100 transition-opacity"
+        aria-label="Message actions"
+      >
+        <MoreVertical className="w-4 h-4" />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-20" onClick={onClose} />
+          <div
+            className={`absolute z-30 top-6 ${mine ? 'right-0' : 'left-0'} w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 text-sm`}
+          >
+            {canEdit && (
+              <button onClick={onEdit} className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-50">
+                <Pencil className="w-4 h-4" /> Edit
+              </button>
+            )}
+            <button
+              onClick={() => onDelete(m.id, 'me')}
+              className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-50"
+            >
+              <Trash2 className="w-4 h-4" /> Delete for me
+            </button>
+            {canDeleteEveryone && (
+              <button
+                onClick={() => onDelete(m.id, 'everyone')}
+                className="w-full flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50"
+              >
+                <Trash2 className="w-4 h-4" /> Delete for everyone
+              </button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
