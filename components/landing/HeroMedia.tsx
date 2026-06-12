@@ -81,13 +81,12 @@ export default function HeroMedia({ height = 'fill' }: { height?: 'fill' }) {
     setVoicePlaying(false);
   }, []);
 
-  // When a video ends: advance to the next, or fall back to slides.
+  // When a video ends: advance to the next, or loop the playlist back to the
+  // start so the hero video stays on screen (instead of vanishing to slides).
+  // A single video uses the native `loop` attribute, so this only runs for
+  // multi-video playlists.
   const handleVideoEnded = () => {
-    if (currentVideo < videos.length - 1) {
-      setCurrentVideo((i) => i + 1);
-    } else {
-      setMode('slides');
-    }
+    setCurrentVideo((i) => (i < videos.length - 1 ? i + 1 : 0));
   };
 
   // Switch to slides mode (user gesture) → start the voice-over with sound.
@@ -133,7 +132,9 @@ export default function HeroMedia({ height = 'fill' }: { height?: 'fill' }) {
           autoPlay
           muted={videoMuted}
           playsInline
+          loop={videos.length === 1}
           onEnded={handleVideoEnded}
+          onError={() => setMode('slides')}
         />
       )}
 
