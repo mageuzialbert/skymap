@@ -1,7 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser, supabaseAdmin } from '@/lib/auth-server';
 
-const SELECT = 'id, owner_id, sender_id, sender_role, body, created_at, delivered_at, read_at';
+const SELECT = 'id, owner_id, sender_id, sender_role, body, attachment, created_at, delivered_at, read_at';
+
+const ATTACHMENT_TYPES = ['image', 'video', 'audio', 'file', 'location'];
+
+// Keep only known, safe fields from a client-supplied attachment object.
+function sanitizeAttachment(a: any): Record<string, any> | null {
+  if (!a || typeof a !== 'object' || !ATTACHMENT_TYPES.includes(a.type)) return null;
+  const out: Record<string, any> = { type: a.type };
+  if (typeof a.url === 'string') out.url = a.url.slice(0, 1000);
+  if (typeof a.name === 'string') out.name = a.name.slice(0, 200);
+  if (typeof a.mime === 'string') out.mime = a.mime.slice(0, 100);
+  if (typeof a.size === 'number') out.size = a.size;
+  if (typeof a.duration === 'number') out.duration = a.duration;
+  if (typeof a.lat === 'number') out.lat = a.lat;
+  if (typeof a.lng === 'number') out.lng = a.lng;
+  return out;
+}
 
 // The caller may access a conversation if they own it or are admin/staff.
 function canAccess(ownerId: string, userId: string, role: string | null): boolean {
@@ -60,8 +76,10 @@ export async function POST(request: NextRequest, { params }: { params: { ownerId
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { body } = await request.json();
-    if (!body || !body.trim()) {
+    const { body, attachment } = await request.json();
+    const cleanAttachment = sanitizeAttachment(attachment);
+    const cleanBody = typeof body === 'string' && body.trim() ? body.trim().slice(0, 2000) : null;
+    if (!cleanBody && !cleanAttachment) {
       return NextResponse.json({ error: 'Message cannot be empty' }, { status: 400 });
     }
 
@@ -71,7 +89,8 @@ export async function POST(request: NextRequest, { params }: { params: { ownerId
         owner_id: params.ownerId,
         sender_id: user.id,
         sender_role: role,
-        body: body.trim().slice(0, 2000),
+        body: cleanBody,
+        attachment: cleanAttachment,
       })
       .select(SELECT)
       .single();

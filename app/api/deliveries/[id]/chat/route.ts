@@ -1,6 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser, supabaseAdmin } from '@/lib/auth-server';
 
+const CHAT_SELECT =
+  'id, delivery_id, sender_id, sender_role, body, attachment, created_at, delivered_at, read_at';
+
+const ATTACHMENT_TYPES = ['image', 'video', 'audio', 'file', 'location'];
+
+// Keep only known, safe fields from a client-supplied attachment object.
+function sanitizeAttachment(a: any): Record<string, any> | null {
+  if (!a || typeof a !== 'object' || !ATTACHMENT_TYPES.includes(a.type)) return null;
+  const out: Record<string, any> = { type: a.type };
+  if (typeof a.url === 'string') out.url = a.url.slice(0, 1000);
+  if (typeof a.name === 'string') out.name = a.name.slice(0, 200);
+  if (typeof a.mime === 'string') out.mime = a.mime.slice(0, 100);
+  if (typeof a.size === 'number') out.size = a.size;
+  if (typeof a.duration === 'number') out.duration = a.duration;
+  if (typeof a.lat === 'number') out.lat = a.lat;
+  if (typeof a.lng === 'number') out.lng = a.lng;
+  return out;
+}
+
 // Verify the caller participates in this ride's chat (business owner, assigned
 // rider, or admin/staff). Returns the delivery + a participant flag.
 async function authorizeParticipant(deliveryId: string, userId: string, role: string | null) {
@@ -64,7 +83,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     const { data: messages, error } = await supabaseAdmin
       .from('chat_messages')
-      .select('id, delivery_id, sender_id, sender_role, body, created_at, delivered_at, read_at')
+      .select(CHAT_SELECT)
       .eq('delivery_id', params.id)
       .order('created_at', { ascending: true });
 
@@ -85,8 +104,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { body } = await request.json();
-    if (!body || !body.trim()) {
+    const { body, attachment } = await request.json();
+    const cleanAttachment = sanitizeAttachment(attachment);
+    const cleanBody = typeof body === 'string' && body.trim() ? body.trim().slice(0, 2000) : null;
+    if (!cleanBody && !cleanAttachment) {
       return NextResponse.json({ error: 'Message cannot be empty' }, { status: 400 });
     }
 
@@ -100,9 +121,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         delivery_id: params.id,
         sender_id: user.id,
         sender_role: role,
-        body: body.trim().slice(0, 2000),
+        body: cleanBody,
+        attachment: cleanAttachment,
       })
-      .select('id, delivery_id, sender_id, sender_role, body, created_at, delivered_at, read_at')
+      .select(CHAT_SELECT)
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
