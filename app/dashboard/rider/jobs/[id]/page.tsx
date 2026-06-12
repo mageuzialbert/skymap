@@ -27,6 +27,7 @@ interface Delivery {
   package_description: string | null;
   status: string;
   assigned_rider_id: string | null;
+  rider_confirmed_at?: string | null;
   created_at: string;
   delivered_at: string | null;
   businesses?: {
@@ -127,6 +128,44 @@ export default function RiderJobDetailsPage() {
     }
   }
 
+  async function handleConfirm() {
+    setUpdating(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/rider/deliveries/${deliveryId}/confirm`, { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to confirm ride');
+      }
+      await loadDeliveryDetails();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to confirm ride');
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function handleDecline() {
+    if (!confirm('Decline this ride? It will be sent back for reassignment.')) return;
+    setUpdating(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/rider/deliveries/${deliveryId}/decline`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to decline ride');
+      }
+      router.push('/dashboard/rider/jobs');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to decline ride');
+      setUpdating(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -178,6 +217,8 @@ export default function RiderJobDetailsPage() {
         delivery={delivery}
         events={events}
         onStatusUpdate={handleStatusUpdate}
+        onConfirm={handleConfirm}
+        onDecline={handleDecline}
         loading={updating}
       />
     </div>

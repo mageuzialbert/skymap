@@ -1,4 +1,6 @@
-const CACHE_NAME = 'kasi-courier-v3';
+// Bump this version whenever cached assets (icons, manifest) change so the
+// activate handler purges the old cache and clients pick up the new icons.
+const CACHE_NAME = 'kasi-courier-v4';
 const OFFLINE_URL = '/offline';
 
 // Assets to cache immediately on install
@@ -6,7 +8,10 @@ const PRECACHE_ASSETS = [
   '/',
   '/offline',
   '/manifest.json',
-  '/icons/logo.png'
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/icon-maskable-512.png',
+  '/icons/apple-touch-icon.png'
 ];
 
 // Install event - cache essential assets
@@ -106,8 +111,8 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: '/icons/logo.png',
-      badge: '/icons/logo.png',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
       vibrate: [100, 50, 100],
       data: {
         url: data.url || '/'

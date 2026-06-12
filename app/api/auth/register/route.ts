@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { verifyOtpCode, OtpChannel } from '@/lib/otp-server';
 
 // Server-side Supabase client with service role for admin operations
 const supabaseAdmin = createClient(
@@ -15,7 +16,8 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { businessName, email, phone, password, districtId, packageId } = await request.json();
+    const { businessName, email, phone, password, districtId, packageId, channel, code } =
+      await request.json();
 
     // Validation
     if (!businessName || !email || !phone || !password) {
@@ -34,21 +36,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure phone starts with +255
-    let phoneNumber = phone.trim();
-    if (!phoneNumber.startsWith('+255')) {
-      phoneNumber = '+255' + phoneNumber.replace(/^\+?255?/, '').replace(/\D/g, '');
-    } else {
-      phoneNumber = '+255' + phoneNumber.replace(/^\+255/, '').replace(/\D/g, '');
-    }
-
-    // Validate that there are exactly 9 digits after +255
-    const digitsAfter255 = phoneNumber.replace(/^\+255/, '');
-    if (digitsAfter255.length !== 9) {
+    // Normalize the international phone (keep the country's dial code; do not force +255).
+    const phoneNumber = '+' + phone.trim().replace(/^\+/, '').replace(/\D/g, '');
+    if (phoneNumber.replace(/\D/g, '').length < 8) {
       return NextResponse.json(
-        { error: 'Phone number must be exactly 9 digits after +255 (e.g., +255759561311)' },
+        { error: 'Please enter a valid phone number' },
         { status: 400 }
       );
+    }
+
+    // Require a verified OTP (SMS for +255, email for everyone) before creating the account.
+    const otpChannel: OtpChannel = channel === 'email' ? 'email' : 'sms';
+    const identifier = otpChannel === 'email' ? email : phoneNumber;
+    const { valid, error: otpErr } = await verifyOtpCode(otpChannel, identifier, code);
+    if (!valid) {
+      return NextResponse.json({ error: otpErr || 'Invalid or expired verification code' }, { status: 400 });
     }
 
     // Create auth user
@@ -88,6 +90,8 @@ export async function POST(request: NextRequest) {
         phone: phoneNumber,
         role: 'BUSINESS',
         active: true,
+        phone_verified: otpChannel === 'sms',
+        email_verified: otpChannel === 'email',
       }, {
         onConflict: 'id'
       });
@@ -139,16 +143,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Return success (client will need to sign in separately)
-    // Send admin SMS notification for new business registration
+    // Notify admin of the new business, and welcome the client (SMS + Email).
     try {
-      const { sendEventSMS } = await import('@/lib/sms');
-      await sendEventSMS('admin_new_business', null, {
+      const { notifyEvent } = await import('@/lib/notify');
+      await notifyEvent('admin_new_business', {}, {
         business_name: businessName,
         business_phone: phoneNumber,
       });
-    } catch (smsErr) {
-      console.error('Failed to send admin new business SMS:', smsErr);
+      await notifyEvent(
+        'client_registration',
+        { phone: phoneNumber, email },
+        { client_name: businessName }
+      );
+    } catch (notifyErr) {
+      console.error('Failed to send registration notifications:', notifyErr);
     }
 
     return NextResponse.json({

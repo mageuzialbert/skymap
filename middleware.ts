@@ -28,7 +28,23 @@ export async function middleware(request: NextRequest) {
 
   // Refresh session if expired - this will update the cookies
   // This is the key part: it ensures cookies are synced on every request
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Auth gating: all platform activity requires authentication.
+  const { pathname } = request.nextUrl;
+  const protectedPrefixes = ['/dashboard', '/order', '/quick-order'];
+  const isProtected = protectedPrefixes.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`)
+  );
+
+  if (isProtected && !user) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = '/login';
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
   return response;
 }

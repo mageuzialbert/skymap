@@ -121,6 +121,18 @@ export const PERMISSION_MODULES: PermissionModule[] = [
     ],
   },
   {
+    id: 'cms_videos',
+    name: 'CMS - Videos',
+    description: 'Manage landing page videos',
+    availableFor: ['STAFF'],
+    actions: [
+      { id: 'view', name: 'View', description: 'View landing videos' },
+      { id: 'create', name: 'Create', description: 'Add new landing videos' },
+      { id: 'update', name: 'Update', description: 'Edit video settings' },
+      { id: 'delete', name: 'Delete', description: 'Remove landing videos' },
+    ],
+  },
+  {
     id: 'cms_content',
     name: 'CMS - Content',
     description: 'Manage website content (About Us, etc.)',
@@ -160,6 +172,18 @@ export const PERMISSION_MODULES: PermissionModule[] = [
       { id: 'create', name: 'Create', description: 'Create new packages' },
       { id: 'update', name: 'Update', description: 'Edit package details' },
       { id: 'delete', name: 'Delete', description: 'Delete packages' },
+    ],
+  },
+  {
+    id: 'vehicles',
+    name: 'Vehicle Types',
+    description: 'Manage means of transport (Boda, Bajaj, Electric, Car)',
+    availableFor: ['STAFF'],
+    actions: [
+      { id: 'view', name: 'View', description: 'View vehicle types' },
+      { id: 'create', name: 'Create', description: 'Add vehicle types' },
+      { id: 'update', name: 'Update', description: 'Edit vehicle types and prices' },
+      { id: 'delete', name: 'Delete', description: 'Remove vehicle types' },
     ],
   },
 ];

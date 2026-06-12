@@ -16,6 +16,7 @@ import {
   Download,
   FileSpreadsheet,
 } from "lucide-react";
+import ServiceBadge, { formatSchedule } from "@/components/common/ServiceBadge";
 
 interface Delivery {
   id: string;
@@ -27,6 +28,8 @@ interface Delivery {
   dropoff_name: string;
   dropoff_phone: string;
   package_description: string | null;
+  service_type?: string | null;
+  scheduled_pickup_at?: string | null;
   status: string;
   assigned_rider_id: string | null;
   created_at: string;
@@ -218,10 +221,13 @@ export default function DeliveriesTable({
           </div>
         )}
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto hidden md:block">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Service
+                </th>
                 {showBusiness && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Client
@@ -259,7 +265,7 @@ export default function DeliveriesTable({
                 <tr>
                   <td
                     colSpan={
-                      5 +
+                      6 +
                       (showBusiness ? 1 : 0) +
                       (showFee ? 1 : 0) +
                       (showActions ? 1 : 0)
@@ -272,6 +278,12 @@ export default function DeliveriesTable({
               ) : (
                 filteredDeliveries.map((delivery) => (
                   <tr key={delivery.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <ServiceBadge serviceType={delivery.service_type} />
+                      <div className="text-xs text-gray-400 mt-1">
+                        {formatSchedule(delivery.scheduled_pickup_at)}
+                      </div>
+                    </td>
                     {showBusiness && (
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
@@ -415,6 +427,102 @@ export default function DeliveriesTable({
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {filteredDeliveries.length === 0 ? (
+            <div className="px-4 py-8 text-center text-gray-500">No deliveries found</div>
+          ) : (
+            filteredDeliveries.map((delivery) => (
+              <div key={delivery.id} className="p-4">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <ServiceBadge serviceType={delivery.service_type} />
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      statusColors[delivery.status] || statusColors.CREATED
+                    }`}
+                  >
+                    {delivery.status.replace(/_/g, " ")}
+                  </span>
+                </div>
+
+                {showBusiness && (
+                  <p className="text-sm font-semibold text-gray-900">
+                    {delivery.businesses?.name || "Unknown"}
+                  </p>
+                )}
+
+                <div className="mt-1 space-y-0.5 text-sm">
+                  <div className="flex items-start gap-1.5 text-gray-900">
+                    <MapPin className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                    <span className="min-w-0 break-words">{delivery.pickup_address}</span>
+                  </div>
+                  {delivery.dropoff_address && (
+                    <div className="flex items-start gap-1.5 text-gray-500">
+                      <MapPin className="w-3.5 h-3.5 text-secondary-dark shrink-0 mt-0.5" />
+                      <span className="min-w-0 break-words">{delivery.dropoff_address}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                  <span>{formatDate(delivery.created_at)}</span>
+                  <span className="inline-flex items-center gap-1">
+                    <User className="w-3.5 h-3.5" />
+                    {delivery.assigned_rider ? delivery.assigned_rider.name : "Unassigned"}
+                  </span>
+                  {showFee && (
+                    <span className="font-medium text-gray-900">
+                      {formatCurrency(delivery.delivery_fee)}
+                    </span>
+                  )}
+                </div>
+
+                {showActions && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-medium">
+                    <Link
+                      href={`${basePath}/${delivery.id}`}
+                      className="inline-flex items-center gap-1 text-gray-600 hover:text-primary"
+                    >
+                      <Eye className="w-4 h-4" /> View
+                    </Link>
+                    {delivery.status === "PENDING_CONFIRMATION" && onConfirm && (
+                      <button onClick={() => onConfirm(delivery.id)} className="text-green-600">
+                        Confirm
+                      </button>
+                    )}
+                    {delivery.status === "PENDING_CONFIRMATION" && onReject && (
+                      <button onClick={() => onReject(delivery.id)} className="text-red-600">
+                        Reject
+                      </button>
+                    )}
+                    {!delivery.assigned_rider_id && delivery.status === "CREATED" && onAssignRider && (
+                      <button onClick={() => onAssignRider(delivery.id)} className="text-primary">
+                        Assign Rider
+                      </button>
+                    )}
+                    {showFee && onEditFee && (
+                      <button
+                        onClick={() => onEditFee(delivery.id, delivery.delivery_fee ?? null)}
+                        className="inline-flex items-center gap-1 text-gray-600"
+                      >
+                        <Pencil className="w-3.5 h-3.5" /> Fee
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        onClick={() => onDelete(delivery.id)}
+                        className="inline-flex items-center gap-1 text-red-500"
+                      >
+                        <Trash2 className="w-4 h-4" /> Delete
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

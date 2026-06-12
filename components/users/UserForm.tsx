@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Loader2, ImagePlus, X, User as UserIcon, IdCard } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Loader2, ImagePlus, X, User as UserIcon, IdCard, Bike } from 'lucide-react';
 import PermissionSelector from './PermissionSelector';
 import { getDefaultPermissions } from '@/lib/permissions';
 import { supabase } from '@/lib/supabase';
@@ -15,6 +15,13 @@ interface User {
   active: boolean;
   profile_picture_url?: string | null;
   license_number?: string | null;
+  vehicle_type_id?: string | null;
+}
+
+interface VehicleTypeOption {
+  id: string;
+  name: string;
+  active: boolean;
 }
 
 interface UserFormProps {
@@ -36,6 +43,7 @@ export interface UserFormData {
   permissions: string[];
   profile_picture_url?: string | null;
   license_number?: string | null;
+  vehicle_type_id?: string | null;
 }
 
 export default function UserForm({
@@ -58,19 +66,30 @@ export default function UserForm({
     permissions: initialPermissions || getDefaultPermissions(initialRole),
     profile_picture_url: user?.profile_picture_url || null,
     license_number: user?.license_number || '',
+    vehicle_type_id: user?.vehicle_type_id || null,
   });
 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeOption[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load vehicle types so a rider can be assigned a means of transport.
+  useEffect(() => {
+    fetch('/api/admin/vehicles')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: VehicleTypeOption[]) => setVehicleTypes(Array.isArray(data) ? data : []))
+      .catch(() => setVehicleTypes([]));
+  }, []);
 
   const handleRoleChange = (newRole: 'STAFF' | 'RIDER') => {
     setFormData((prev) => ({
       ...prev,
       role: newRole,
       permissions: !user ? getDefaultPermissions(newRole) : prev.permissions,
-      // Clear license_number if switching away from RIDER
+      // Clear rider-only fields if switching away from RIDER
       license_number: newRole === 'RIDER' ? prev.license_number : '',
+      vehicle_type_id: newRole === 'RIDER' ? prev.vehicle_type_id : null,
     }));
   };
 
@@ -291,6 +310,37 @@ export default function UserForm({
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent font-mono"
                 />
               </div>
+            </div>
+          )}
+
+          {/* Vehicle type / means of transport (rider only) */}
+          {isRider && (
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Means of Transport
+              </label>
+              <div className="relative">
+                <Bike className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <select
+                  value={formData.vehicle_type_id || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, vehicle_type_id: e.target.value || null })
+                  }
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="">Select vehicle type…</option>
+                  {vehicleTypes
+                    .filter((vt) => vt.active || vt.id === formData.vehicle_type_id)
+                    .map((vt) => (
+                      <option key={vt.id} value={vt.id}>
+                        {vt.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Determines which ride requests this rider can be assigned to.
+              </p>
             </div>
           )}
         </div>

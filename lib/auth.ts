@@ -7,6 +7,8 @@ export interface RegisterData {
   password: string;
   districtId?: number;
   packageId?: string;
+  channel?: 'sms' | 'email';
+  code?: string;
 }
 
 export interface LoginData {
@@ -27,6 +29,8 @@ export async function registerBusiness(data: RegisterData) {
       password: data.password,
       districtId: data.districtId,
       packageId: data.packageId,
+      channel: data.channel,
+      code: data.code,
     }),
   });
 
@@ -152,6 +156,30 @@ export async function sendOTP(phone: string) {
 
   const data = await response.json();
   return { success: true, debugOtp: data.debugOtp };
+}
+
+/**
+ * Send a verification code via SMS (+255 only) or email.
+ * Returns { debugOtp } in development for testing.
+ */
+export async function sendVerificationCode(params: {
+  channel: 'sms' | 'email';
+  phone?: string;
+  email?: string;
+}) {
+  const response = await fetch('/api/auth/send-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to send verification code');
+  }
+
+  const data = await response.json();
+  return { success: true, channel: data.channel as 'sms' | 'email', debugOtp: data.debugOtp };
 }
 
 export async function verifyOTP(phone: string, code: string) {

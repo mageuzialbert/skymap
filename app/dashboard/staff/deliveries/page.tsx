@@ -22,6 +22,7 @@ interface Delivery {
   package_description: string | null;
   status: string;
   assigned_rider_id: string | null;
+  vehicle_type_id?: string | null;
   created_at: string;
   delivered_at: string | null;
   delivery_fee?: number | null;
@@ -48,6 +49,8 @@ export default function StaffDeliveriesPage() {
   const [selectedDeliveryId, setSelectedDeliveryId] = useState<string | null>(
     null,
   );
+  const [selectedVehicleTypeId, setSelectedVehicleTypeId] = useState<string | null>(null);
+  const [vehicleNames, setVehicleNames] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [assigning, setAssigning] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -88,6 +91,18 @@ export default function StaffDeliveriesPage() {
       loadDeliveries();
     }
   }, [page, pageSize, role]);
+
+  // Load vehicle type names for labeling the assignment modal.
+  useEffect(() => {
+    fetch('/api/vehicle-types')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: any[]) => {
+        const map: Record<string, string> = {};
+        (Array.isArray(data) ? data : []).forEach((v) => (map[v.id] = v.name));
+        setVehicleNames(map);
+      })
+      .catch(() => {});
+  }, []);
 
   async function loadDeliveries() {
     setLoading(true);
@@ -173,6 +188,8 @@ export default function StaffDeliveriesPage() {
 
   function handleAssignClick(deliveryId: string) {
     setSelectedDeliveryId(deliveryId);
+    const d = deliveries.find((x) => x.id === deliveryId);
+    setSelectedVehicleTypeId(d?.vehicle_type_id || null);
     setShowAssignModal(true);
   }
 
@@ -512,9 +529,12 @@ export default function StaffDeliveriesPage() {
         onClose={() => {
           setShowAssignModal(false);
           setSelectedDeliveryId(null);
+          setSelectedVehicleTypeId(null);
         }}
         onAssign={handleAssignRider}
         deliveryId={selectedDeliveryId || ""}
+        vehicleTypeId={selectedVehicleTypeId}
+        vehicleLabel={selectedVehicleTypeId ? vehicleNames[selectedVehicleTypeId] : null}
         loading={assigning}
       />
     </div>

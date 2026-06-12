@@ -8,6 +8,7 @@ interface Rider {
   name: string;
   phone: string;
   active: boolean;
+  vehicle_type_id?: string | null;
 }
 
 interface RiderAssignmentModalProps {
@@ -15,6 +16,9 @@ interface RiderAssignmentModalProps {
   onClose: () => void;
   onAssign: (riderId: string) => Promise<void>;
   deliveryId: string;
+  /** When set, only riders operating this vehicle type can be assigned. */
+  vehicleTypeId?: string | null;
+  vehicleLabel?: string | null;
   loading?: boolean;
 }
 
@@ -23,9 +27,11 @@ export default function RiderAssignmentModal({
   onClose,
   onAssign,
   deliveryId,
+  vehicleTypeId,
+  vehicleLabel,
   loading = false,
 }: RiderAssignmentModalProps) {
-  const [riders, setRiders] = useState<Rider[]>([]);
+  const [allRiders, setAllRiders] = useState<Rider[]>([]);
   const [selectedRiderId, setSelectedRiderId] = useState<string>('');
   const [loadingRiders, setLoadingRiders] = useState(true);
   const [error, setError] = useState('');
@@ -36,6 +42,11 @@ export default function RiderAssignmentModal({
     }
   }, [isOpen]);
 
+  // When the ride requested a specific vehicle type, only offer matching riders.
+  const riders = vehicleTypeId
+    ? allRiders.filter((r) => r.vehicle_type_id === vehicleTypeId)
+    : allRiders;
+
   async function loadRiders() {
     setLoadingRiders(true);
     setError('');
@@ -43,7 +54,7 @@ export default function RiderAssignmentModal({
       const response = await fetch('/api/admin/users?role=RIDER&active=true');
       if (!response.ok) throw new Error('Failed to load riders');
       const data = await response.json();
-      setRiders(data);
+      setAllRiders(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load riders');
     } finally {
@@ -70,23 +81,29 @@ export default function RiderAssignmentModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Assign Rider</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white rounded-t-2xl sm:rounded-lg shadow-xl max-w-md w-full max-h-[90dvh] flex flex-col">
+        <div className="flex justify-between items-center p-5 sm:p-6 border-b shrink-0">
+          <h2 className="text-lg sm:text-xl font-semibold">Assign Rider</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="p-1 text-gray-400 hover:text-gray-600"
             disabled={loading}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-5 sm:p-6 overflow-y-auto">
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
               {error}
+            </div>
+          )}
+
+          {vehicleLabel && (
+            <div className="mb-4 p-3 bg-primary/5 border border-primary/20 text-primary rounded-lg text-sm">
+              Requested vehicle: <span className="font-semibold">{vehicleLabel}</span> — only matching riders are shown.
             </div>
           )}
 
@@ -96,7 +113,9 @@ export default function RiderAssignmentModal({
             </div>
           ) : riders.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No active riders available
+              {vehicleTypeId
+                ? 'No active riders available for the requested vehicle type'
+                : 'No active riders available'}
             </div>
           ) : (
             <div className="space-y-4">

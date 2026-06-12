@@ -16,6 +16,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // After login, return the user to where they were headed (set by middleware), else the dashboard.
+  const getRedirectTarget = () => {
+    if (typeof window === 'undefined') return '/dashboard/business';
+    const target = new URLSearchParams(window.location.search).get('redirect');
+    return target && target.startsWith('/') ? target : '/dashboard/business';
+  };
+
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -31,7 +38,7 @@ export default function LoginPage() {
       }
 
       await loginWithPassword(phoneNumber, password);
-      router.push('/dashboard/business');
+      router.push(getRedirectTarget());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -114,8 +121,8 @@ export default function LoginPage() {
         throw new Error('Session was not created. Please try again.');
       }
       
-      // Redirect to dashboard
-      router.push('/dashboard/business');
+      // Redirect to intended destination (or dashboard)
+      router.push(getRedirectTarget());
       router.refresh(); // Force refresh to update auth state
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid OTP');

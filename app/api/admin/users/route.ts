@@ -90,6 +90,7 @@ export async function POST(request: NextRequest) {
       permissions,
       profile_picture_url,
       license_number,
+      vehicle_type_id,
     } = await request.json();
 
     // Validation
@@ -169,6 +170,7 @@ export async function POST(request: NextRequest) {
         active: true,
         profile_picture_url: profile_picture_url || null,
         license_number: userRole === 'RIDER' ? (license_number || null) : null,
+        vehicle_type_id: userRole === 'RIDER' ? (vehicle_type_id || null) : null,
       }, {
         onConflict: 'id'
       });

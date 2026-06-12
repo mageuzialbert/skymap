@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLoadScript, GoogleMap, Marker, DirectionsRenderer } from '@react-google-maps/api';
-import { Loader2, MapPin, User, Phone, Package, Calendar, AlertCircle } from 'lucide-react';
+import { Loader2, MapPin, User, Phone, Package, Calendar, AlertCircle, CalendarClock, ClipboardList } from 'lucide-react';
+import ChatLauncher from '@/components/chat/ChatLauncher';
+import ServiceBadge, { formatSchedule } from '@/components/common/ServiceBadge';
 
 interface Delivery {
   id: string;
@@ -18,6 +20,9 @@ interface Delivery {
   dropoff_phone: string;
   package_description: string | null;
   package_image_url?: string | null;
+  service_type?: string | null;
+  scheduled_pickup_at?: string | null;
+  service_details?: string | null;
   status: string;
   created_at: string;
   assigned_rider?: {
@@ -32,7 +37,7 @@ interface DeliveryDetailsProps {
 
 const mapContainerStyle = {
   width: '100%',
-  height: '400px',
+  height: '100%',
   borderRadius: '0.75rem',
 };
 
@@ -113,8 +118,15 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
       {/* Header / Status */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="text-sm text-gray-500 mb-1">Delivery ID: {delivery.id}</div>
-          <h1 className="text-2xl font-bold text-gray-900">Delivery Details</h1>
+          <div className="text-sm text-gray-500 mb-1">Request ID: {delivery.id}</div>
+          <h1 className="text-2xl font-bold text-gray-900">Request Details</h1>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <ServiceBadge serviceType={delivery.service_type} />
+            <span className="inline-flex items-center gap-1.5 text-sm text-gray-600">
+              <CalendarClock className="w-4 h-4 text-gray-400" />
+              {formatSchedule(delivery.scheduled_pickup_at)}
+            </span>
+          </div>
         </div>
         <div>
           <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold border ${statusColors[delivery.status] || statusColors.CREATED}`}>
@@ -143,26 +155,28 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
             )}
 
             {!isLoaded && !loadError && (
-              <div className="h-[400px] flex items-center justify-center bg-gray-50">
+              <div className="h-[240px] sm:h-[320px] lg:h-[400px] flex items-center justify-center bg-gray-50">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             )}
 
             {isLoaded && (
-              <GoogleMap
-                mapContainerStyle={mapContainerStyle}
-                zoom={12}
-                center={mapCenter}
-                options={{
-                  disableDefaultUI: false,
-                  streetViewControl: false,
-                  mapTypeControl: false,
-                }}
-              >
-                {pickupLocation && <Marker position={pickupLocation} label="A" title="Pickup" />}
-                {dropoffLocation && <Marker position={dropoffLocation} label="B" title="Dropoff" />}
-                {directions && <DirectionsRenderer directions={directions} />}
-              </GoogleMap>
+              <div className="h-[240px] sm:h-[320px] lg:h-[400px]">
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  zoom={12}
+                  center={mapCenter}
+                  options={{
+                    disableDefaultUI: false,
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                  }}
+                >
+                  {pickupLocation && <Marker position={pickupLocation} label="A" title="Pickup" />}
+                  {dropoffLocation && <Marker position={dropoffLocation} label="B" title="Dropoff" />}
+                  {directions && <DirectionsRenderer directions={directions} />}
+                </GoogleMap>
+              </div>
             )}
           </div>
 
@@ -242,7 +256,21 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
 
         {/* Right Column: Info */}
         <div className="space-y-6">
-          {/* Package Info */}
+          {/* Service details (ride note / hire plan / errand instructions) */}
+          {delivery.service_details && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <ClipboardList className="w-5 h-5 text-gray-500" />
+                Request Details
+              </h3>
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 text-gray-800">
+                <p className="whitespace-pre-wrap">{delivery.service_details}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Package Info — deliveries only */}
+          {delivery.service_type === 'delivery' || !delivery.service_type ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Package className="w-5 h-5 text-gray-500" />
@@ -273,6 +301,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
               </div>
             )}
           </div>
+          ) : null}
 
           {/* Rider Info */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -281,14 +310,21 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
               Assigned Rider
             </h3>
             {delivery.assigned_rider ? (
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                  <User className="w-6 h-6 text-gray-500" />
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                    <User className="w-6 h-6 text-gray-500" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">{delivery.assigned_rider.name}</div>
+                    <div className="text-sm text-gray-500">{delivery.assigned_rider.phone}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-medium text-gray-900">{delivery.assigned_rider.name}</div>
-                  <div className="text-sm text-gray-500">{delivery.assigned_rider.phone}</div>
-                </div>
+                <ChatLauncher
+                  deliveryId={delivery.id}
+                  otherName={delivery.assigned_rider.name}
+                  label="Chat with rider"
+                />
               </div>
             ) : (
               <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">

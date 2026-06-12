@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendOTPSMS } from '@/lib/sms';
+import { sendOTPEmail } from '@/lib/email';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,39 +21,42 @@ function generateOTP(): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const { phone } = await request.json();
+    const body = await request.json();
+    const channel: 'sms' | 'email' = body.channel === 'email' ? 'email' : 'sms';
+    const phone: string | undefined = body.phone;
+    const email: string | undefined = body.email;
 
-    if (!phone) {
-      return NextResponse.json(
-        { error: 'Phone number is required' },
-        { status: 400 }
-      );
+    // SMS only works for Tanzanian (+255) numbers.
+    if (channel === 'sms') {
+      if (!phone) {
+        return NextResponse.json({ error: 'Phone number is required' }, { status: 400 });
+      }
+      if (!phone.startsWith('+255')) {
+        return NextResponse.json(
+          { error: 'SMS verification only supports Tanzania (+255) numbers. Please verify by email instead.' },
+          { status: 400 }
+        );
+      }
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        return NextResponse.json({ error: 'A valid email address is required' }, { status: 400 });
+      }
     }
 
-    // Validate phone format (should start with +255)
-    if (!phone.startsWith('+255')) {
-      return NextResponse.json(
-        { error: 'Phone number must start with +255' },
-        { status: 400 }
-      );
-    }
-
-    // Generate 6-digit OTP
     const otpCode = generateOTP();
-
-    // Set expiration to 5 minutes from now
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 5);
 
-    // Store OTP in database
-    const { error: dbError } = await supabaseAdmin
-      .from('otp_codes')
-      .insert({
-        phone: phone,
-        code: otpCode,
-        used: false,
-        expires_at: expiresAt.toISOString(),
-      });
+    // Store the OTP keyed by the channel's identifier.
+    const { error: dbError } = await supabaseAdmin.from('otp_codes').insert({
+      phone: phone || null,
+      email: channel === 'email' ? email : null,
+      channel,
+      code: otpCode,
+      used: false,
+      expires_at: expiresAt.toISOString(),
+    });
 
     if (dbError) {
       console.error('Error storing OTP:', dbError);
@@ -62,36 +66,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send OTP via iPAB SmartSMS
-    const smsResult = await sendOTPSMS(phone, otpCode);
+    // Send via the chosen channel.
+    const sendResult =
+      channel === 'email' ? await sendOTPEmail(email!, otpCode) : await sendOTPSMS(phone!, otpCode);
 
-    if (!smsResult.success) {
-      console.error('Error sending SMS:', smsResult.error);
-      // Note: OTP is already stored, but SMS failed
-      // We could delete it or leave it (user can request new one)
+    if (!sendResult.success) {
+      console.error(`Error sending OTP via ${channel}:`, sendResult.error);
       return NextResponse.json(
-        { 
-          error: smsResult.error || 'Failed to send SMS. Please try again.',
-          // In development, you might want to return the OTP for testing
-          // Remove this in production!
-          ...(process.env.NODE_ENV === 'development' && { debugOtp: otpCode })
+        {
+          error: sendResult.error || `Failed to send verification code via ${channel}. Please try again.`,
+          ...(process.env.NODE_ENV === 'development' && { debugOtp: otpCode }),
         },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
+      channel,
       message: 'Verification code sent successfully',
-      // In development, you might want to return the OTP for testing
-      // Remove this in production!
-      ...(process.env.NODE_ENV === 'development' && { debugOtp: otpCode })
+      ...(process.env.NODE_ENV === 'development' && { debugOtp: otpCode }),
     });
   } catch (error) {
     console.error('Error sending OTP:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

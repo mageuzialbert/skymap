@@ -52,7 +52,7 @@ export default function UsersTable({
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto hidden md:block">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -196,6 +196,81 @@ export default function UsersTable({
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden divide-y divide-gray-100">
+        {users.length === 0 ? (
+          <div className="px-4 py-8 text-center text-gray-500">No riders found</div>
+        ) : (
+          users.map((user) => {
+            const RoleIcon = roleIcons[user.role] || User;
+            return (
+              <div key={user.id} className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 h-11 w-11 rounded-full overflow-hidden border border-gray-200 bg-gray-100">
+                    {user.profile_picture_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={user.profile_picture_url} alt={user.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                        <RoleIcon className="w-5 h-5 text-gray-500" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold text-gray-900 truncate">{user.name}</div>
+                    <div className="text-xs text-gray-500 truncate">{user.email}</div>
+                  </div>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      roleColors[user.role] || roleColors.STAFF
+                    }`}
+                  >
+                    {user.role}
+                  </span>
+                </div>
+
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
+                  <span>{user.phone}</span>
+                  {user.license_number && (
+                    <span className="inline-flex items-center gap-1 font-mono text-xs">
+                      <IdCard className="w-3.5 h-3.5 text-gray-400" />
+                      {user.license_number}
+                    </span>
+                  )}
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      user.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {user.active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+
+                {showActions && (
+                  <div className="mt-3 flex items-center gap-4 text-sm font-medium">
+                    {onView && (
+                      <button onClick={() => onView(user)} className="inline-flex items-center gap-1 text-gray-600">
+                        <Eye className="w-4 h-4" /> View
+                      </button>
+                    )}
+                    {onEdit && (
+                      <button onClick={() => onEdit(user)} className="inline-flex items-center gap-1 text-gray-600">
+                        <Edit className="w-4 h-4" /> Edit
+                      </button>
+                    )}
+                    {onDeactivate && user.active && (
+                      <button onClick={() => onDeactivate(user.id)} className="inline-flex items-center gap-1 text-red-600">
+                        <X className="w-4 h-4" /> Deactivate
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

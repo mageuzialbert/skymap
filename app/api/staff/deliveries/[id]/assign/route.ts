@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser, supabaseAdmin } from "@/lib/auth-server";
-import { sendSMS } from "@/lib/sms";
+import { notifyEvent } from "@/lib/notify";
 
 // PUT - Assign rider to delivery
 export async function PUT(
@@ -31,7 +31,7 @@ export async function PUT(
     // Verify rider exists and is a RIDER
     const { data: rider, error: riderError } = await supabaseAdmin
       .from("users")
-      .select("id, name, role, active, phone")
+      .select("id, name, role, active, phone, email, vehicle_type_id")
       .eq("id", rider_id)
       .single();
 
@@ -56,7 +56,7 @@ export async function PUT(
     // Verify delivery exists
     const { data: delivery, error: deliveryError } = await supabaseAdmin
       .from("deliveries")
-      .select("id, status, assigned_rider_id, created_by")
+      .select("id, status, assigned_rider_id, created_by, vehicle_type_id, pickup_address, dropoff_address, businesses:business_id ( user_id )")
       .eq("id", params.id)
       .single();
 
@@ -107,12 +107,21 @@ export async function PUT(
       );
     }
 
-    // Update delivery
+    // The rider's vehicle must match the requested means of transport.
+    if (delivery.vehicle_type_id && rider.vehicle_type_id !== delivery.vehicle_type_id) {
+      return NextResponse.json(
+        { error: "This rider's vehicle type does not match the requested means of transport." },
+        { status: 400 },
+      );
+    }
+
+    // Update delivery (clear any prior rider acceptance marker).
     const { data: updatedDelivery, error: updateError } = await supabaseAdmin
       .from("deliveries")
       .update({
         assigned_rider_id: rider_id,
         status: "ASSIGNED",
+        rider_confirmed_at: null,
       })
       .eq("id", params.id)
       .select()
@@ -130,12 +139,33 @@ export async function PUT(
       created_by: user.id,
     });
 
-    // Send SMS notification to rider
-    if (rider.phone) {
-      await sendSMS(
-        rider.phone,
-        `You have been assigned a new delivery (ID: ${params.id.substring(0, 8)}). Please check your dashboard app for details.`,
+    // Notify the rider of the new assignment, and the client that a rider is
+    // being arranged (both over SMS + Email).
+    try {
+      await notifyEvent(
+        "rider_new_assignment",
+        { phone: rider.phone, email: (rider as any).email },
+        {
+          pickup_address: delivery.pickup_address || "",
+          dropoff_address: delivery.dropoff_address || "",
+        }
       );
+
+      const ownerId = (delivery as any).businesses?.user_id as string | undefined;
+      if (ownerId) {
+        const { data: owner } = await supabaseAdmin
+          .from("users")
+          .select("email, phone")
+          .eq("id", ownerId)
+          .single();
+        await notifyEvent(
+          "client_rider_assigned",
+          { phone: owner?.phone, email: owner?.email },
+          { delivery_id: params.id.substring(0, 8) }
+        );
+      }
+    } catch (notifyErr) {
+      console.error("Failed to send assignment notifications:", notifyErr);
     }
 
     return NextResponse.json({

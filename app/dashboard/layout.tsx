@@ -21,6 +21,8 @@ import {
   CreditCard,
   FolderOpen,
   MessageSquare,
+  Video,
+  Bike,
 } from "lucide-react";
 import { getCurrentUser, logout } from "@/lib/auth";
 import { getUserRole } from "@/lib/roles";
@@ -107,9 +109,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
   const businessNavItems: NavItem[] = [
     { href: "/dashboard/business", label: "Overview", icon: LayoutDashboard },
+    { href: "/dashboard/business/request-ride", label: "Order Delivery", icon: Bike },
     {
-      href: "/dashboard/business/deliveries",
-      label: "Deliveries",
+      href: "/dashboard/business/rides",
+      label: "Rides History",
       icon: Package,
     },
     { href: "/dashboard/business/invoices", label: "Invoices", icon: Receipt },
@@ -129,7 +132,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       icon: BarChart3,
     },
     { href: "/dashboard/staff/financial", label: "Financial", icon: Receipt },
+    { href: "/dashboard/admin/vehicles", label: "Vehicles", icon: Bike },
     { href: "/dashboard/admin/cms/sliders", label: "CMS Sliders", icon: Image },
+    { href: "/dashboard/admin/cms/videos", label: "CMS Videos", icon: Video },
     {
       href: "/dashboard/admin/cms/content",
       label: "CMS Content",
@@ -190,10 +195,22 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       modules: ["delivery_packages"],
     },
     {
+      href: "/dashboard/admin/vehicles",
+      label: "Vehicles",
+      icon: Bike,
+      modules: ["vehicles"],
+    },
+    {
       href: "/dashboard/admin/cms/sliders",
       label: "CMS Sliders",
       icon: Image,
       modules: ["cms_sliders"],
+    },
+    {
+      href: "/dashboard/admin/cms/videos",
+      label: "CMS Videos",
+      icon: Video,
+      modules: ["cms_videos"],
     },
     {
       href: "/dashboard/admin/cms/content",
@@ -224,6 +241,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       icon: Package,
       permissions: ["deliveries.view_assigned"],
     },
+    { href: "/dashboard/rider/profile", label: "Profile", icon: User },
     {
       href: "/dashboard/rider/create-delivery",
       label: "Create Delivery",
@@ -271,9 +289,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const navItems = getNavItems();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-[100dvh] flex flex-col overflow-hidden bg-gray-50">
       {/* Top Navigation Bar */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav className="shrink-0 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -313,7 +331,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      <div className="flex relative overflow-hidden">
+      <div className="flex relative flex-1 min-h-0 overflow-hidden">
         {/* Mobile Overlay */}
         {sidebarOpen && (
           <div
@@ -327,9 +345,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           <aside
             className={`
               fixed lg:static
-              top-16 left-0
+              top-16 left-0 bottom-0
               w-64 bg-white border-r border-gray-200
-              min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-4rem)]
+              lg:h-full overflow-y-auto
               z-50 lg:z-auto
               transform transition-transform duration-300 ease-in-out
               ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
@@ -358,8 +376,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </aside>
         )}
 
-        {/* Main Content */}
-        <main className="flex-1 p-6 w-full lg:w-auto min-w-0 overflow-x-auto">
+        {/* Main Content — the only scrollable region */}
+        <main className="flex-1 p-6 w-full lg:w-auto min-w-0 h-full overflow-auto">
           {role === "BUSINESS" && <VerificationBanner />}
           {children}
         </main>

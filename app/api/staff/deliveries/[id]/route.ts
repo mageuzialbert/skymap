@@ -151,7 +151,7 @@ export async function PUT(
     // Verify delivery exists and get current data
     const { data: delivery, error: fetchError } = await supabaseAdmin
       .from("deliveries")
-      .select("id, business_id, delivery_fee, pickup_phone, pickup_address, dropoff_address")
+      .select("id, business_id, delivery_fee, pickup_phone, pickup_address, dropoff_address, businesses:business_id ( user_id )")
       .eq("id", params.id)
       .single();
 
@@ -252,15 +252,31 @@ export async function PUT(
       }).format(Number(delivery_fee));
 
       try {
-        const { sendEventSMS } = await import("@/lib/sms");
-        await sendEventSMS("delivery_fee_updated", delivery.pickup_phone, {
-          amount: formattedFee,
-          pickup_address: delivery.pickup_address || "Pickup",
-          dropoff_address: delivery.dropoff_address || "Drop-off",
-        });
-      } catch (smsError) {
-        console.error("Failed to send delivery fee SMS notification:", smsError);
-        // We don't fail the request if SMS fails
+        const { notifyEvent } = await import("@/lib/notify");
+        const ownerId = (delivery as any).businesses?.user_id as string | undefined;
+        let clientEmail: string | undefined;
+        let clientPhone: string | undefined = delivery.pickup_phone || undefined;
+        if (ownerId) {
+          const { data: owner } = await supabaseAdmin
+            .from("users")
+            .select("email, phone")
+            .eq("id", ownerId)
+            .single();
+          clientEmail = owner?.email || undefined;
+          clientPhone = owner?.phone || clientPhone;
+        }
+        await notifyEvent(
+          "delivery_fee_updated",
+          { phone: clientPhone, email: clientEmail },
+          {
+            amount: formattedFee,
+            pickup_address: delivery.pickup_address || "Pickup",
+            dropoff_address: delivery.dropoff_address || "Drop-off",
+          }
+        );
+      } catch (notifyError) {
+        console.error("Failed to send delivery fee notification:", notifyError);
+        // We don't fail the request if notification fails
       }
     }
 

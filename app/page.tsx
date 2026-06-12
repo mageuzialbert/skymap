@@ -1,181 +1,85 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import HeroSlider from '@/components/landing/HeroSlider';
-import SlideMenu from '@/components/landing/SlideMenu';
 import Link from 'next/link';
-import { Menu, Volume2, VolumeX, Phone, MessageCircle, Package, ArrowRight } from 'lucide-react';
+import { Info, Phone, MessageCircle, LogIn, UserPlus } from 'lucide-react';
+import HeroMedia from '@/components/landing/HeroMedia';
+import { useT } from '@/lib/i18n';
 
 const SKYMAP_PHONE = '+255687371544';
 const SKYMAP_WHATSAPP = '255687371544'; // wa.me format: digits only, no '+'
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
-
-  // Browsers block unmuted autoplay without prior engagement, but muted autoplay
-  // is always allowed. So: start muted+playing, try to unmute immediately, and
-  // fall back to unmuting on the first user interaction anywhere on the page.
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const unmute = (e: Event) => {
-      // Don't auto-unmute clicks on the audio toggle button itself —
-      // let its own handler decide what to do.
-      const target = e.target as Element | null;
-      if (target?.closest('[data-audio-toggle]')) return;
-      audio.muted = false;
-      setIsMuted(false);
-      if (audio.paused) {
-        audio.play().then(() => setIsPlaying(true)).catch(() => {});
-      }
-      removeListeners();
-    };
-
-    const removeListeners = () => {
-      document.removeEventListener('click', unmute);
-      document.removeEventListener('touchstart', unmute);
-      document.removeEventListener('keydown', unmute);
-    };
-
-    // First attempt: unmuted autoplay (succeeds for returning visitors / installed PWA)
-    audio.muted = false;
-    audio.play()
-      .then(() => {
-        setIsPlaying(true);
-        setIsMuted(false);
-      })
-      .catch(() => {
-        // Blocked. Mute + autoplay (always allowed) and arm interaction listeners.
-        audio.muted = true;
-        setIsMuted(true);
-        audio.play()
-          .then(() => setIsPlaying(true))
-          .catch(() => setIsPlaying(false));
-        document.addEventListener('click', unmute);
-        document.addEventListener('touchstart', unmute);
-        document.addEventListener('keydown', unmute);
-      });
-
-    return removeListeners;
-  }, []);
-
-  const handleToggleAudio = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    // If audio is audible right now → mute/pause it. Otherwise enable sound.
-    if (!audio.paused && !audio.muted) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      audio.muted = false;
-      setIsMuted(false);
-      audio.play().then(() => setIsPlaying(true)).catch(() => {});
-    }
-  };
-
-  const isAudible = isPlaying && !isMuted;
+  const t = useT();
 
   return (
     <>
-      {/* Slide Menu */}
-      <SlideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-
-      <main className="fixed inset-0 overflow-hidden bg-gradient-to-br from-primary/10 via-white to-primary/5">
-        {/* Header - Minimal */}
-        <div className="absolute top-0 left-0 right-0 z-20 p-3 flex items-center justify-between pointer-events-none">
-          {/* Menu Button */}
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="pointer-events-auto p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg active:scale-95 transition-transform"
-            aria-label="Open menu"
-          >
-            <Menu className="w-6 h-6 text-gray-700" />
-          </button>
-
-          {/* Logo - Centered */}
-          <div className="pointer-events-auto flex items-center gap-2">
+      <main className="fixed inset-0 flex flex-col overflow-hidden bg-gradient-to-br from-primary/10 via-white to-primary/5">
+        {/* Header - solid top bar */}
+        <div className="relative z-30 shrink-0 p-3 flex items-center justify-between bg-white shadow-sm">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/icons/logo.png" alt="The Skymap" className="w-8 h-8" />
-            <span className="text-lg font-bold text-gray-900 drop-shadow-sm">The Skymap</span>
+            <span className="text-lg font-bold text-gray-900 drop-shadow-sm">{t('common.appName')}</span>
           </div>
 
-          {/* Audio Play/Pause Button */}
-          <button
-            data-audio-toggle
-            onClick={handleToggleAudio}
-            className="pointer-events-auto p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg active:scale-95 transition-transform"
-            title={isAudible ? 'Mute audio' : 'Play audio'}
-            aria-label={isAudible ? 'Mute audio' : 'Play audio'}
-          >
-            {isAudible ? (
-              <Volume2 className="w-6 h-6 text-primary" />
-            ) : (
-              <VolumeX className="w-6 h-6 text-gray-700" />
-            )}
-          </button>
-        </div>
-
-        {/* Hero Slider - Starts below the top bar, extends to the bottom (behind the CTA overlay) */}
-        <div className="absolute inset-x-0 top-16 bottom-0 z-0">
-          <HeroSlider height="fill" />
-        </div>
-
-        {/* Subtle dark fade at the bottom for CTA legibility over any slider image */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-64 z-10 bg-gradient-to-t from-black/70 via-black/30 to-transparent"
-        />
-
-        {/* Bottom CTA - Glass overlay on slider */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 p-3 pb-5">
-          <div className="space-y-2.5 max-w-2xl mx-auto">
-            {/* Primary CTA: Order Delivery */}
+          <div className="flex items-center gap-2">
             <Link
-              href="/order"
-              className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-white text-base font-bold rounded-2xl shadow-xl shadow-black/30 active:scale-[0.98] transition-transform"
+              href="/about"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
             >
-              <Package className="w-5 h-5" />
-              <span>Order Delivery</span>
-              <ArrowRight className="w-5 h-5" />
+              <Info className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('landing.aboutUs')}</span>
             </Link>
+          </div>
+        </div>
 
-            {/* Contact CTAs - glassmorphism */}
+        {/* Hero media (video by default, slideshow + voice fallback) */}
+        <div className="relative flex-1 min-h-0 z-0">
+          <HeroMedia height="fill" />
+        </div>
+
+        {/* Bottom CTA dock — Login / Register (auth required to use the platform) */}
+        <div className="relative z-20 shrink-0 p-3 pb-5">
+          <div className="space-y-2.5 max-w-2xl mx-auto">
+            <div className="grid grid-cols-2 gap-2.5">
+              <Link
+                href="/login"
+                className="flex items-center justify-center gap-2 py-4 bg-primary text-white text-base font-bold rounded-2xl shadow-xl shadow-primary/30 active:scale-[0.98] transition-transform"
+              >
+                <LogIn className="w-5 h-5" />
+                <span>{t('common.login')}</span>
+              </Link>
+              <Link
+                href="/register"
+                className="flex items-center justify-center gap-2 py-4 bg-white border-2 border-primary text-primary text-base font-bold rounded-2xl active:scale-[0.98] transition-transform shadow-sm"
+              >
+                <UserPlus className="w-5 h-5" />
+                <span>{t('common.register')}</span>
+              </Link>
+            </div>
+
+            {/* Contact CTAs */}
             <div className="grid grid-cols-2 gap-2.5">
               <a
                 href={`tel:${SKYMAP_PHONE}`}
-                className="flex items-center justify-center gap-2 py-3 bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white font-semibold rounded-2xl transition-colors active:scale-[0.98] shadow-lg shadow-black/20"
+                className="flex items-center justify-center gap-2 py-3 bg-white border border-gray-200 text-gray-700 font-semibold rounded-2xl transition-colors hover:bg-gray-50 active:scale-[0.98] shadow-sm"
               >
                 <Phone className="w-5 h-5" />
-                <span>Call</span>
+                <span>{t('landing.call')}</span>
               </a>
               <a
                 href={`https://wa.me/${SKYMAP_WHATSAPP}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-3 bg-green-500/30 hover:bg-green-500/50 backdrop-blur-md border border-white/30 text-white font-semibold rounded-2xl transition-colors active:scale-[0.98] shadow-lg shadow-black/20"
+                className="flex items-center justify-center gap-2 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-2xl transition-colors active:scale-[0.98] shadow-sm"
               >
                 <MessageCircle className="w-5 h-5" />
-                <span>WhatsApp</span>
+                <span>{t('landing.whatsapp')}</span>
               </a>
             </div>
           </div>
         </div>
-
-        {/* Background Audio (loops until paused) — hosted on Supabase Storage.
-            autoPlay+muted is the only autoplay combo browsers reliably honor; the
-            effect above unmutes ASAP or on first user interaction. */}
-        <audio
-          ref={audioRef}
-          src="https://ergemtnsxdvbboyjxdyy.supabase.co/storage/v1/object/public/assets/audio/skymap-audio.mp3"
-          preload="auto"
-          autoPlay
-          muted
-          loop
-        />
       </main>
     </>
   );

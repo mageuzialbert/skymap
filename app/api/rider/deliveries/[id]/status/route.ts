@@ -59,7 +59,7 @@ export async function PUT(
     // Verify delivery exists and is assigned to this rider
     const { data: delivery, error: deliveryError } = await supabaseAdmin
       .from('deliveries')
-      .select('id, status, assigned_rider_id, businesses:business_id ( name )')
+      .select('id, status, assigned_rider_id, rider_confirmed_at, pickup_phone, businesses:business_id ( name, user_id )')
       .eq('id', params.id)
       .single();
 
@@ -82,6 +82,14 @@ export async function PUT(
     if (currentStatus === 'PENDING_CONFIRMATION') {
       return NextResponse.json(
         { error: 'This delivery is pending confirmation from staff/admin. You cannot update its status until it is confirmed.' },
+        { status: 400 }
+      );
+    }
+
+    // Require the rider to confirm (accept) the ride before starting it.
+    if (currentStatus === 'ASSIGNED' && status === 'PICKED_UP' && !(delivery as any).rider_confirmed_at) {
+      return NextResponse.json(
+        { error: 'Please confirm (accept) this ride before starting it.' },
         { status: 400 }
       );
     }
@@ -129,19 +137,51 @@ export async function PUT(
         created_by: user.id,
       });
 
-    // Send admin SMS notification when delivery is completed
-    if (status === 'DELIVERED') {
-      try {
-        const { sendEventSMS } = await import('@/lib/sms');
-        const businessName = (delivery as any).businesses?.name || 'Unknown';
-        const shortId = params.id.substring(0, 8);
-        await sendEventSMS('admin_order_complete', null, {
+    // Fire the appropriate notifications (SMS + Email) for this transition.
+    try {
+      const { notifyEvent } = await import('@/lib/notify');
+      const businessName = (delivery as any).businesses?.name || 'Unknown';
+      const ownerId = (delivery as any).businesses?.user_id as string | undefined;
+      const shortId = params.id.substring(0, 8);
+
+      // Resolve the rider's display name + the client's contact (phone/email).
+      const [{ data: rider }, ownerRes] = await Promise.all([
+        supabaseAdmin.from('users').select('name').eq('id', user.id).single(),
+        ownerId
+          ? supabaseAdmin.from('users').select('email, phone').eq('id', ownerId).single()
+          : Promise.resolve({ data: null } as any),
+      ]);
+      const riderName = rider?.name || 'Your rider';
+      const client = {
+        phone: ownerRes?.data?.phone || (delivery as any).pickup_phone || undefined,
+        email: ownerRes?.data?.email || undefined,
+      };
+
+      if (status === 'PICKED_UP') {
+        await notifyEvent('client_order_picked_up', client, {
+          delivery_id: shortId,
+          rider_name: riderName,
+        });
+      } else if (status === 'IN_TRANSIT') {
+        await notifyEvent('client_in_transit', client, { delivery_id: shortId });
+      } else if (status === 'DELIVERED') {
+        await notifyEvent('admin_order_complete', {}, {
           delivery_id: shortId,
           business_name: businessName,
         });
-      } catch (smsErr) {
-        console.error('Failed to send admin order complete SMS:', smsErr);
+        await notifyEvent('order_complete_thanks', client, {
+          client_name: businessName,
+          delivery_id: shortId,
+        });
+      } else if (status === 'FAILED') {
+        await notifyEvent('client_order_failed', client, { delivery_id: shortId });
+        await notifyEvent('admin_order_failed', {}, {
+          delivery_id: shortId,
+          business_name: businessName,
+        });
       }
+    } catch (notifyErr) {
+      console.error('Failed to send status-transition notifications:', notifyErr);
     }
 
     return NextResponse.json({

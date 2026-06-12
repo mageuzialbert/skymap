@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { createClient } from '@/lib/supabase-server';
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration';
+import { LanguageProvider } from '@/lib/i18n';
 
 async function getCompanyProfile() {
   try {
@@ -24,6 +25,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: 'cover',
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -46,9 +48,13 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: profile.favicon_url,
       apple: profile.favicon_url,
     } : {
-      icon: '/icons/logo.png',
-      shortcut: '/icons/logo.png',
-      apple: '/icons/logo.png',
+      icon: [
+        { url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' },
+        { url: '/icons/favicon-16.png', sizes: '16x16', type: 'image/png' },
+        { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      ],
+      shortcut: '/icons/favicon-32.png',
+      apple: '/icons/apple-touch-icon.png',
     },
     other: {
       'mobile-web-app-capable': 'yes',
@@ -72,15 +78,18 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#0b5a54" />
         <meta name="msapplication-tap-highlight" content="no" />
         
-        {/* Apple Touch Icons */}
-        <link rel="apple-touch-icon" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="167x167" href="/icons/logo.png" />
+        {/* Apple Touch Icon (180x180, solid background) */}
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+        {/* Favicons */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png" />
       </head>
       <body>
-        {children}
-        <ServiceWorkerRegistration />
+        <LanguageProvider>
+          {children}
+          <ServiceWorkerRegistration />
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -72,6 +72,7 @@ export async function PUT(
       permissions,
       profile_picture_url,
       license_number,
+      vehicle_type_id,
     } = await request.json();
 
     // Verify user exists
@@ -116,6 +117,10 @@ export async function PUT(
     if (license_number !== undefined) {
       const finalRole = userRole || existingUser.role;
       updates.license_number = finalRole === 'RIDER' ? (license_number || null) : null;
+    }
+    if (vehicle_type_id !== undefined) {
+      const finalRole = userRole || existingUser.role;
+      updates.vehicle_type_id = finalRole === 'RIDER' ? (vehicle_type_id || null) : null;
     }
 
     // Update user record

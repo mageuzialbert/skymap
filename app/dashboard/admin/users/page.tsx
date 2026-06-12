@@ -20,6 +20,7 @@ interface User {
   permissions?: string[];
   profile_picture_url?: string | null;
   license_number?: string | null;
+  vehicle_type_id?: string | null;
 }
 
 type ConfirmAction =
