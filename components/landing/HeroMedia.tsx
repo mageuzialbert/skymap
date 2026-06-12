@@ -187,16 +187,16 @@ export default function HeroMedia({ height = 'fill' }: { height?: 'fill' }) {
         />
       )}
 
-      {/* Animated typing tagline over the video (top) */}
+      {/* Animated typing tagline over the video (top, centered) */}
       {!showSlides && hasVideos && (
         <div aria-hidden className="absolute top-0 inset-x-0 z-10 pointer-events-none">
-          <div className="bg-gradient-to-b from-black/55 via-black/25 to-transparent pt-4 pb-14 px-4 sm:px-6 pr-24 sm:pr-28">
-            <p className="text-[10px] sm:text-xs font-bold tracking-[0.28em] uppercase animate-text-shimmer">
+          <div className="bg-gradient-to-b from-black/55 via-black/25 to-transparent pt-5 pb-16 px-4 sm:px-6 text-center">
+            <p className="text-[11px] sm:text-sm font-bold tracking-[0.3em] uppercase animate-text-shimmer">
               The Skymap
             </p>
-            <h2 className="mt-1 animate-text-wave text-lg sm:text-2xl md:text-[1.75rem] font-extrabold text-white leading-snug min-h-[2.6em] [text-shadow:0_2px_12px_rgba(0,0,0,0.65)]">
+            <h2 className="font-bodoni mt-2 animate-text-wave text-2xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight min-h-[2.4em] max-w-4xl mx-auto [text-shadow:0_2px_14px_rgba(0,0,0,0.7)]">
               {typed}
-              <span className="animate-caret text-secondary ml-0.5">|</span>
+              <span className="animate-caret text-secondary ml-1">|</span>
             </h2>
           </div>
         </div>

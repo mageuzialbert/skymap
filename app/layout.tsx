@@ -1,8 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import { Bodoni_Moda } from "next/font/google";
 import "./globals.css";
 import { createClient } from '@/lib/supabase-server';
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration';
 import { LanguageProvider } from '@/lib/i18n';
+
+// Display serif used for the hero tagline.
+const bodoni = Bodoni_Moda({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-bodoni",
+  display: "swap",
+  adjustFontFallback: false,
+});
 
 async function getCompanyProfile() {
   try {
@@ -68,7 +78,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={bodoni.variable}>
       <head>
         {/* PWA Meta Tags */}
         <meta name="application-name" content="The Skaymap" />
