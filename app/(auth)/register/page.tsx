@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MessageSquare, Mail, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { MessageSquare, Mail, Loader2, ArrowLeft, Eye, EyeOff, Home } from 'lucide-react';
 import { registerBusiness, sendVerificationCode } from '@/lib/auth';
 import CountryCodeSelect from '@/components/common/CountryCodeSelect';
 import { Country, DEFAULT_COUNTRY_CODE, getCountry } from '@/lib/countries';
@@ -140,6 +140,15 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 px-4 py-8">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+        {/* Back to home */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors mb-4"
+        >
+          <Home className="w-4 h-4" />
+          Back to home
+        </Link>
+
         {/* Header */}
         <div className="flex items-center mb-4">
           <Link href="/" className="flex items-center gap-2">

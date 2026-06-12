@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Home } from 'lucide-react';
 import { loginWithPassword, sendOTP, verifyOTP } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
@@ -135,6 +135,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        {/* Back to home */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors mb-4"
+        >
+          <Home className="w-4 h-4" />
+          Back to home
+        </Link>
+
         {/* Logo/Branding */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">
