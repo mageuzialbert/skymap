@@ -56,16 +56,13 @@ export default function AddressInput({
     }
   };
 
-  const iconColor = icon === 'pickup' ? 'text-primary' : 'text-secondary-dark';
-  const iconBg = icon === 'pickup' ? 'bg-primary/10' : 'bg-secondary/15';
-
   return (
     <div className="relative">
-      <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary transition-all">
-        {/* Icon */}
-        <div className={`p-3 ${iconBg}`}>
-          <MapPin className={`w-5 h-5 ${iconColor}`} />
-        </div>
+      <div className="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
+        {/* Icon (plain, gray) */}
+        <span className="pl-3 text-gray-400">
+          <MapPin className="w-4 h-4" />
+        </span>
 
         {/* Input */}
         <input
@@ -76,14 +73,14 @@ export default function AddressInput({
           disabled={!ready}
           placeholder={placeholder}
           autoComplete="street-address"
-          className="flex-1 py-3 pr-2 text-gray-900 placeholder-gray-400 focus:outline-none text-sm"
+          className="flex-1 py-2.5 px-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
         />
 
         {/* Map Button */}
         <button
           type="button"
           onClick={onMapClick}
-          className="p-3 text-gray-400 hover:text-primary hover:bg-gray-50 transition-colors"
+          className="p-2.5 text-gray-400 hover:text-primary hover:bg-gray-50 transition-colors"
           title="Select on map"
         >
           <Map className="w-5 h-5" />

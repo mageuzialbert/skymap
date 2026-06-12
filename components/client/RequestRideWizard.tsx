@@ -344,10 +344,8 @@ export default function RequestRideWizard({
       {/* ===== STEP 2: TRANSPORT ===== */}
       {step === 1 && (
         <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
-          <header className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Truck className="w-5 h-5 text-primary" />
-            </div>
+          <header className="flex items-center gap-2.5 mb-4">
+            <Truck className="w-5 h-5 text-gray-400 shrink-0" />
             <div>
               <h3 className="text-base font-semibold text-gray-900 leading-tight">Means of transport</h3>
               <p className="text-xs text-gray-500">Choose a vehicle - all options are available.</p>
@@ -362,10 +360,8 @@ export default function RequestRideWizard({
         <div className="space-y-5">
           {/* Locations / contact */}
           <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
-            <header className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-primary" />
-              </div>
+            <header className="flex items-center gap-2.5 mb-4">
+              <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
               <div>
                 <h3 className="text-base font-semibold text-gray-900 leading-tight">
                   {svc === 'delivery'
@@ -450,10 +446,8 @@ export default function RequestRideWizard({
           {/* Service-specific details */}
           {svc === 'delivery' && (
             <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
-              <header className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
-                  <Package className="w-5 h-5 text-gray-600" />
-                </div>
+              <header className="flex items-center gap-2.5 mb-4">
+                <Package className="w-5 h-5 text-gray-400 shrink-0" />
                 <div>
                   <h3 className="text-base font-semibold text-gray-900 leading-tight">Package details</h3>
                   <p className="text-xs text-gray-500">Optional</p>
@@ -488,9 +482,7 @@ export default function RequestRideWizard({
                       disabled={loading}
                       className="flex flex-col items-center justify-center gap-2 py-5 border-2 border-dashed border-gray-200 hover:border-primary hover:bg-primary/5 rounded-lg text-sm font-medium text-gray-600 hover:text-primary transition-all"
                     >
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Camera className="w-5 h-5 text-primary" />
-                      </div>
+                      <Camera className="w-6 h-6 text-gray-400" />
                       <span>Take photo</span>
                     </button>
                     <button
@@ -499,9 +491,7 @@ export default function RequestRideWizard({
                       disabled={loading}
                       className="flex flex-col items-center justify-center gap-2 py-5 border-2 border-dashed border-gray-200 hover:border-secondary-dark hover:bg-secondary/5 rounded-lg text-sm font-medium text-gray-600 hover:text-secondary-dark transition-all"
                     >
-                      <div className="w-10 h-10 rounded-full bg-secondary/15 flex items-center justify-center">
-                        <ImagePlus className="w-5 h-5 text-secondary-dark" />
-                      </div>
+                      <ImagePlus className="w-6 h-6 text-gray-400" />
                       <span>From gallery</span>
                     </button>
                   </div>
@@ -545,16 +535,14 @@ export default function RequestRideWizard({
 
           {svc !== 'delivery' && (
             <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
-              <header className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
-                  {svc === 'errand' ? (
-                    <ShoppingBag className="w-5 h-5 text-gray-600" />
-                  ) : svc === 'hire' ? (
-                    <Clock className="w-5 h-5 text-gray-600" />
-                  ) : (
-                    <UserRound className="w-5 h-5 text-gray-600" />
-                  )}
-                </div>
+              <header className="flex items-center gap-2.5 mb-4">
+                {svc === 'errand' ? (
+                  <ShoppingBag className="w-5 h-5 text-gray-400 shrink-0" />
+                ) : svc === 'hire' ? (
+                  <Clock className="w-5 h-5 text-gray-400 shrink-0" />
+                ) : (
+                  <UserRound className="w-5 h-5 text-gray-400 shrink-0" />
+                )}
                 <div>
                   <h3 className="text-base font-semibold text-gray-900 leading-tight">
                     {svc === 'errand'
@@ -589,10 +577,8 @@ export default function RequestRideWizard({
       {step === 3 && (
         <div className="space-y-5">
           <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
-            <header className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                <CalendarClock className="w-5 h-5 text-primary" />
-              </div>
+            <header className="flex items-center gap-2.5 mb-4">
+              <CalendarClock className="w-5 h-5 text-gray-400 shrink-0" />
               <div>
                 <h3 className="text-base font-semibold text-gray-900 leading-tight">When?</h3>
                 <p className="text-xs text-gray-500">Choose now or schedule for later.</p>
