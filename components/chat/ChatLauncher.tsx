@@ -23,6 +23,14 @@ interface ChatLauncherProps {
   otherName?: string;
   /** Button label, e.g. "Chat with rider". */
   label?: string;
+  /** Trigger appearance: a full-width button (default) or a conversation-list row. */
+  variant?: 'button' | 'row';
+  /** Row variant: last-message preview text. */
+  preview?: string | null;
+  /** Row variant: small right-aligned timestamp/subtitle. */
+  timeText?: string | null;
+  /** Seed the unread badge (e.g. from a conversations list). */
+  initialUnread?: number;
 }
 
 const MUTE_KEY = 'skymap_chat_muted';
@@ -56,11 +64,19 @@ function timeLabel(iso: string): string {
  * delivery/read ticks and the typing indicator update live; rings a chime
  * (unless muted) even while the panel is closed.
  */
-export default function ChatLauncher({ deliveryId, otherName, label = 'Chat' }: ChatLauncherProps) {
+export default function ChatLauncher({
+  deliveryId,
+  otherName,
+  label = 'Chat',
+  variant = 'button',
+  preview,
+  timeText,
+  initialUnread = 0,
+}: ChatLauncherProps) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [selfId, setSelfId] = useState<string | null>(null);
-  const [unread, setUnread] = useState(0);
+  const [unread, setUnread] = useState(initialUnread);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [draft, setDraft] = useState('');
@@ -225,19 +241,47 @@ export default function ChatLauncher({ deliveryId, otherName, label = 'Chat' }: 
 
   return (
     <>
-      <button
-        type="button"
-        onClick={handleOpen}
-        className="relative inline-flex items-center justify-center gap-2 w-full py-3 bg-primary/10 text-primary font-semibold rounded-xl hover:bg-primary/15 transition-colors"
-      >
-        <MessageCircle className="w-5 h-5" />
-        <span>{label}</span>
-        {unread > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">
-            {unread > 9 ? '9+' : unread}
-          </span>
-        )}
-      </button>
+      {variant === 'row' ? (
+        <button
+          type="button"
+          onClick={handleOpen}
+          className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 transition-colors"
+        >
+          <div className="relative shrink-0">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <MessageCircle className="w-6 h-6 text-primary" />
+            </div>
+            {unread > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">
+                {unread > 9 ? '9+' : unread}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-semibold text-gray-900 truncate">{otherName || 'Chat'}</p>
+              {timeText && <span className="text-xs text-gray-400 shrink-0">{timeText}</span>}
+            </div>
+            <p className={`text-sm truncate ${unread > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+              {preview || 'Tap to open the conversation'}
+            </p>
+          </div>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={handleOpen}
+          className="relative inline-flex items-center justify-center gap-2 w-full py-3 bg-primary/10 text-primary font-semibold rounded-xl hover:bg-primary/15 transition-colors"
+        >
+          <MessageCircle className="w-5 h-5" />
+          <span>{label}</span>
+          {unread > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">
+              {unread > 9 ? '9+' : unread}
+            </span>
+          )}
+        </button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-[130] flex items-end sm:items-center justify-center">

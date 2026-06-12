@@ -115,6 +115,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       label: "Rides History",
       icon: Package,
     },
+    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
     { href: "/dashboard/business/invoices", label: "Invoices", icon: Receipt },
     { href: "/dashboard/business/profile", label: "Profile", icon: User },
     { href: "/dashboard/business/verify", label: "Verify", icon: Shield },
@@ -126,6 +127,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     { href: "/dashboard/admin/businesses", label: "Clients", icon: Building2 },
     { href: "/dashboard/admin/users", label: "Users", icon: User },
     { href: "/dashboard/staff/deliveries", label: "Deliveries", icon: Package },
+    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
     {
       href: "/dashboard/staff/operations",
       label: "Operations",
@@ -152,6 +154,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       icon: Package,
       modules: ["deliveries"],
     },
+    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
     {
       href: "/dashboard/admin/businesses",
       label: "Clients",
@@ -241,6 +244,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       icon: Package,
       permissions: ["deliveries.view_assigned"],
     },
+    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
     { href: "/dashboard/rider/profile", label: "Profile", icon: User },
     {
       href: "/dashboard/rider/create-delivery",
