@@ -39,7 +39,7 @@ export default function Home() {
           <HeroMedia height="fill" />
         </div>
 
-        {/* Bottom CTA dock — Login / Register (auth required to use the platform) */}
+        {/* Bottom CTA dock - Login / Register (auth required to use the platform) */}
         <div className="relative z-20 shrink-0 p-3 pb-5">
           <div className="space-y-2.5 max-w-2xl mx-auto">
             <div className="grid grid-cols-2 gap-2.5">

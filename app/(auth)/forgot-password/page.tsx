@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
           <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">{info}</div>
         )}
 
-        {/* Step 1 — request a code */}
+        {/* Step 1 - request a code */}
         {step === 1 && (
           <form onSubmit={handleSendCode} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
@@ -175,7 +175,7 @@ export default function ForgotPasswordPage() {
           </form>
         )}
 
-        {/* Step 2 — verify + set new password */}
+        {/* Step 2 - verify + set new password */}
         {step === 2 && (
           <form onSubmit={handleReset} className="space-y-4">
             <div>
@@ -270,7 +270,7 @@ export default function ForgotPasswordPage() {
           </form>
         )}
 
-        {/* Step 3 — done */}
+        {/* Step 3 - done */}
         {step === 3 && (
           <div className="text-center space-y-4">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">

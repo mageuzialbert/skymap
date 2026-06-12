@@ -34,7 +34,7 @@
   },
   "about": {
     "title": "Kuhusu Sisi",
-    "body": "The Sky Map ni jukwaa mahiri la usafiri na utoaji wa vifurushi linalounganisha watu, vifurushi, na maeneo kwa haraka, usalama, na ufanisi.\n\nProgramu yetu hutoa huduma za utoaji wa vifurushi, nyaraka, na bidhaa mjini kote unapozihitaji. Watumiaji wanaweza kuomba kuchukuliwa na kufikishiwa kutoka viwanja vya ndege, bandari, stesheni za reli, vituo vya mabasi, vituo vya ununuzi, maeneo ya biashara, na maeneo mengine, kwa msaada wa moja kwa moja kutoka kwa mtandao wetu wa madereva wanaoaminika.\n\nThe Sky Map pia hutoa huduma za usafiri binafsi, kuwawezesha watumiaji kuagiza pikipiki, bajaji, au magari binafsi kwa safari za urahisi. Weka tu maeneo yako ya kuchukuliwa na unakoenda, chagua chombo unachopendelea, na dereva aliye karibu atapangiwa safari yako.\n\nDhamira yetu ni kurahisisha usafiri na usafirishaji kupitia teknolojia ya kisasa, na kufanya usafiri na utoaji kupatikana, kuaminika, na bila usumbufu kwa kila mtu.\n\nThe Sky Map – Tunaunganisha Watu, Vifurushi, na Maeneo."
+    "body": "The Sky Map ni jukwaa mahiri la usafiri na utoaji wa vifurushi linalounganisha watu, vifurushi, na maeneo kwa haraka, usalama, na ufanisi.\n\nProgramu yetu hutoa huduma za utoaji wa vifurushi, nyaraka, na bidhaa mjini kote unapozihitaji. Watumiaji wanaweza kuomba kuchukuliwa na kufikishiwa kutoka viwanja vya ndege, bandari, stesheni za reli, vituo vya mabasi, vituo vya ununuzi, maeneo ya biashara, na maeneo mengine, kwa msaada wa moja kwa moja kutoka kwa mtandao wetu wa madereva wanaoaminika.\n\nThe Sky Map pia hutoa huduma za usafiri binafsi, kuwawezesha watumiaji kuagiza pikipiki, bajaji, au magari binafsi kwa safari za urahisi. Weka tu maeneo yako ya kuchukuliwa na unakoenda, chagua chombo unachopendelea, na dereva aliye karibu atapangiwa safari yako.\n\nDhamira yetu ni kurahisisha usafiri na usafirishaji kupitia teknolojia ya kisasa, na kufanya usafiri na utoaji kupatikana, kuaminika, na bila usumbufu kwa kila mtu.\n\nThe Sky Map - Tunaunganisha Watu, Vifurushi, na Maeneo."
   },
   "auth": {
     "registerTitle": "Fungua akaunti yako",
@@ -77,7 +77,7 @@
     "dropoff": "Mahali pa Kufikisha",
     "pickupDropoff": "Kuchukua → Kufikisha",
     "scheduleTitle": "Panga safari yako",
-    "scheduleSubtitle": "Tuambie mahali pa kuchukua na kufikisha — tutashughulikia mengine.",
+    "scheduleSubtitle": "Tuambie mahali pa kuchukua na kufikisha - tutashughulikia mengine.",
     "meansOfTransport": "Aina ya usafiri",
     "selectVehicle": "Chagua chombo",
     "boda": "Boda (Pikipiki)",

@@ -259,7 +259,7 @@ export default function AdminVideosPage() {
                 className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary hover:bg-primary/5 text-gray-600 hover:text-primary transition-colors w-full justify-center"
               >
                 <Upload className="w-4 h-4" />
-                {videoFile || formData.video_url ? 'Replace video' : 'Upload video (MP4, WebM — max 500MB)'}
+                {videoFile || formData.video_url ? 'Replace video' : 'Upload video (MP4, WebM - max 500MB)'}
               </button>
               <input
                 ref={videoInputRef}

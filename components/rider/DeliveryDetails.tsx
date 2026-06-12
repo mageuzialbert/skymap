@@ -300,7 +300,7 @@ export default function DeliveryDetails({
         </div>
       </div>
 
-      {/* Dropoff Information — only when there is a destination */}
+      {/* Dropoff Information - only when there is a destination */}
       {delivery.dropoff_address && (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <div className="flex items-center gap-2 mb-3">
@@ -437,7 +437,7 @@ export default function DeliveryDetails({
         </div>
       )}
 
-      {/* Sticky Bottom Action Bar — Confirm/Decline before accepting, else Update Status */}
+      {/* Sticky Bottom Action Bar - Confirm/Decline before accepting, else Update Status */}
       {needsConfirm ? (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lg z-40 flex gap-3">
           <button

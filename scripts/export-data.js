@@ -3,7 +3,7 @@
  * Export all public-schema data from the Supabase project via the REST API
  * (service-role key bypasses RLS). Writes one JSON file per table to ./backup/.
  *
- * NOTE: this CANNOT export the `auth` schema (auth.users / password hashes) —
+ * NOTE: this CANNOT export the `auth` schema (auth.users / password hashes) -
  * that is not reachable through the REST API. This is a data backup, not a
  * basis for seamless auth re-hosting.
  *
@@ -78,7 +78,7 @@ async function fetchAll(table) {
 }
 
 async function main() {
-  console.log('📦 Skymap — Public Data Export');
+  console.log('📦 Skymap - Public Data Export');
   console.log('═'.repeat(55));
   console.log(`📍 Project: ${URL}`);
 
@@ -111,7 +111,7 @@ async function main() {
 
   console.log('\n' + '═'.repeat(55));
   console.log(`🏁 Exported ${Object.keys(manifest).length} tables · ${totalRows} rows → backup/`);
-  console.log('⚠️  Reminder: auth.users (logins/passwords) is NOT included — REST cannot reach it.');
+  console.log('⚠️  Reminder: auth.users (logins/passwords) is NOT included - REST cannot reach it.');
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

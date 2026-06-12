@@ -66,7 +66,7 @@ export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCapt
         } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
           setError('No camera detected on this device.');
         } else if (name === 'NotReadableError') {
-          setError('Camera is busy — close any other app using it and try again.');
+          setError('Camera is busy - close any other app using it and try again.');
         } else {
           setError('Could not open the camera. Try again or use gallery upload.');
         }

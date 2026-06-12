@@ -34,7 +34,7 @@ export const SERVICE_TYPES: ServiceTypeDef[] = [
     key: 'hire',
     icon: 'Clock',
     label: 'Vehicle Hire',
-    description: 'Book a vehicle and rider for a period — route and time may vary.',
+    description: 'Book a vehicle and rider for a period - route and time may vary.',
     badgeClass: 'bg-purple-100 text-purple-800 border border-purple-200',
   },
   {

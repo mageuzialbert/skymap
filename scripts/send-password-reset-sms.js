@@ -6,7 +6,7 @@
  * SAFE BY DEFAULT: previews only. Add --send to actually send SMS.
  *
  * Flags:
- *   (no flag)        dry run — print recipients + message, send nothing
+ *   (no flag)        dry run - print recipients + message, send nothing
  *   --send           actually send via the iPAB gateway + log to sms_logs
  *   --test 0712...   send to ONE number only (great for a real-world check)
  *   --role BUSINESS  filter recipients by role (default: all active users)

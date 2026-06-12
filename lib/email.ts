@@ -109,7 +109,7 @@ export function wrapEmail(title: string, body: string): string {
         ${paragraphs}
       </div>
       <p style="text-align:center;color:#999;font-size:12px;margin-top:16px;">
-        The Skymap — Connecting People, Deliveries, and Destinations.
+        The Skymap - Connecting People, Deliveries, and Destinations.
       </p>
     </div>
   `;

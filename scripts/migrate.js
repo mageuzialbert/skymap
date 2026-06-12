@@ -13,7 +13,7 @@
  *   node scripts/migrate.js --file database/sms-tables.sql   # run one file
  *   node scripts/migrate.js --dry      # parse + list statements, run nothing
  *
- * Requires DATABASE_URL (or SUPABASE_DB_URL) in .env — see the README block
+ * Requires DATABASE_URL (or SUPABASE_DB_URL) in .env - see the README block
  * printed by this script if it's missing.
  */
 
@@ -78,7 +78,7 @@ const MIGRATIONS = [
   'database/create-slider-images-bucket.sql',
 ];
 
-// Postgres error codes that mean "this object is already there" — safe to skip
+// Postgres error codes that mean "this object is already there" - safe to skip
 // when re-running against an existing database.
 const IDEMPOTENT_CODES = new Set([
   '42P07', // duplicate_table
@@ -187,7 +187,7 @@ async function runFile(client, relPath, dry) {
     } catch (err) {
       if (IDEMPOTENT_CODES.has(err.code)) {
         skipped++;
-        process.stdout.write('○'); // already exists — fine
+        process.stdout.write('○'); // already exists - fine
       } else {
         failed++;
         console.log(`\n   ❌ [${err.code || '?'}] ${err.message}`);
@@ -210,7 +210,7 @@ Add ONE line to your .env file (project root):
 Where to get it:
   1. Supabase Dashboard → your project (ref: ergemtnsxdvbboyjxdyy)
   2. Settings → Database → "Connection string"
-  3. Choose the "Session pooler" (port 5432) URI — best for migrations.
+  3. Choose the "Session pooler" (port 5432) URI - best for migrations.
   4. Replace [YOUR-PASSWORD] with your actual database password.
 
 Then run:  npm run migrate
@@ -222,13 +222,13 @@ async function main() {
   const dry = args.includes('--dry');
   const fileArg = args.includes('--file') ? args[args.indexOf('--file') + 1] : null;
 
-  console.log('🚀 Skymap — Direct Postgres Migration Runner');
+  console.log('🚀 Skymap - Direct Postgres Migration Runner');
   console.log('═'.repeat(55));
 
   const files = fileArg ? [fileArg] : MIGRATIONS;
 
   if (dry) {
-    console.log('🔎 DRY RUN — parsing only, nothing will be executed.\n');
+    console.log('🔎 DRY RUN - parsing only, nothing will be executed.\n');
     for (const f of files) await runFile(null, f, true);
     return;
   }
@@ -265,7 +265,7 @@ async function main() {
   await client.end();
 
   console.log('\n' + '═'.repeat(55));
-  console.log(`🏁 DONE — ${totals.applied} applied · ${totals.skipped} already-present · ${totals.failed} failed`);
+  console.log(`🏁 DONE - ${totals.applied} applied · ${totals.skipped} already-present · ${totals.failed} failed`);
   if (totals.failed > 0) {
     console.log('⚠️  Some statements failed (see ❌ above). Review and re-run if needed.');
     process.exit(1);

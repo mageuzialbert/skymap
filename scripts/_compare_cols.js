@@ -22,5 +22,5 @@ const BACKUP = path.join(__dirname, '..', 'backup');
     if (missingInDb.length) console.log(`\n⚠️  ${table}: columns in backup but NOT in new DB -> ${missingInDb.join(', ')}`);
   }
   await c.end();
-  console.log('\n(done — only drift shown above)');
+  console.log('\n(done - only drift shown above)');
 })().catch(e => { console.error(e.message); process.exit(1); });

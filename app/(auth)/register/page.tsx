@@ -55,7 +55,7 @@ export default function RegisterPage() {
     setError('');
     const digits = formData.phone.replace(/\D/g, '');
     if (digits.length < 6 || digits.length > 15) {
-      setError('Please enter a valid phone number (6–15 digits).');
+      setError('Please enter a valid phone number (6-15 digits).');
       return false;
     }
     if (formData.password.length < 6) {

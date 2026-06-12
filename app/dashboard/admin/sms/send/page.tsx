@@ -149,7 +149,7 @@ export default function SmsSendPage() {
 
       const sent = data.total_sent ?? 0;
       const failed = data.total_failed ?? 0;
-      const reason = Array.isArray(data.errors) && data.errors.length ? ` — ${data.errors.join('; ')}` : '';
+      const reason = Array.isArray(data.errors) && data.errors.length ? ` - ${data.errors.join('; ')}` : '';
       const allFailed = sent === 0 && failed > 0;
 
       setSendResult({

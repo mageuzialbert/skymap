@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /*
  * Import ./backup into a NEW Supabase project over a DIRECT Postgres connection
- * (NEW_DATABASE_URL — the Session Pooler string). No service-role key needed.
+ * (NEW_DATABASE_URL - the Session Pooler string). No service-role key needed.
  *
  * Why this beats the REST/Admin-API route: we insert auth.users WITH their
- * ORIGINAL UUIDs, so every foreign key in the backup stays valid as-is — no
+ * ORIGINAL UUIDs, so every foreign key in the backup stays valid as-is - no
  * remapping, a byte-faithful copy. Passwords can't be recovered, so each user
  * gets IMPORT_TEMP_PASSWORD (bcrypt via pgcrypto) and resets on first login.
  *
@@ -112,7 +112,7 @@ async function importAuthUsers() {
         [u.email, u.id]
       );
     } else {
-      noLogin++; // phone-only or no contact — created but no email-login identity
+      noLogin++; // phone-only or no contact - created but no email-login identity
     }
   }
   console.log(`   ✅ ${created} created · ♻️ ${skipped} already existed · ${noLogin} without email-login`);
@@ -125,7 +125,7 @@ async function setSeq(table) {
 }
 
 async function main() {
-  console.log('🚚 Skymap — Import backup → NEW project (direct Postgres, UUIDs preserved)');
+  console.log('🚚 Skymap - Import backup → NEW project (direct Postgres, UUIDs preserved)');
   console.log('═'.repeat(60));
   await db.connect();
   await db.query('set search_path to public, extensions, auth');
@@ -169,7 +169,7 @@ async function main() {
 
   await db.end();
   console.log('\n' + '═'.repeat(60));
-  console.log('🏁 Import complete. Original UUIDs preserved — all foreign keys intact.');
+  console.log('🏁 Import complete. Original UUIDs preserved - all foreign keys intact.');
   console.log(`🔑 Every user can log in with email + temp password "${TEMP_PASSWORD}" (ask them to reset).`);
 }
 

@@ -269,7 +269,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
             </div>
           )}
 
-          {/* Package Info — deliveries only */}
+          {/* Package Info - deliveries only */}
           {delivery.service_type === 'delivery' || !delivery.service_type ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">

@@ -29,13 +29,13 @@ const BACKUP = path.join(__dirname, '..', 'backup');
     totMatched += matched;
     let status;
     if (table === 'otp_codes') status = '⏭️  skipped (transient)';
-    else if (backupN === 0) status = '— empty in source';
+    else if (backupN === 0) status = '- empty in source';
     else if (matched === backupN) status = '✅ all present';
     else { status = `⚠️  MISSING ${backupN - matched}`; allGood = false; }
     console.log(table.padEnd(24), String(backupN).padStart(7), String(dbN).padStart(7), String(matched).padStart(8), '  ' + status);
   }
   console.log('-'.repeat(64));
   console.log(`Backup rows (excl. otp): ${totBackup} | matched in DB: ${totMatched}`);
-  console.log(allGood ? '\n🎉 RECONCILED — every backed-up row is present in the new database.' : '\n⚠️  Discrepancies found above.');
+  console.log(allGood ? '\n🎉 RECONCILED - every backed-up row is present in the new database.' : '\n⚠️  Discrepancies found above.');
   await c.end();
 })().catch(e => { console.error(e.message); process.exit(1); });

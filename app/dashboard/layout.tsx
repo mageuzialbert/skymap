@@ -380,7 +380,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </aside>
         )}
 
-        {/* Main Content — the only scrollable region */}
+        {/* Main Content - the only scrollable region */}
         <main className="flex-1 p-6 w-full lg:w-auto min-w-0 h-full overflow-auto">
           {role === "BUSINESS" && <VerificationBanner />}
           {children}

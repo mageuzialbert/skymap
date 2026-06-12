@@ -69,8 +69,8 @@ async function copyFile(bucket, name) {
 }
 
 async function rewriteUrls() {
-  if (!CONN) { console.log('\n⚠️  NEW_DATABASE_URL not set — skipping URL rewrite.'); return; }
-  if (!oldRef || !newRef) { console.log('\n⚠️  Could not derive project refs — skipping URL rewrite.'); return; }
+  if (!CONN) { console.log('\n⚠️  NEW_DATABASE_URL not set - skipping URL rewrite.'); return; }
+  if (!oldRef || !newRef) { console.log('\n⚠️  Could not derive project refs - skipping URL rewrite.'); return; }
   const db = new Client({ connectionString: CONN, ssl: { rejectUnauthorized: false } });
   await db.connect();
   const targets = [
@@ -95,7 +95,7 @@ async function rewriteUrls() {
 }
 
 async function main() {
-  console.log('🗂️  Skymap — Storage migration (OLD → NEW)');
+  console.log('🗂️  Skymap - Storage migration (OLD → NEW)');
   console.log('═'.repeat(55));
   if (!OLD_URL || !OLD_KEY) { console.error('❌ OLD project creds missing'); process.exit(1); }
 
@@ -112,7 +112,7 @@ async function main() {
   plan.forEach((b) => console.log(`  - ${b.name} (${b.files.length})`));
 
   if (DRY) {
-    console.log('\n🔍 DRY RUN — nothing copied.');
+    console.log('\n🔍 DRY RUN - nothing copied.');
     if (!CONN) console.log('   (URL rewrite would also run if NEW_DATABASE_URL were set.)');
     return;
   }

@@ -93,7 +93,7 @@ export default function AboutPage() {
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight">{title}</h1>
           <p className="mt-3 text-base sm:text-lg text-white/85 max-w-2xl mx-auto">
-            Connecting people, deliveries, and destinations — your everyday transport partner across Tanzania.
+            Connecting people, deliveries, and destinations - your everyday transport partner across Tanzania.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
@@ -108,7 +108,7 @@ export default function AboutPage() {
       </section>
 
       <div className="max-w-5xl mx-auto px-4">
-        {/* Services — overlap the hero */}
+        {/* Services - overlap the hero */}
         <section className="-mt-12 sm:-mt-14 relative z-10">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {SERVICES.map((s) => (
@@ -150,7 +150,7 @@ export default function AboutPage() {
                   : [
                       'One app for rides, deliveries, hire and errands',
                       'Real-time chat with your rider and support',
-                      'Choose your means of transport — boda, bajaj, car & more',
+                      'Choose your means of transport - boda, bajaj, car & more',
                       'Pay-as-you-go, no hidden fees',
                     ]
                 ).map((f, i) => (
@@ -210,7 +210,7 @@ export default function AboutPage() {
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-6">
-            © {new Date().getFullYear()} The Skymap — Connecting People, Deliveries, and Destinations.
+            © {new Date().getFullYear()} The Skymap - Connecting People, Deliveries, and Destinations.
           </p>
         </section>
       </div>

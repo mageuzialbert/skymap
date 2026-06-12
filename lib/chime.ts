@@ -1,4 +1,4 @@
-// Lightweight notification chime synthesized with the Web Audio API — no audio
+// Lightweight notification chime synthesized with the Web Audio API - no audio
 // asset to ship. Plays a short, pleasant two-tone "ding".
 
 let audioCtx: AudioContext | null = null;

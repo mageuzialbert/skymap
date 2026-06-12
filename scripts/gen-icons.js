@@ -41,15 +41,15 @@ async function solid(size, file, scale, bg) {
 (async () => {
   console.log('🎨 Generating PWA icon set from', path.basename(SRC));
 
-  // purpose "any" — transparent, near full-bleed
+  // purpose "any" - transparent, near full-bleed
   await plain(192, 'icon-192.png', 0.04);
   await plain(512, 'icon-512.png', 0.04);
 
-  // purpose "maskable" — teal bg, logo within the 80% safe zone
+  // purpose "maskable" - teal bg, logo within the 80% safe zone
   await solid(192, 'icon-maskable-192.png', 0.80, TEAL);
   await solid(512, 'icon-maskable-512.png', 0.80, TEAL);
 
-  // iOS home-screen icon — solid bg (iOS shows transparency as black), gentle rounding
+  // iOS home-screen icon - solid bg (iOS shows transparency as black), gentle rounding
   await solid(180, 'apple-touch-icon.png', 0.86, TEAL);
 
   // favicons

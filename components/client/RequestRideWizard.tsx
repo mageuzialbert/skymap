@@ -350,7 +350,7 @@ export default function RequestRideWizard({
             </div>
             <div>
               <h3 className="text-base font-semibold text-gray-900 leading-tight">Means of transport</h3>
-              <p className="text-xs text-gray-500">Choose a vehicle — all options are available.</p>
+              <p className="text-xs text-gray-500">Choose a vehicle - all options are available.</p>
             </div>
           </header>
           <VehicleSelector value={vehicleTypeId} onChange={setVehicleTypeId} disabled={loading} />
@@ -638,15 +638,15 @@ export default function RequestRideWizard({
           <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <h3 className="text-base font-semibold text-gray-900 mb-3">Review</h3>
             <dl className="space-y-2 text-sm">
-              <ReviewRow label="Service" value={serviceDef?.label || '—'} />
-              <ReviewRow label="Transport" value={vehicleName || '—'} />
+              <ReviewRow label="Service" value={serviceDef?.label || '-'} />
+              <ReviewRow label="Transport" value={vehicleName || '-'} />
               <ReviewRow
                 label={svc === 'hire' ? 'Start' : svc === 'errand' ? 'Deliver to' : 'Pickup'}
-                value={pickup.address || '—'}
+                value={pickup.address || '-'}
               />
-              {needsDropoff && <ReviewRow label="Destination" value={dropoff.address || '—'} />}
+              {needsDropoff && <ReviewRow label="Destination" value={dropoff.address || '-'} />}
               {needsRecipient && (
-                <ReviewRow label="Recipient" value={`${dropoff.name || '—'} · ${dropoff.phone || '—'}`} />
+                <ReviewRow label="Recipient" value={`${dropoff.name || '-'} · ${dropoff.phone || '-'}`} />
               )}
               {serviceDetails && <ReviewRow label="Details" value={serviceDetails} />}
               <ReviewRow
@@ -721,7 +721,7 @@ export default function RequestRideWizard({
 
       <p className="text-center text-xs text-gray-500 flex items-center justify-center gap-1.5 mt-3">
         <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-        <span>Your request is sent to our team — your data is encrypted</span>
+        <span>Your request is sent to our team - your data is encrypted</span>
       </p>
 
       {/* Modals */}
@@ -766,11 +766,11 @@ function YourContact({ name, phone }: { name: string; phone: string }) {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-900">
         <span className="inline-flex items-center gap-1.5">
           <User className="w-4 h-4 text-gray-400" />
-          {name || '—'}
+          {name || '-'}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <Phone className="w-4 h-4 text-gray-400" />
-          {phone || '—'}
+          {phone || '-'}
         </span>
       </div>
     </div>

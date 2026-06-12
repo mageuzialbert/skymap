@@ -1,5 +1,5 @@
 -- Phase 4: Seeded place categories + places for the "Suggestions" location option.
--- Idempotent. No admin UI — curated seed (edit via SQL later).
+-- Idempotent. No admin UI - curated seed (edit via SQL later).
 
 CREATE TABLE IF NOT EXISTS place_categories (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

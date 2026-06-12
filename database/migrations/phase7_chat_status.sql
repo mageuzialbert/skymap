@@ -1,4 +1,4 @@
--- Phase 7: WhatsApp-style chat status — delivered/read ticks. Idempotent.
+-- Phase 7: WhatsApp-style chat status - delivered/read ticks. Idempotent.
 
 -- Track when the recipient's device received the message (distinct from read_at).
 ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP WITH TIME ZONE;

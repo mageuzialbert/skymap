@@ -95,7 +95,7 @@ export default function RiderProfilePage() {
       <Icon className="w-5 h-5 text-gray-400 mt-0.5" />
       <div className="min-w-0">
         <p className="text-xs text-gray-500">{label}</p>
-        <p className="text-sm font-medium text-gray-900 break-words">{value || '—'}</p>
+        <p className="text-sm font-medium text-gray-900 break-words">{value || '-'}</p>
       </div>
     </div>
   );
@@ -184,7 +184,7 @@ export default function RiderProfilePage() {
             </div>
           </div>
         ) : (
-          <p className="text-sm font-medium text-gray-900 mt-1">{profile.phone || '—'}</p>
+          <p className="text-sm font-medium text-gray-900 mt-1">{profile.phone || '-'}</p>
         )}
         <p className="text-xs text-gray-400 mt-2">This is the only detail you can change. Contact admin for other changes.</p>
       </div>

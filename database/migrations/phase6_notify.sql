@@ -1,4 +1,4 @@
--- Phase 6: Notification coverage — a couple of client-facing templates so the
+-- Phase 6: Notification coverage - a couple of client-facing templates so the
 -- key moments are covered over both SMS and Email (same template drives both
 -- channels via lib/notify.ts). Idempotent.
 

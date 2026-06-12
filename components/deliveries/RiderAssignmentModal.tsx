@@ -103,7 +103,7 @@ export default function RiderAssignmentModal({
 
           {vehicleLabel && (
             <div className="mb-4 p-3 bg-primary/5 border border-primary/20 text-primary rounded-lg text-sm">
-              Requested vehicle: <span className="font-semibold">{vehicleLabel}</span> — only matching riders are shown.
+              Requested vehicle: <span className="font-semibold">{vehicleLabel}</span> - only matching riders are shown.
             </div>
           )}
 

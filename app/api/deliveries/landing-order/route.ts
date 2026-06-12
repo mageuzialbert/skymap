@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     let email: string;
 
     if (userCheckError && userCheckError.code === 'PGRST116') {
-      // User doesn't exist — create new user + business using pickup details
+      // User doesn't exist - create new user + business using pickup details
       const businessName = pickup_name || 'My Business';
       email = `${phoneNumber.replace(/\+/g, '')}@theskymap.local`;
 
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
             .eq('id', userId);
         }
       } else {
-        // No business record exists — create one using pickup details
+        // No business record exists - create one using pickup details
         const businessName = pickup_name || existingUser.name || 'My Business';
 
         // Parse coordinates

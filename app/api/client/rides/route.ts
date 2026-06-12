@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // The customer's own contact comes from their profile/business — never re-captured.
+    // The customer's own contact comes from their profile/business - never re-captured.
     const finalPickupName = pickup_name || business.name || null;
     const finalPickupPhone = pickup_phone || business.phone || null;
 

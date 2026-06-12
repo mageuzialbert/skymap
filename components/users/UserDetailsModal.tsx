@@ -139,8 +139,8 @@ export default function UserDetailsModal({
 
         {/* Detail rows */}
         <div className="px-6 mt-5 space-y-3">
-          <DetailRow icon={Mail} label="Email" value={user.email || '—'} />
-          <DetailRow icon={Phone} label="Phone" value={user.phone || '—'} />
+          <DetailRow icon={Mail} label="Email" value={user.email || '-'} />
+          <DetailRow icon={Phone} label="Phone" value={user.phone || '-'} />
           {user.role === 'RIDER' && (
             <DetailRow
               icon={IdCard}

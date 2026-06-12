@@ -17,12 +17,12 @@ type Mode = 'video' | 'slides';
 const VOICE_SRC =
   'https://ergemtnsxdvbboyjxdyy.supabase.co/storage/v1/object/public/assets/audio/skymap-audio.mp3';
 
-// Rotating hero taglines — derived from the About Us copy.
+// Rotating hero taglines - derived from the About Us copy.
 const PHRASES = [
   'Connecting People, Deliveries & Destinations',
-  'Rides, deliveries, hire & errands — all in one app',
+  'Rides, deliveries, hire & errands - all in one app',
   'Fast, safe & reliable transport across Tanzania',
-  'Boda, Bajaj, Electric or Car — your choice',
+  'Boda, Bajaj, Electric or Car - your choice',
   'Pickups from airports, markets, bus stands & more',
   'Simplifying mobility & logistics for everyone',
 ];

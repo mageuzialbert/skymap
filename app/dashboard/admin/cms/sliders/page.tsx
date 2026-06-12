@@ -199,7 +199,7 @@ export default function AdminSlidersPage() {
     setSubmitting(true);
 
     try {
-      // EDIT MODE — single slider, optional new image
+      // EDIT MODE - single slider, optional new image
       if (editingSlider) {
         let imageUrl = formData.image_url;
         if (pendingFiles[0]) {
@@ -218,7 +218,7 @@ export default function AdminSlidersPage() {
         });
         if (!response.ok) throw new Error(await readError(response));
       } else {
-        // CREATE MODE — one or many sliders
+        // CREATE MODE - one or many sliders
         if (pendingFiles.length === 0) throw new Error('Please select at least one image');
 
         setUploading(true);
@@ -474,7 +474,7 @@ export default function AdminSlidersPage() {
                 </div>
               )}
 
-              {/* Hidden file input — allows multiple in create mode */}
+              {/* Hidden file input - allows multiple in create mode */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -516,13 +516,13 @@ export default function AdminSlidersPage() {
               {isBatchMode && (
                 <div className="mt-3 p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-xs">
                   Batch mode: {pendingFiles.length} sliders will be created starting at order{' '}
-                  #{formData.order_index}. Captions and CTAs are skipped — you can add them by
+                  #{formData.order_index}. Captions and CTAs are skipped - you can add them by
                   editing each slider individually after upload.
                 </div>
               )}
             </div>
 
-            {/* Caption — single-image only */}
+            {/* Caption - single-image only */}
             {!isBatchMode && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Caption</label>
@@ -536,7 +536,7 @@ export default function AdminSlidersPage() {
               </div>
             )}
 
-            {/* CTA Fields — single-image only */}
+            {/* CTA Fields - single-image only */}
             {!isBatchMode && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>

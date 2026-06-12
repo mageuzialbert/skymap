@@ -98,7 +98,7 @@ export default function RequestRidePage() {
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">New Request</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Choose a service and tell us the details — we&apos;ll handle the rest.
+          Choose a service and tell us the details - we&apos;ll handle the rest.
         </p>
       </div>
 

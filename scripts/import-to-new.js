@@ -3,7 +3,7 @@
  * Import the ./backup JSON data into a NEW Supabase project.
  *
  * Steps:
- *   1. Re-create auth users (Admin API) — gives NEW UUIDs + a temp password.
+ *   1. Re-create auth users (Admin API) - gives NEW UUIDs + a temp password.
  *      Builds userIdMap (oldId -> newId).
  *   2. Update each new public.users row with the backed-up profile fields.
  *   3. Insert all other tables, preserving their original PKs and remapping
@@ -89,7 +89,7 @@ async function importUsers() {
       };
       if (u.email) payload.email = u.email;
       else if (u.phone) { payload.phone = u.phone; payload.phone_confirm = true; }
-      else { console.log(`   ⚠️  user ${u.id} has no email/phone — skipped`); failed++; continue; }
+      else { console.log(`   ⚠️  user ${u.id} has no email/phone - skipped`); failed++; continue; }
 
       const { data, error } = await db.auth.admin.createUser(payload);
       if (error) { console.log(`   ❌ ${u.email || u.phone}: ${error.message}`); failed++; continue; }
@@ -133,7 +133,7 @@ async function importTable(name, { remapCols = [], wipeFirst = false } = {}) {
 }
 
 async function main() {
-  console.log('🚚 Skymap — Import backup → NEW project');
+  console.log('🚚 Skymap - Import backup → NEW project');
   console.log('═'.repeat(55));
   console.log(`📍 Target: ${URL}`);
 
@@ -171,11 +171,11 @@ async function main() {
   console.log('\n📥 Messaging');
   await importTable('sms_broadcasts', { remapCols: ['sent_by'] });
   await importTable('sms_logs');
-  // otp_codes intentionally skipped — transient one-time codes, no value to import.
+  // otp_codes intentionally skipped - transient one-time codes, no value to import.
 
   console.log('\n' + '═'.repeat(55));
   console.log('🏁 Import complete.');
-  console.log(`🔑 All users have temp password: "${TEMP_PASSWORD}" — tell them to reset, or trigger your OTP flow.`);
+  console.log(`🔑 All users have temp password: "${TEMP_PASSWORD}" - tell them to reset, or trigger your OTP flow.`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

@@ -26,7 +26,7 @@ interface VehicleSelectorProps {
 
 /**
  * Client-facing means-of-transport picker. Price is intentionally hidden.
- * Every active vehicle type is always selectable — availability is handled by
+ * Every active vehicle type is always selectable - availability is handled by
  * admin dispatch, never blocking the customer from ordering.
  */
 export default function VehicleSelector({ value, onChange, disabled }: VehicleSelectorProps) {
@@ -61,7 +61,7 @@ export default function VehicleSelector({ value, onChange, disabled }: VehicleSe
 
   if (types.length === 0) {
     return (
-      <p className="text-sm text-gray-500 py-2">{t('ride.selectVehicle')} — no vehicle types configured.</p>
+      <p className="text-sm text-gray-500 py-2">{t('ride.selectVehicle')} - no vehicle types configured.</p>
     );
   }
 
