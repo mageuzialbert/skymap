@@ -47,6 +47,16 @@ async function main() {
     }
   }
 
+  // Tell Supabase PostgREST to refresh its schema cache so newly added
+  // columns/tables are immediately visible to the API layer (avoids PGRST204
+  // "Could not find the 'x' column ... in the schema cache").
+  try {
+    await client.query("NOTIFY pgrst, 'reload schema';");
+    console.log("🔄 Reloaded PostgREST schema cache");
+  } catch (err) {
+    console.warn(`⚠️  Could not reload schema cache: ${err.message}`);
+  }
+
   await client.end();
   console.log('Done.');
 }
