@@ -54,6 +54,7 @@ export default function AdminVideosPage() {
   });
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -63,6 +64,17 @@ export default function AdminVideosPage() {
   useEffect(() => {
     loadVideos();
   }, []);
+
+  // Local object-URL preview for a freshly selected (not-yet-uploaded) video file.
+  useEffect(() => {
+    if (!videoFile) {
+      setVideoPreview('');
+      return;
+    }
+    const url = URL.createObjectURL(videoFile);
+    setVideoPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [videoFile]);
 
   async function loadVideos() {
     try {
@@ -256,6 +268,18 @@ export default function AdminVideosPage() {
                 onChange={pickVideo}
                 className="hidden"
               />
+              {/* Preview / play the selected (or existing) video */}
+              {(videoPreview || formData.video_url) && (
+                <video
+                  key={videoPreview || formData.video_url}
+                  src={videoPreview || formData.video_url}
+                  poster={!videoPreview ? formData.poster_url || undefined : undefined}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="mt-3 w-full max-h-72 rounded-lg bg-black"
+                />
+              )}
             </div>
 
             {/* Poster */}
@@ -351,15 +375,15 @@ export default function AdminVideosPage() {
           </div>
         ) : (
           videos.map((v) => (
-            <div key={v.id} className="p-4 flex gap-4 items-center">
-              <div className="w-28 h-16 rounded-lg overflow-hidden bg-gray-900 flex-shrink-0 flex items-center justify-center">
-                {v.poster_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={v.poster_url} alt={v.title || 'Video'} className="w-full h-full object-cover" />
-                ) : (
-                  <VideoIcon className="w-6 h-6 text-white/70" />
-                )}
-              </div>
+            <div key={v.id} className="p-4 flex flex-col sm:flex-row gap-4 sm:items-center">
+              <video
+                src={v.video_url}
+                poster={v.poster_url || undefined}
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full sm:w-48 h-32 sm:h-28 rounded-lg bg-black object-cover flex-shrink-0"
+              />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-medium text-gray-500">#{v.order_index}</span>

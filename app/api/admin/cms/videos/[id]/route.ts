@@ -66,10 +66,31 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: permError || 'Permission denied' }, { status: 403 });
     }
 
-    const { error } = await supabaseAdmin.from('home_videos').delete().eq('id', params.id);
+    // Fetch the row first so we can also remove its files from storage.
+    const { data: existing } = await supabaseAdmin
+      .from('home_videos')
+      .select('video_url, poster_url')
+      .eq('id', params.id)
+      .single();
 
+    const { error } = await supabaseAdmin.from('home_videos').delete().eq('id', params.id);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // Best-effort cleanup of the underlying files in the home-videos bucket.
+    try {
+      const keys: string[] = [];
+      for (const url of [existing?.video_url, existing?.poster_url]) {
+        if (typeof url === 'string') {
+          const marker = '/home-videos/';
+          const idx = url.indexOf(marker);
+          if (idx !== -1) keys.push(url.slice(idx + marker.length));
+        }
+      }
+      if (keys.length) await supabaseAdmin.storage.from('home-videos').remove(keys);
+    } catch (cleanupErr) {
+      console.error('Video file cleanup failed (row already deleted):', cleanupErr);
     }
 
     return NextResponse.json({ success: true });

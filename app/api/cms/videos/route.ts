@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/auth-server';
 
+// Always read fresh from the DB so admin uploads/deletes show on the public
+// home page immediately (no Vercel/Next route caching).
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Public: list active landing videos in display order.
 export async function GET() {
   try {

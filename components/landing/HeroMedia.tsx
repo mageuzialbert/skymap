@@ -43,7 +43,7 @@ export default function HeroMedia({ height = 'fill' }: { height?: 'fill' }) {
   // Fetch admin-managed videos; fall back to slides when there are none.
   useEffect(() => {
     let active = true;
-    fetch('/api/cms/videos')
+    fetch('/api/cms/videos', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : []))
       .then((data: HomeVideo[]) => {
         if (!active) return;
