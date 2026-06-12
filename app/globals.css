@@ -63,6 +63,39 @@ body {
   backface-visibility: hidden;
 }
 
+/* ===== Hero video typewriter tagline ===== */
+@keyframes caretBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.animate-caret {
+  animation: caretBlink 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes textWave {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .animate-text-wave {
+    animation: textWave 3.2s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes textShimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+  .animate-text-shimmer {
+    background-image: linear-gradient(100deg, #ffffff 0%, #ffffff 35%, #fbbf24 50%, #ffffff 65%, #ffffff 100%);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textShimmer 4s linear infinite;
+  }
+}
+
 /* Print styles - Hide dashboard layout header and sidebar */
 @media print {
   /* Hide all navigation bars (dashboard header) */

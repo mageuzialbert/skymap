@@ -17,6 +17,54 @@ type Mode = 'video' | 'slides';
 const VOICE_SRC =
   'https://ergemtnsxdvbboyjxdyy.supabase.co/storage/v1/object/public/assets/audio/skymap-audio.mp3';
 
+// Rotating hero taglines — derived from the About Us copy.
+const PHRASES = [
+  'Connecting People, Deliveries & Destinations',
+  'Rides, deliveries, hire & errands — all in one app',
+  'Fast, safe & reliable transport across Tanzania',
+  'Boda, Bajaj, Electric or Car — your choice',
+  'Pickups from airports, markets, bus stands & more',
+  'Simplifying mobility & logistics for everyone',
+];
+
+/** Typewriter that types a phrase, holds, deletes, then advances (loops). */
+function useTypewriter(
+  phrases: string[],
+  opts: { typeMs?: number; deleteMs?: number; holdMs?: number } = {}
+) {
+  const { typeMs = 55, deleteMs = 28, holdMs = 1600 } = opts;
+  const [text, setText] = useState('');
+  const [idx, setIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    // Respect reduced-motion: show a static phrase, no typing.
+    const reduce =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) {
+      setText(phrases[idx % phrases.length] || '');
+      return;
+    }
+
+    const full = phrases[idx % phrases.length] || '';
+    let timer: ReturnType<typeof setTimeout>;
+    if (!deleting && text === full) {
+      timer = setTimeout(() => setDeleting(true), holdMs);
+    } else if (deleting && text === '') {
+      setDeleting(false);
+      setIdx((i) => (i + 1) % phrases.length);
+    } else {
+      const next = deleting ? full.slice(0, text.length - 1) : full.slice(0, text.length + 1);
+      timer = setTimeout(() => setText(next), deleting ? deleteMs : typeMs);
+    }
+    return () => clearTimeout(timer);
+  }, [text, deleting, idx, phrases, typeMs, deleteMs, holdMs]);
+
+  return text;
+}
+
 /**
  * Hero media orchestrator for the landing page.
  *
@@ -116,6 +164,7 @@ export default function HeroMedia({ height = 'fill' }: { height?: 'fill' }) {
 
   const hasVideos = videos.length > 0;
   const showSlides = mode === 'slides' || !hasVideos;
+  const typed = useTypewriter(PHRASES);
 
   return (
     <div className="relative w-full h-full">
@@ -136,6 +185,21 @@ export default function HeroMedia({ height = 'fill' }: { height?: 'fill' }) {
           onEnded={handleVideoEnded}
           onError={() => setMode('slides')}
         />
+      )}
+
+      {/* Animated typing tagline over the video (top) */}
+      {!showSlides && hasVideos && (
+        <div aria-hidden className="absolute top-0 inset-x-0 z-10 pointer-events-none">
+          <div className="bg-gradient-to-b from-black/55 via-black/25 to-transparent pt-4 pb-14 px-4 sm:px-6 pr-24 sm:pr-28">
+            <p className="text-[10px] sm:text-xs font-bold tracking-[0.28em] uppercase animate-text-shimmer">
+              The Skymap
+            </p>
+            <h2 className="mt-1 animate-text-wave text-lg sm:text-2xl md:text-[1.75rem] font-extrabold text-white leading-snug min-h-[2.6em] [text-shadow:0_2px_12px_rgba(0,0,0,0.65)]">
+              {typed}
+              <span className="animate-caret text-secondary ml-0.5">|</span>
+            </h2>
+          </div>
+        </div>
       )}
 
       {/* Background voice-over (only audible in slides mode) */}
