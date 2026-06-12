@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { normalizeTzPhone } from '@/lib/phone';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,14 +44,8 @@ export async function POST(request: NextRequest) {
       }
       userEmail = email.trim();
     } else {
-      // Phone-based login (for businesses)
-      // Normalize phone number
-      let phoneNumber = phone.trim();
-      if (!phoneNumber.startsWith('+255')) {
-        phoneNumber = '+255' + phoneNumber.replace(/^\+?255?/, '').replace(/\D/g, '');
-      } else {
-        phoneNumber = '+255' + phoneNumber.replace(/^\+255/, '').replace(/\D/g, '');
-      }
+      // Phone-based login (for businesses). Accepts 0-prefixed local numbers.
+      const phoneNumber = normalizeTzPhone(phone);
 
       // Look up email from phone number in users table
       const { data: userData, error: userError } = await supabaseAdmin

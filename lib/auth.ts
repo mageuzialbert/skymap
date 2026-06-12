@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { normalizeTzPhone } from './phone';
 
 export interface RegisterData {
   businessName: string;
@@ -56,13 +57,8 @@ export async function registerBusiness(data: RegisterData) {
 }
 
 export async function loginWithPassword(phone: string, password: string) {
-  // Normalize phone number
-  let phoneNumber = phone.trim();
-  if (!phoneNumber.startsWith('+255')) {
-    phoneNumber = '+255' + phoneNumber.replace(/^\+?255?/, '').replace(/\D/g, '');
-  } else {
-    phoneNumber = '+255' + phoneNumber.replace(/^\+255/, '').replace(/\D/g, '');
-  }
+  // Normalize phone number (accepts 0-prefixed local numbers too).
+  const phoneNumber = normalizeTzPhone(phone);
 
   // Call API route to handle login (bypasses RLS)
   const response = await fetch('/api/auth/login', {
@@ -134,13 +130,8 @@ export async function loginWithEmail(email: string, password: string) {
 }
 
 export async function sendOTP(phone: string) {
-  // Normalize phone number
-  let phoneNumber = phone.trim();
-  if (!phoneNumber.startsWith('+255')) {
-    phoneNumber = '+255' + phoneNumber.replace(/^\+?255?/, '').replace(/\D/g, '');
-  } else {
-    phoneNumber = '+255' + phoneNumber.replace(/^\+255/, '').replace(/\D/g, '');
-  }
+  // Normalize phone number (accepts 0-prefixed local numbers too).
+  const phoneNumber = normalizeTzPhone(phone);
 
   // Call API route to generate and send OTP
   const response = await fetch('/api/auth/send-otp', {
@@ -219,13 +210,8 @@ export async function confirmPasswordReset(params: {
 }
 
 export async function verifyOTP(phone: string, code: string) {
-  // Normalize phone number
-  let phoneNumber = phone.trim();
-  if (!phoneNumber.startsWith('+255')) {
-    phoneNumber = '+255' + phoneNumber.replace(/^\+?255?/, '').replace(/\D/g, '');
-  } else {
-    phoneNumber = '+255' + phoneNumber.replace(/^\+255/, '').replace(/\D/g, '');
-  }
+  // Normalize phone number (accepts 0-prefixed local numbers too).
+  const phoneNumber = normalizeTzPhone(phone);
 
   // Call server API route to verify OTP and create session
   const response = await fetch('/api/auth/verify-otp', {

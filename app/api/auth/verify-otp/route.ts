@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { normalizeTzPhone } from '@/lib/phone';
 
 // Server-side Supabase client with service role for admin operations
 const supabaseAdmin = createClient(
@@ -25,12 +26,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Normalize phone number to ensure it matches what was stored
-    let phoneNumber = phone.trim();
-    if (!phoneNumber.startsWith('+255')) {
-      phoneNumber = '+255' + phoneNumber.replace(/^\+?255?/, '').replace(/\D/g, '');
-    } else {
-      phoneNumber = '+255' + phoneNumber.replace(/^\+255/, '').replace(/\D/g, '');
-    }
+    // (accepts 0-prefixed local numbers too).
+    const phoneNumber = normalizeTzPhone(phone);
 
     // Verify OTP - first check if any OTP exists for this phone
     const { data: allOtps, error: checkError } = await supabaseAdmin
