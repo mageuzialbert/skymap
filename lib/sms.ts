@@ -67,6 +67,12 @@ export async function sendSMS(to: string, message: string): Promise<SMSResult> {
         'Authorization': `Bearer ${SMS_API_TOKEN}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        // The iPAB host runs LiteSpeed bot protection that challenges requests
+        // with a missing/non-browser User-Agent (returning an lsrecaptcha
+        // "Bot Verification" HTML page). Send a browser-like UA so the
+        // server-to-server API call isn't flagged as a bot.
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       },
       body: JSON.stringify({
         recipient: normalizedRecipient,
