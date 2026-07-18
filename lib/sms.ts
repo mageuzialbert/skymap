@@ -76,8 +76,18 @@ export async function sendSMS(to: string, message: string): Promise<SMSResult> {
       }),
     });
 
-    const responseData = await response.json();
     const httpCode = response.status;
+
+    // The iPAB API sometimes returns an HTML error page (e.g. a 404/maintenance
+    // page) instead of JSON. Read the raw body first, then try to parse it so a
+    // non-JSON response doesn't throw "Unexpected token '<'".
+    const rawBody = await response.text();
+    let responseData: any;
+    try {
+      responseData = JSON.parse(rawBody);
+    } catch {
+      responseData = { status: 'error', message: rawBody.slice(0, 500) };
+    }
 
     // Log SMS attempt using admin client
     try {
