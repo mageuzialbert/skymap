@@ -91,10 +91,17 @@ export default function RegisterPage() {
         email: formData.email,
       });
       setCodeSent(true);
+
+      // If SMS was unavailable, the server falls back to email. Switch the UI
+      // to the channel that actually delivered so verification uses the right
+      // identifier (email code, not phone).
+      if (res.channel !== channel) setChannel(res.channel);
+
+      const deliveredTo = res.channel === 'email' ? formData.email : fullPhone;
       setInfo(
-        channel === 'email'
-          ? `${t('auth.codeSent')} (${formData.email})`
-          : `${t('auth.codeSent')} (${fullPhone})`
+        res.fallback && res.message
+          ? `${res.message} (${deliveredTo})`
+          : `${t('auth.codeSent')} (${deliveredTo})`
       );
       if (res.debugOtp) setInfo((prev) => `${prev} • Dev code: ${res.debugOtp}`);
     } catch (err) {

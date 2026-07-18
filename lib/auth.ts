@@ -170,7 +170,13 @@ export async function sendVerificationCode(params: {
   }
 
   const data = await response.json();
-  return { success: true, channel: data.channel as 'sms' | 'email', debugOtp: data.debugOtp };
+  return {
+    success: true,
+    channel: data.channel as 'sms' | 'email',
+    fallback: !!data.fallback,
+    message: data.message as string | undefined,
+    debugOtp: data.debugOtp,
+  };
 }
 
 /**

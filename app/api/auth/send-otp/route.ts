@@ -22,12 +22,14 @@ function generateOTP(): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const channel: 'sms' | 'email' = body.channel === 'email' ? 'email' : 'sms';
+    const requestedChannel: 'sms' | 'email' = body.channel === 'email' ? 'email' : 'sms';
     const phone: string | undefined = body.phone;
     const email: string | undefined = body.email;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const hasUsableEmail = !!email && emailRegex.test(email);
 
     // SMS only works for Tanzanian (+255) numbers.
-    if (channel === 'sms') {
+    if (requestedChannel === 'sms') {
       if (!phone) {
         return NextResponse.json({ error: 'Phone number is required' }, { status: 400 });
       }
@@ -37,22 +39,51 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email || !emailRegex.test(email)) {
-        return NextResponse.json({ error: 'A valid email address is required' }, { status: 400 });
-      }
+    } else if (!hasUsableEmail) {
+      return NextResponse.json({ error: 'A valid email address is required' }, { status: 400 });
     }
 
     const otpCode = generateOTP();
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 5);
 
-    // Store the OTP keyed by the channel's identifier.
+    // Try the requested channel first. If SMS delivery fails (e.g. the iPAB
+    // provider is down / plan inactive / bot-challenging our requests) and we
+    // have a usable email, transparently fall back to email so the user isn't
+    // stuck. The OTP is stored for whichever channel actually delivered, so
+    // verification (which matches on channel + identifier) stays correct.
+    let usedChannel: 'sms' | 'email' = requestedChannel;
+    let fellBack = false;
+    let sendResult =
+      requestedChannel === 'email' ? await sendOTPEmail(email!, otpCode) : await sendOTPSMS(phone!, otpCode);
+
+    if (!sendResult.success && requestedChannel === 'sms' && hasUsableEmail) {
+      console.warn('SMS OTP delivery failed, falling back to email:', sendResult.error);
+      const emailResult = await sendOTPEmail(email!, otpCode);
+      if (emailResult.success) {
+        usedChannel = 'email';
+        fellBack = true;
+      }
+      // If email also fails, report the email error below (it's the actionable one).
+      sendResult = emailResult;
+    }
+
+    if (!sendResult.success) {
+      console.error(`Error sending OTP via ${usedChannel}:`, sendResult.error);
+      return NextResponse.json(
+        {
+          error: sendResult.error || `Failed to send verification code via ${usedChannel}. Please try again.`,
+          ...(process.env.NODE_ENV === 'development' && { debugOtp: otpCode }),
+        },
+        { status: 500 }
+      );
+    }
+
+    // Persist the OTP only for the channel that actually delivered.
     const { error: dbError } = await supabaseAdmin.from('otp_codes').insert({
       phone: phone || null,
-      email: channel === 'email' ? email : null,
-      channel,
+      email: usedChannel === 'email' ? email : null,
+      channel: usedChannel,
       code: otpCode,
       used: false,
       expires_at: expiresAt.toISOString(),
@@ -66,25 +97,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send via the chosen channel.
-    const sendResult =
-      channel === 'email' ? await sendOTPEmail(email!, otpCode) : await sendOTPSMS(phone!, otpCode);
-
-    if (!sendResult.success) {
-      console.error(`Error sending OTP via ${channel}:`, sendResult.error);
-      return NextResponse.json(
-        {
-          error: sendResult.error || `Failed to send verification code via ${channel}. Please try again.`,
-          ...(process.env.NODE_ENV === 'development' && { debugOtp: otpCode }),
-        },
-        { status: 500 }
-      );
-    }
-
     return NextResponse.json({
       success: true,
-      channel,
-      message: 'Verification code sent successfully',
+      channel: usedChannel,
+      fallback: fellBack,
+      message: fellBack
+        ? 'SMS is temporarily unavailable, so we emailed your verification code instead.'
+        : 'Verification code sent successfully',
       ...(process.env.NODE_ENV === 'development' && { debugOtp: otpCode }),
     });
   } catch (error) {
