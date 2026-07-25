@@ -27,7 +27,6 @@ import {
 import { getCurrentUser, logout } from "@/lib/auth";
 import { getUserRole } from "@/lib/roles";
 import { PermissionsProvider, usePermissions } from "@/lib/permissions-context";
-import VerificationBanner from "./business/components/VerificationBanner";
 
 // Navigation item interface with permission requirements
 interface NavItem {
@@ -382,7 +381,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
         {/* Main Content - the only scrollable region */}
         <main className="flex-1 p-6 w-full lg:w-auto min-w-0 h-full overflow-auto">
-          {role === "BUSINESS" && <VerificationBanner />}
           {children}
         </main>
       </div>

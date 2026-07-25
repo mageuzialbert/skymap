@@ -75,9 +75,8 @@ export async function sendSMS(to: string, message: string): Promise<SMSResult> {
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       },
       body: JSON.stringify({
-        recipient: normalizedRecipient,
         sender_id: SMS_SENDER_ID,
-        type: 'plain',
+        recipient: normalizedRecipient,
         message: message,
       }),
     });

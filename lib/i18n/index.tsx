@@ -3,6 +3,23 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import en from './en.json';
 import sw from './sw.json';
+// Per-area namespace dictionaries. Kept in separate files so different parts of
+// the app (admin, business, rider, staff, auth, shell, components) can be
+// translated independently without merge conflicts. All are deep-merged below.
+import shellEn from './ns/shell.en.json';
+import shellSw from './ns/shell.sw.json';
+import authEn from './ns/authx.en.json';
+import authSw from './ns/authx.sw.json';
+import adminEn from './ns/admin.en.json';
+import adminSw from './ns/admin.sw.json';
+import businessEn from './ns/business.en.json';
+import businessSw from './ns/business.sw.json';
+import riderEn from './ns/rider.en.json';
+import riderSw from './ns/rider.sw.json';
+import staffEn from './ns/staff.en.json';
+import staffSw from './ns/staff.sw.json';
+import componentsEn from './ns/components.en.json';
+import componentsSw from './ns/components.sw.json';
 
 export type Locale = 'en' | 'sw';
 
@@ -11,7 +28,29 @@ export const LOCALES: { code: Locale; label: string; flag: string }[] = [
   { code: 'sw', label: 'Kiswahili', flag: '🇹🇿' },
 ];
 
-const DICTIONARIES: Record<Locale, any> = { en, sw };
+// Deep-merge plain objects (later sources win). Used to combine the base
+// dictionary with every namespace file into one lookup tree per locale.
+function isPlainObject(v: any): v is Record<string, any> {
+  return v != null && typeof v === 'object' && !Array.isArray(v);
+}
+function deepMerge(...sources: any[]): any {
+  const out: Record<string, any> = {};
+  for (const src of sources) {
+    if (!isPlainObject(src)) continue;
+    for (const key of Object.keys(src)) {
+      out[key] =
+        isPlainObject(src[key]) && isPlainObject(out[key])
+          ? deepMerge(out[key], src[key])
+          : src[key];
+    }
+  }
+  return out;
+}
+
+const DICTIONARIES: Record<Locale, any> = {
+  en: deepMerge(en, shellEn, authEn, adminEn, businessEn, riderEn, staffEn, componentsEn),
+  sw: deepMerge(sw, shellSw, authSw, adminSw, businessSw, riderSw, staffSw, componentsSw),
+};
 const STORAGE_KEY = 'skymap_locale';
 
 // Resolve a dot-path key (e.g. "auth.registerTitle") from a nested dictionary object.

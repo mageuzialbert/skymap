@@ -1,14 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Home } from 'lucide-react';
-import { loginWithPassword, sendOTP, verifyOTP } from '@/lib/auth';
+import { loginWithPassword, sendOTP, verifyOTP, getDashboardPathForCurrentUser } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
+import { normalizeTzPhone } from '@/lib/phone';
+import LanguageSwitcher from '@/components/common/LanguageSwitcher';
+import { useT } from '@/lib/i18n';
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useT();
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -25,19 +29,30 @@ export default function LoginPage() {
     return target && target.startsWith('/') ? target : '/dashboard/business';
   };
 
+  // Persistent auto-login: if a valid session already exists on this device,
+  // skip the login form and go straight to the dashboard (works for PWA too).
+  useEffect(() => {
+    let active = true;
+    getDashboardPathForCurrentUser()
+      .then((path) => {
+        if (!active || !path) return;
+        const target = new URLSearchParams(window.location.search).get('redirect');
+        router.replace(target && target.startsWith('/') ? target : path);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [router]);
+
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      // Normalize phone number
-      let phoneNumber = phone.trim();
-      if (!phoneNumber.startsWith('+255')) {
-        phoneNumber = '+255' + phoneNumber.replace(/^\+?255?/, '').replace(/\D/g, '');
-      } else {
-        phoneNumber = '+255' + phoneNumber.replace(/^\+255/, '').replace(/\D/g, '');
-      }
+      // Normalize phone number (accepts 0-prefixed local numbers, e.g. 0658363646).
+      const phoneNumber = normalizeTzPhone(phone);
 
       await loginWithPassword(phoneNumber, password);
       router.push(getRedirectTarget());
@@ -54,18 +69,13 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Normalize phone number
-      let phoneNumber = phone.trim();
-      if (!phoneNumber.startsWith('+255')) {
-        phoneNumber = '+255' + phoneNumber.replace(/^\+?255?/, '').replace(/\D/g, '');
-      } else {
-        phoneNumber = '+255' + phoneNumber.replace(/^\+255/, '').replace(/\D/g, '');
-      }
+      // Normalize phone number (accepts 0-prefixed local numbers, e.g. 0658363646).
+      const phoneNumber = normalizeTzPhone(phone);
 
       // Validate phone format
       const digitsAfter255 = phoneNumber.replace(/^\+255/, '');
-      if (digitsAfter255.length !== 9) {
-        setError('Phone number must be exactly 9 digits after +255 (e.g., +255759561311)');
+      if (!phoneNumber.startsWith('+255') || digitsAfter255.length !== 9) {
+        setError('Enter a valid Tanzania number (e.g., 0759561311 or +255759561311)');
         setLoading(false);
         return;
       }
@@ -91,13 +101,8 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Normalize phone number to match what was sent
-      let phoneNumber = phone.trim();
-      if (!phoneNumber.startsWith('+255')) {
-        phoneNumber = '+255' + phoneNumber.replace(/^\+?255?/, '').replace(/\D/g, '');
-      } else {
-        phoneNumber = '+255' + phoneNumber.replace(/^\+255/, '').replace(/\D/g, '');
-      }
+      // Normalize phone number to match what was sent.
+      const phoneNumber = normalizeTzPhone(phone);
 
       const result = await verifyOTP(phoneNumber, otp);
       
@@ -135,14 +140,17 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        {/* Back to home */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors mb-4"
-        >
-          <Home className="w-4 h-4" />
-          Back to home
-        </Link>
+        {/* Top row: back to home + language switcher */}
+        <div className="flex items-center justify-between mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            {t('common.backToHome')}
+          </Link>
+          <LanguageSwitcher />
+        </div>
 
         {/* Logo/Branding */}
         <div className="text-center mb-8">
@@ -206,7 +214,7 @@ export default function LoginPage() {
                 onChange={(e) => setPhone(e.target.value)}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="+255123456789"
+                placeholder="0712345678 or +255712345678"
               />
             </div>
             <div>
@@ -263,7 +271,7 @@ export default function LoginPage() {
                 onChange={(e) => setPhone(e.target.value)}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="+255123456789"
+                placeholder="0712345678 or +255712345678"
               />
             </div>
             <button

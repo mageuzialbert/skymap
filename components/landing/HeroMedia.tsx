@@ -205,50 +205,55 @@ export default function HeroMedia({ height = 'fill' }: { height?: 'fill' }) {
       {/* Background voice-over (only audible in slides mode) */}
       <audio ref={audioRef} src={VOICE_SRC} preload="auto" loop />
 
-      {/* Controls dock (top-right of the media area) */}
+      {/* Controls: sound sits in the top-LEFT corner so it never overlaps the
+          centered heading on mobile; the video/slides switch stays top-right. */}
       {loadedVideos && (
-        <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
+        <>
           {/* Sound control: video unmute, or voice toggle in slides mode */}
-          {showSlides ? (
-            <button
-              onClick={() => (voicePlaying ? stopVoice() : startVoice())}
-              className="p-2.5 bg-black/40 hover:bg-black/55 backdrop-blur-sm rounded-xl text-white active:scale-95 transition"
-              aria-label={voicePlaying ? t('landing.muteAudio') : t('landing.playAudio')}
-              title={voicePlaying ? t('landing.muteAudio') : t('landing.playAudio')}
-            >
-              {voicePlaying ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-            </button>
-          ) : (
-            <button
-              onClick={() => setVideoMuted((m) => !m)}
-              className="p-2.5 bg-black/40 hover:bg-black/55 backdrop-blur-sm rounded-xl text-white active:scale-95 transition"
-              aria-label={videoMuted ? t('landing.playAudio') : t('landing.muteAudio')}
-              title={videoMuted ? t('landing.playAudio') : t('landing.muteAudio')}
-            >
-              {videoMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-            </button>
-          )}
+          <div className="absolute top-3 left-3 z-20">
+            {showSlides ? (
+              <button
+                onClick={() => (voicePlaying ? stopVoice() : startVoice())}
+                className="p-2.5 bg-black/40 hover:bg-black/55 backdrop-blur-sm rounded-xl text-white active:scale-95 transition"
+                aria-label={voicePlaying ? t('landing.muteAudio') : t('landing.playAudio')}
+                title={voicePlaying ? t('landing.muteAudio') : t('landing.playAudio')}
+              >
+                {voicePlaying ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+              </button>
+            ) : (
+              <button
+                onClick={() => setVideoMuted((m) => !m)}
+                className="p-2.5 bg-black/40 hover:bg-black/55 backdrop-blur-sm rounded-xl text-white active:scale-95 transition"
+                aria-label={videoMuted ? t('landing.playAudio') : t('landing.muteAudio')}
+                title={videoMuted ? t('landing.playAudio') : t('landing.muteAudio')}
+              >
+                {videoMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+              </button>
+            )}
+          </div>
 
           {/* Switch between video and slides (only when videos exist) */}
           {hasVideos && (
-            <button
-              onClick={showSlides ? switchToVideo : switchToSlides}
-              className="flex items-center gap-1.5 px-3 py-2 bg-black/40 hover:bg-black/55 backdrop-blur-sm rounded-xl text-white text-xs font-semibold active:scale-95 transition"
-            >
-              {showSlides ? (
-                <>
-                  <Film className="w-4 h-4" />
-                  <span>{t('landing.watchVideo')}</span>
-                </>
-              ) : (
-                <>
-                  <Images className="w-4 h-4" />
-                  <span>{t('landing.viewSlides')}</span>
-                </>
-              )}
-            </button>
+            <div className="absolute top-3 right-3 z-20">
+              <button
+                onClick={showSlides ? switchToVideo : switchToSlides}
+                className="flex items-center gap-1.5 px-3 py-2 bg-black/40 hover:bg-black/55 backdrop-blur-sm rounded-xl text-white text-xs font-semibold active:scale-95 transition"
+              >
+                {showSlides ? (
+                  <>
+                    <Film className="w-4 h-4" />
+                    <span>{t('landing.watchVideo')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Images className="w-4 h-4" />
+                    <span>{t('landing.viewSlides')}</span>
+                  </>
+                )}
+              </button>
+            </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

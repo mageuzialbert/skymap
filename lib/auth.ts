@@ -262,6 +262,35 @@ export async function logout() {
   }
 }
 
+/**
+ * Resolve the correct dashboard path for the currently signed-in user based on
+ * their role. Returns null when nobody is signed in. Used for auto-login
+ * redirects (landing / login pages) so a returning user lands in the right area.
+ */
+export async function getDashboardPathForCurrentUser(): Promise<string | null> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: userData } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  switch (userData?.role) {
+    case 'ADMIN':
+      return '/dashboard/admin';
+    case 'STAFF':
+      return '/dashboard/staff';
+    case 'RIDER':
+      return '/dashboard/rider';
+    default:
+      return '/dashboard/business';
+  }
+}
+
 export async function getCurrentUser() {
   const {
     data: { user },
