@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300" width="360" height="300" role="img" aria-label="IST">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14b8a6"/>
+      <stop offset="1" stop-color="#0b5a54"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="300" fill="url(#bg)"/>
+  <g transform="translate(0,10)">
+  <g fill="#ffffff">
+    <rect x="60" y="100" width="240" height="64" rx="14"/>
+  </g>
+  <g fill="#99f6e4">
+    <rect x="74" y="112" width="34" height="24" rx="4"/>
+    <rect x="116" y="112" width="34" height="24" rx="4"/>
+    <rect x="158" y="112" width="34" height="24" rx="4"/>
+    <rect x="200" y="112" width="34" height="24" rx="4"/>
+    <rect x="242" y="112" width="44" height="24" rx="4"/>
+  </g>
+  <g fill="#0f172a">
+    <circle cx="112" cy="172" r="20"/>
+    <circle cx="252" cy="172" r="20"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="112" cy="172" r="8"/>
+    <circle cx="252" cy="172" r="8"/>
+  </g></g>
+  <text x="180" y="238" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700" fill="#ffffff">IST</text>
+  <text x="180" y="266" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#ffffff" opacity="0.9">4 people</text>
+</svg>

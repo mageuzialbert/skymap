@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300" width="360" height="300" role="img" aria-label="Fuso">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#b45309"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="300" fill="url(#bg)"/>
+  <g transform="translate(0,10)">
+  <g fill="#ffffff">
+    <rect x="60" y="104" width="150" height="58" rx="8"/>
+    <path d="M212 120 h52 a10 10 0 0 1 8 4 l22 28 a8 8 0 0 1 2 5 v5 h-86 z"/>
+  </g>
+  <g fill="#0f172a">
+    <circle cx="108" cy="170" r="20"/>
+    <circle cx="256" cy="170" r="20"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="108" cy="170" r="8"/>
+    <circle cx="256" cy="170" r="8"/>
+  </g>
+  <rect x="222" y="126" width="42" height="20" rx="4" fill="#bfdbfe"/></g>
+  <text x="180" y="238" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700" fill="#ffffff">Fuso</text>
+  <text x="180" y="266" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#ffffff" opacity="0.9">7 tons</text>
+</svg>
