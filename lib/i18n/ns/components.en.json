@@ -1,5 +1,23 @@
 {
   "components": {
+    "serviceTypes": {
+      "errand": {
+        "label": "Send a Rider",
+        "desc": "Send a rider to a place to buy, collect or hand over something for you."
+      },
+      "delivery": {
+        "label": "Package Delivery",
+        "desc": "Send a parcel from one place to a recipient at another."
+      },
+      "ride": {
+        "label": "Ride",
+        "desc": "Get picked up and taken to your destination."
+      },
+      "hire": {
+        "label": "Vehicle Hire",
+        "desc": "Book a whole vehicle for people or loads - route and time may vary."
+      }
+    },
     "camera": {
       "capturePhoto": "Capture photo",
       "closeCamera": "Close camera",
@@ -206,7 +224,42 @@
       "whereDeliver": "Where should we deliver?",
       "wherePickup": "Where should we pick up?"
     },
+    "hireVehicles": {
+      "loadError": "Could not load vehicles. Please try again.",
+      "none": "No vehicles available in this category yet.",
+      "capacity": "{{value}} {{unit}}"
+    },
     "rideWizard": {
+      "chooseHireVehicle": "Choose a vehicle to hire",
+      "choosePeopleOrLoad": "First pick what you're carrying, then a vehicle",
+      "carryPeople": "Carrying People",
+      "carryLoads": "Carrying Loads",
+      "tripRoute": "Route",
+      "peopleInfo": "Trip details",
+      "loadInfo": "Load details",
+      "helpsPlan": "This helps us plan the right vehicle and driver for you.",
+      "passengers": "Number of passengers",
+      "tripPurpose": "Purpose of the trip",
+      "tripPurposePlaceholder": "e.g. Wedding, corporate event, school trip",
+      "travelWhen": "Travel date & time",
+      "travelWhenPlaceholder": "e.g. 12 Aug, leaving at 7:00 AM",
+      "loadDescription": "What are you transporting?",
+      "loadDescriptionPlaceholder": "e.g. Cement bags, furniture, building materials",
+      "approxWeight": "Approximate weight / quantity",
+      "approxWeightPlaceholder": "e.g. 5 tons, 200 bags",
+      "additionalInfo": "Additional information",
+      "errandTitle": "Send a Rider",
+      "errandSubtitle": "Tell us where to go and what you need done.",
+      "errandWhereGo": "Where should the rider go?",
+      "errandWhereGoPlaceholder": "e.g. Ubungo bus stand",
+      "errandReason": "What should they do there?",
+      "errandReasonPlaceholder": "e.g. Send a parcel, collect a document, buy something",
+      "errandContact": "Contact phone at that place",
+      "errandYourLocation": "Your location",
+      "errandNotesPlaceholder": "Anything else the rider should know",
+      "useCurrentLocation": "Use my current location",
+      "locationUnavailable": "Location is not available on this device.",
+      "locationDenied": "Could not get your location. Please allow location access.",
       "asap": "As soon as possible",
       "asapHint": "A rider is assigned right away.",
       "camera": "Camera",

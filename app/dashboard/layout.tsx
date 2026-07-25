@@ -23,6 +23,7 @@ import {
   MessageSquare,
   Video,
   Bike,
+  Truck,
 } from "lucide-react";
 import { getCurrentUser, logout } from "@/lib/auth";
 import { getUserRole } from "@/lib/roles";
@@ -137,6 +138,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     },
     { href: "/dashboard/staff/financial", label: t("nav.financial"), icon: Receipt },
     { href: "/dashboard/admin/vehicles", label: t("nav.vehicles"), icon: Bike },
+    { href: "/dashboard/admin/hire-vehicles", label: t("nav.hireVehicles"), icon: Truck },
     { href: "/dashboard/admin/cms/sliders", label: t("nav.cmsSliders"), icon: Image },
     { href: "/dashboard/admin/cms/videos", label: t("nav.cmsVideos"), icon: Video },
     {
@@ -315,7 +317,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                   )}
                 </button>
               )}
-              <Link href={getDashboardBase()} className="flex items-center">
+              <Link href={getDashboardBase()} className="flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo1.jpeg" alt="The Skymap" className="w-8 h-8 rounded-lg object-cover" />
                 <span className="text-2xl font-bold text-primary">
                   The Skymap
                 </span>

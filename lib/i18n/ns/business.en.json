@@ -45,7 +45,11 @@
       "profileNotFound": "Business profile not found",
       "loadFailed": "Failed to load delivery details",
       "notFound": "Delivery not found",
-      "back": "Back to Deliveries"
+      "back": "Back to Deliveries",
+      "driver": "Driver",
+      "plate": "Plate",
+      "color": "Color",
+      "hireRevealAfterConfirm": "The driver's name, phone and vehicle plate will appear here once your hire is confirmed by our team."
     },
     "invoices": {
       "title": "Invoices",

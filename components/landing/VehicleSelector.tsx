@@ -66,7 +66,7 @@ export default function VehicleSelector({ value, onChange, disabled }: VehicleSe
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+    <div className="flex flex-col gap-3">
       {types.map((vt) => {
         const Icon = ICON_BY_KEY[vt.key] || Car;
         const selected = value === vt.id;
@@ -76,14 +76,14 @@ export default function VehicleSelector({ value, onChange, disabled }: VehicleSe
             type="button"
             disabled={disabled}
             onClick={() => onChange(vt.id)}
-            className={`relative flex flex-col items-start gap-2 p-3.5 rounded-2xl border-2 text-left transition-all ${
+            className={`relative flex items-center gap-3 p-3.5 rounded-2xl border-2 text-left transition-all ${
               selected
                 ? 'border-primary bg-primary/5 shadow-sm'
                 : 'border-gray-200 hover:border-primary/50 cursor-pointer'
             }`}
           >
             <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                 selected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'
               }`}
             >

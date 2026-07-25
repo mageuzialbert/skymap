@@ -31,6 +31,8 @@ export async function POST(request: NextRequest) {
       package_description,
       package_image_url,
       vehicle_type_id,
+      hire_vehicle_id,
+      hire_category,
       scheduled_pickup_at,
       service_details,
     } = body;
@@ -39,16 +41,16 @@ export async function POST(request: NextRequest) {
       ? body.service_type
       : 'delivery';
 
-    // Every service needs a starting point and a chosen vehicle.
+    // Every service needs a starting point.
     if (!pickup_address) {
       return NextResponse.json({ error: 'Pickup/start location is required' }, { status: 400 });
     }
-    if (!vehicle_type_id) {
-      return NextResponse.json({ error: 'Please choose a means of transport' }, { status: 400 });
-    }
 
-    // Per-service requirements.
+    // Per-service requirements (vehicle rules differ by service).
     if (service_type === 'delivery') {
+      if (!vehicle_type_id) {
+        return NextResponse.json({ error: 'Please choose a means of transport' }, { status: 400 });
+      }
       if (!dropoff_address || !dropoff_phone) {
         return NextResponse.json(
           { error: 'Dropoff address and recipient phone are required for a delivery' },
@@ -56,13 +58,23 @@ export async function POST(request: NextRequest) {
         );
       }
     } else if (service_type === 'ride') {
+      if (!vehicle_type_id) {
+        return NextResponse.json({ error: 'Please choose a means of transport' }, { status: 400 });
+      }
       if (!dropoff_address) {
         return NextResponse.json({ error: 'Destination is required for a ride' }, { status: 400 });
       }
+    } else if (service_type === 'hire') {
+      if (!hire_vehicle_id) {
+        return NextResponse.json({ error: 'Please choose a vehicle to hire' }, { status: 400 });
+      }
     } else if (service_type === 'errand') {
+      if (!dropoff_address) {
+        return NextResponse.json({ error: 'Please say where the rider should go' }, { status: 400 });
+      }
       if (!service_details) {
         return NextResponse.json(
-          { error: 'Please describe what you need bought or done' },
+          { error: 'Please describe what you need done' },
           { status: 400 }
         );
       }
@@ -139,6 +151,8 @@ export async function POST(request: NextRequest) {
         package_description: package_description || null,
         package_image_url: package_image_url || null,
         vehicle_type_id: vehicle_type_id || null,
+        hire_vehicle_id: hire_vehicle_id || null,
+        hire_category: hire_category || null,
         scheduled_pickup_at: scheduled_pickup_at || null,
         service_details: service_details || null,
         delivery_fee: deliveryFee || null,

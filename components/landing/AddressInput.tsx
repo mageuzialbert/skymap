@@ -72,7 +72,7 @@ export default function AddressInput({
           onChange={(e) => setSearchValue(e.target.value)}
           disabled={!ready}
           placeholder={placeholder}
-          autoComplete="street-address"
+          autoComplete="off"
           className="flex-1 py-2.5 px-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
         />
 
@@ -93,7 +93,11 @@ export default function AddressInput({
           {data.map(({ place_id, description }) => (
             <li
               key={place_id}
-              onClick={() => handleSelect(description)}
+              // onMouseDown fires before the input's blur, so the tap always registers.
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleSelect(description);
+              }}
               className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 flex items-center gap-2 border-b border-gray-100 last:border-b-0 active:bg-gray-100"
             >
               <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />

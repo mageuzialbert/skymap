@@ -42,6 +42,10 @@
       "createFailed": "Imeshindwa kutengeneza usafirishaji"
     },
     "deliveryDetails": {
+      "driver": "Dereva",
+      "plate": "Namba ya gari",
+      "color": "Rangi",
+      "hireRevealAfterConfirm": "Jina la dereva, simu na namba ya gari vitaonekana hapa mara tu kukodi kwako kutakapothibitishwa na timu yetu.",
       "profileNotFound": "Wasifu wa biashara haukupatikana",
       "loadFailed": "Imeshindwa kupakia taarifa za usafirishaji",
       "notFound": "Usafirishaji haukupatikana",

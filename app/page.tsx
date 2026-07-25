@@ -36,7 +36,7 @@ export default function Home() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/logo.png" alt="The Skymap" className="w-8 h-8" />
+            <img src="/logo1.jpeg" alt="The Skymap" className="w-8 h-8" />
             <span className="text-lg font-bold text-gray-900 drop-shadow-sm">{t('common.appName')}</span>
           </div>
 

@@ -9,11 +9,12 @@ import {
   Package,
   UserRound,
   Clock,
-  ShoppingBag,
+  Send,
   MapPin,
   Phone,
   User,
   Truck,
+  Users,
   Camera,
   X,
   ImagePlus,
@@ -27,6 +28,7 @@ import AddressInput from '@/components/landing/AddressInput';
 import FullscreenMapPicker from '@/components/landing/FullscreenMapPicker';
 import LocationCategoryPicker from '@/components/landing/LocationCategoryPicker';
 import VehicleSelector from '@/components/landing/VehicleSelector';
+import HireVehicleSelector, { type HireVehicleOption } from '@/components/client/HireVehicleSelector';
 import CameraCapture from '@/components/common/CameraCapture';
 import { supabase } from '@/lib/supabase';
 import { SERVICE_TYPES, getServiceType, type ServiceTypeKey } from '@/lib/serviceTypes';
@@ -45,15 +47,20 @@ const SERVICE_ICONS: Record<string, any> = {
   Package,
   UserRound,
   Clock,
-  ShoppingBag,
+  Send,
 };
 
-const STEP_KEYS = [
-  'components.rideWizard.stepPurpose',
-  'components.rideWizard.stepTransport',
-  'components.rideWizard.stepDetails',
-  'components.rideWizard.stepTime',
-];
+type StepId = 'purpose' | 'transport' | 'details' | 'errand' | 'hireVehicle' | 'hireDetails' | 'time';
+
+// The step sequence depends on the chosen service. Errand ("Send a Rider") has
+// no vehicle step; Hire replaces the vehicle-type step with the People/Load
+// physical-vehicle picker + a supportive-info step.
+function stepsFor(svc: ServiceTypeKey | null): StepId[] {
+  if (!svc) return ['purpose'];
+  if (svc === 'errand') return ['purpose', 'errand', 'time'];
+  if (svc === 'hire') return ['purpose', 'hireVehicle', 'hireDetails', 'time'];
+  return ['purpose', 'transport', 'details', 'time'];
+}
 
 export default function RequestRideWizard({
   pickup,
@@ -68,10 +75,30 @@ export default function RequestRideWizard({
 
   const [step, setStep] = useState(0);
   const [serviceType, setServiceType] = useState<ServiceTypeKey | null>(null);
+
+  // Delivery / ride vehicle (vehicle_types catalog).
   const [vehicleTypeId, setVehicleTypeId] = useState<string | null>(null);
   const [vehicleName, setVehicleName] = useState<string>('');
+
+  // Vehicle hire (physical vehicles).
+  const [hireCategory, setHireCategory] = useState<'people' | 'load' | null>(null);
+  const [hireVehicleId, setHireVehicleId] = useState<string | null>(null);
+  const [hireVehicle, setHireVehicle] = useState<HireVehicleOption | null>(null);
+  // Hire supportive info (item 8).
+  const [hirePassengers, setHirePassengers] = useState('');
+  const [hirePurpose, setHirePurpose] = useState('');
+  const [hireWhen, setHireWhen] = useState('');
+  const [hireLoadDesc, setHireLoadDesc] = useState('');
+  const [hireWeight, setHireWeight] = useState('');
+  const [hireNotes, setHireNotes] = useState('');
+
+  // Delivery package + ride notes.
   const [packageDetails, setPackageDetails] = useState('');
   const [serviceDetails, setServiceDetails] = useState('');
+
+  // Errand ("Send a Rider").
+  const [errandReason, setErrandReason] = useState('');
+  const [errandNotes, setErrandNotes] = useState('');
 
   // Scheduling
   const [scheduleLater, setScheduleLater] = useState(false);
@@ -84,6 +111,7 @@ export default function RequestRideWizard({
   // Pickers
   const [mapPickerOpen, setMapPickerOpen] = useState<'pickup' | 'dropoff' | null>(null);
   const [categoryPickerOpen, setCategoryPickerOpen] = useState<'pickup' | 'dropoff' | null>(null);
+  const [locating, setLocating] = useState(false);
 
   // Camera/Image
   const [packageImage, setPackageImage] = useState<File | null>(null);
@@ -91,7 +119,11 @@ export default function RequestRideWizard({
   const [cameraOpen, setCameraOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Resolve the chosen vehicle's display name for the review step.
+  const steps = stepsFor(serviceType);
+  const currentStep: StepId = steps[step] || 'purpose';
+  const isLastStep = step === steps.length - 1;
+
+  // Resolve the chosen delivery/ride vehicle's display name for the review step.
   useEffect(() => {
     if (!vehicleTypeId) {
       setVehicleName('');
@@ -100,7 +132,7 @@ export default function RequestRideWizard({
     fetch('/api/vehicle-types')
       .then((r) => (r.ok ? r.json() : []))
       .then((types: any[]) => {
-        const vt = Array.isArray(types) ? types.find((t) => t.id === vehicleTypeId) : null;
+        const vt = Array.isArray(types) ? types.find((x) => x.id === vehicleTypeId) : null;
         setVehicleName(vt?.name || '');
       })
       .catch(() => setVehicleName(''));
@@ -110,8 +142,15 @@ export default function RequestRideWizard({
   const needsDropoff = svc === 'delivery' || svc === 'ride';
   const needsRecipient = svc === 'delivery';
   const needsPackage = svc === 'delivery';
-  // Errand uses a required details field; ride/hire use an optional note.
-  const detailsRequired = svc === 'errand';
+
+  // Reset downstream state when the service changes so stale selections don't leak.
+  const chooseService = (key: ServiceTypeKey) => {
+    setServiceType(key);
+    setVehicleTypeId(null);
+    setHireCategory(null);
+    setHireVehicleId(null);
+    setHireVehicle(null);
+  };
 
   const normalizePhone = (phone: string): string => {
     let p = phone.trim();
@@ -132,16 +171,28 @@ export default function RequestRideWizard({
 
   // Per-step "can advance" checks.
   const canAdvance = (): boolean => {
-    if (step === 0) return !!serviceType;
-    if (step === 1) return !!vehicleTypeId;
-    if (step === 2) {
-      if (!pickup.address) return false;
-      if (needsDropoff && !dropoff.address) return false;
-      if (needsRecipient && !(dropoff.phone && dropoff.phone.length >= 9)) return false;
-      if (detailsRequired && !serviceDetails.trim()) return false;
-      return true;
+    switch (currentStep) {
+      case 'purpose':
+        return !!serviceType;
+      case 'transport':
+        return !!vehicleTypeId;
+      case 'details':
+        if (!pickup.address) return false;
+        if (needsDropoff && !dropoff.address) return false;
+        if (needsRecipient && !(dropoff.phone && dropoff.phone.length >= 9)) return false;
+        return true;
+      case 'errand':
+        return !!pickup.address && !!dropoff.address && !!errandReason.trim();
+      case 'hireVehicle':
+        return !!hireCategory && !!hireVehicleId;
+      case 'hireDetails':
+        if (!pickup.address || !dropoff.address) return false;
+        if (hireCategory === 'people' && !hirePassengers.trim()) return false;
+        if (hireCategory === 'load' && !hireLoadDesc.trim()) return false;
+        return true;
+      default:
+        return true;
     }
-    return true;
   };
 
   const handleMapSelect = (address: string, lat: number, lng: number) => {
@@ -158,6 +209,48 @@ export default function RequestRideWizard({
     change('address', address);
     change('latitude', lat);
     change('longitude', lng);
+  };
+
+  // Capture the device's current position and reverse-geocode it into the pickup
+  // field (Google-Maps-style "use my location").
+  const useCurrentLocation = () => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setError(t('components.rideWizard.locationUnavailable'));
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        onPickupChange('latitude', latitude);
+        onPickupChange('longitude', longitude);
+        const finish = (address: string) => {
+          onPickupChange('address', address);
+          setLocating(false);
+        };
+        try {
+          const g = (window as any).google;
+          if (g?.maps?.Geocoder) {
+            new g.maps.Geocoder().geocode(
+              { location: { lat: latitude, lng: longitude } },
+              (results: any, status: string) => {
+                if (status === 'OK' && results?.[0]) finish(results[0].formatted_address);
+                else finish(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+              }
+            );
+          } else {
+            finish(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+          }
+        } catch {
+          finish(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+        }
+      },
+      () => {
+        setError(t('components.rideWizard.locationDenied'));
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,6 +297,21 @@ export default function RequestRideWizard({
     }
   };
 
+  // Assemble the human-readable supportive info for a hire request.
+  const buildHireDetails = (): string => {
+    const lines: string[] = [];
+    if (hireCategory === 'people') {
+      if (hirePassengers) lines.push(`${t('components.rideWizard.passengers')}: ${hirePassengers}`);
+      if (hirePurpose) lines.push(`${t('components.rideWizard.tripPurpose')}: ${hirePurpose}`);
+      if (hireWhen) lines.push(`${t('components.rideWizard.travelWhen')}: ${hireWhen}`);
+    } else if (hireCategory === 'load') {
+      if (hireLoadDesc) lines.push(`${t('components.rideWizard.loadDescription')}: ${hireLoadDesc}`);
+      if (hireWeight) lines.push(`${t('components.rideWizard.approxWeight')}: ${hireWeight}`);
+    }
+    if (hireNotes) lines.push(hireNotes);
+    return lines.join('\n');
+  };
+
   const handleSubmit = async () => {
     setError('');
     setSuccess('');
@@ -216,28 +324,43 @@ export default function RequestRideWizard({
 
       const payload: Record<string, any> = {
         service_type: serviceType,
-        vehicle_type_id: vehicleTypeId,
+        vehicle_type_id: svc === 'delivery' || svc === 'ride' ? vehicleTypeId : null,
         pickup_address: pickup.address,
         pickup_latitude: pickup.latitude,
         pickup_longitude: pickup.longitude,
         pickup_name: pickup.name,
         pickup_phone: pickup.phone ? normalizePhone(pickup.phone) : pickup.phone,
-        service_details: serviceDetails || null,
         scheduled_pickup_at: scheduleLater && scheduledAt ? new Date(scheduledAt).toISOString() : null,
       };
 
-      if (needsDropoff) {
+      if (svc === 'delivery') {
         payload.dropoff_address = dropoff.address;
         payload.dropoff_latitude = dropoff.latitude;
         payload.dropoff_longitude = dropoff.longitude;
-      }
-      if (needsRecipient) {
         payload.dropoff_name = dropoff.name;
         payload.dropoff_phone = dropoff.phone ? normalizePhone(dropoff.phone) : dropoff.phone;
-      }
-      if (needsPackage) {
         payload.package_description = packageDetails || null;
         payload.package_image_url = packageImageUrl;
+      } else if (svc === 'ride') {
+        payload.dropoff_address = dropoff.address;
+        payload.dropoff_latitude = dropoff.latitude;
+        payload.dropoff_longitude = dropoff.longitude;
+        payload.service_details = serviceDetails || null;
+      } else if (svc === 'errand') {
+        // Destination (where the rider should go) + optional contact there.
+        payload.dropoff_address = dropoff.address;
+        payload.dropoff_latitude = dropoff.latitude;
+        payload.dropoff_longitude = dropoff.longitude;
+        payload.dropoff_phone = dropoff.phone ? normalizePhone(dropoff.phone) : null;
+        payload.service_details = errandReason || null;
+        payload.package_description = errandNotes || null;
+      } else if (svc === 'hire') {
+        payload.hire_vehicle_id = hireVehicleId;
+        payload.hire_category = hireCategory;
+        payload.dropoff_address = dropoff.address || null;
+        payload.dropoff_latitude = dropoff.latitude;
+        payload.dropoff_longitude = dropoff.longitude;
+        payload.service_details = buildHireDetails() || null;
       }
 
       const response = await fetch('/api/client/rides', {
@@ -261,7 +384,7 @@ export default function RequestRideWizard({
 
   const goNext = () => {
     setError('');
-    if (step < STEP_KEYS.length - 1) setStep((s) => s + 1);
+    if (!isLastStep) setStep((s) => s + 1);
   };
   const goBack = () => {
     setError('');
@@ -270,52 +393,22 @@ export default function RequestRideWizard({
 
   const inputClass =
     'w-full h-11 pl-10 pr-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50';
+  const plainInput =
+    'w-full h-11 px-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50';
 
   const serviceDef = serviceType ? getServiceType(serviceType) : null;
+  const serviceLabelText = serviceType ? t(`components.serviceTypes.${serviceType}.label`) : '-';
+  const transportText =
+    svc === 'hire' ? hireVehicle?.name || '-' : svc === 'errand' ? '-' : vehicleName || '-';
 
   return (
     <div>
-      {/* Stepper */}
-      <div className="flex items-center mb-6">
-        {STEP_KEYS.map((labelKey, i) => {
-          const active = i === step;
-          const done = i < step;
-          return (
-            <div key={labelKey} className="flex items-center flex-1 last:flex-none">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
-                    done
-                      ? 'bg-primary text-white'
-                      : active
-                      ? 'bg-primary/15 text-primary border-2 border-primary'
-                      : 'bg-gray-100 text-gray-400'
-                  }`}
-                >
-                  {done ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
-                </div>
-                <span
-                  className={`text-xs font-medium hidden sm:inline ${
-                    active ? 'text-gray-900' : 'text-gray-400'
-                  }`}
-                >
-                  {t(labelKey)}
-                </span>
-              </div>
-              {i < STEP_KEYS.length - 1 && (
-                <div className={`flex-1 h-0.5 mx-2 ${done ? 'bg-primary' : 'bg-gray-200'}`} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ===== STEP 1: PURPOSE ===== */}
-      {step === 0 && (
+      {/* ===== PURPOSE ===== */}
+      {currentStep === 'purpose' && (
         <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
           <h3 className="text-base font-semibold text-gray-900 mb-1">{t('components.rideWizard.whatNeed')}</h3>
           <p className="text-xs text-gray-500 mb-4">{t('components.rideWizard.chooseService')}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex flex-col gap-3">
             {SERVICE_TYPES.map((s) => {
               const Icon = SERVICE_ICONS[s.icon] || Package;
               const selected = serviceType === s.key;
@@ -323,11 +416,9 @@ export default function RequestRideWizard({
                 <button
                   key={s.key}
                   type="button"
-                  onClick={() => setServiceType(s.key)}
+                  onClick={() => chooseService(s.key)}
                   className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${
-                    selected
-                      ? 'border-primary bg-primary/5 shadow-sm'
-                      : 'border-gray-200 hover:border-primary/50'
+                    selected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-primary/50'
                   }`}
                 >
                   <div
@@ -338,8 +429,8 @@ export default function RequestRideWizard({
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gray-900">{s.label}</p>
-                    <p className="text-xs text-gray-500 mt-0.5 leading-snug">{s.description}</p>
+                    <p className="text-sm font-semibold text-gray-900">{t(s.labelKey)}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 leading-snug">{t(s.descriptionKey)}</p>
                   </div>
                 </button>
               );
@@ -348,13 +439,15 @@ export default function RequestRideWizard({
         </section>
       )}
 
-      {/* ===== STEP 2: TRANSPORT ===== */}
-      {step === 1 && (
+      {/* ===== TRANSPORT (delivery / ride) ===== */}
+      {currentStep === 'transport' && (
         <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
           <header className="flex items-center gap-2.5 mb-4">
             <Truck className="w-5 h-5 text-gray-400 shrink-0" />
             <div>
-              <h3 className="text-base font-semibold text-gray-900 leading-tight">{t('components.rideWizard.meansOfTransport')}</h3>
+              <h3 className="text-base font-semibold text-gray-900 leading-tight">
+                {t('components.rideWizard.meansOfTransport')}
+              </h3>
               <p className="text-xs text-gray-500">{t('components.rideWizard.chooseVehicle')}</p>
             </div>
           </header>
@@ -362,10 +455,311 @@ export default function RequestRideWizard({
         </section>
       )}
 
-      {/* ===== STEP 3: DETAILS (dynamic) ===== */}
-      {step === 2 && (
+      {/* ===== HIRE VEHICLE (people / load + physical vehicle) ===== */}
+      {currentStep === 'hireVehicle' && (
+        <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+          <header className="flex items-center gap-2.5 mb-4">
+            <Truck className="w-5 h-5 text-gray-400 shrink-0" />
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 leading-tight">
+                {t('components.rideWizard.chooseHireVehicle')}
+              </h3>
+              <p className="text-xs text-gray-500">{t('components.rideWizard.choosePeopleOrLoad')}</p>
+            </div>
+          </header>
+
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            {(['people', 'load'] as const).map((cat) => {
+              const selected = hireCategory === cat;
+              const Icon = cat === 'people' ? Users : Package;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => {
+                    setHireCategory(cat);
+                    setHireVehicleId(null);
+                    setHireVehicle(null);
+                  }}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                    selected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-primary/50'
+                  }`}
+                >
+                  <div
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      selected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {cat === 'people'
+                      ? t('components.rideWizard.carryPeople')
+                      : t('components.rideWizard.carryLoads')}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {hireCategory && (
+            <HireVehicleSelector
+              category={hireCategory}
+              value={hireVehicleId}
+              onChange={(id, vehicle) => {
+                setHireVehicleId(id);
+                setHireVehicle(vehicle);
+              }}
+              disabled={loading}
+            />
+          )}
+        </section>
+      )}
+
+      {/* ===== HIRE DETAILS (locations + supportive info) ===== */}
+      {currentStep === 'hireDetails' && (
         <div className="space-y-5">
-          {/* Locations / contact */}
+          <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+            <header className="flex items-center gap-2.5 mb-4">
+              <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 leading-tight">
+                  {t('components.rideWizard.tripRoute')}
+                </h3>
+                <p className="text-xs text-gray-500">{hireVehicle?.name || serviceDef?.label}</p>
+              </div>
+            </header>
+            <div className="space-y-4">
+              <LocationField
+                which="pickup"
+                loc={pickup}
+                label={t('components.rideWizard.startLocation')}
+                placeholder={t('components.rideWizard.typeOrPickMap')}
+                onChange={onPickupChange}
+                onMapClick={() => setMapPickerOpen('pickup')}
+                onCategoryClick={() => setCategoryPickerOpen('pickup')}
+                onUseCurrentLocation={useCurrentLocation}
+                locating={locating}
+              />
+              <LocationField
+                which="dropoff"
+                loc={dropoff}
+                label={t('components.rideWizard.destination')}
+                placeholder={t('components.rideWizard.typeOrPickMap')}
+                onChange={onDropoffChange}
+                onMapClick={() => setMapPickerOpen('dropoff')}
+                onCategoryClick={() => setCategoryPickerOpen('dropoff')}
+              />
+              <YourContact name={pickup.name} phone={pickup.phone} />
+            </div>
+          </section>
+
+          <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+            <header className="flex items-center gap-2.5 mb-4">
+              {hireCategory === 'people' ? (
+                <Users className="w-5 h-5 text-gray-400 shrink-0" />
+              ) : (
+                <Package className="w-5 h-5 text-gray-400 shrink-0" />
+              )}
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 leading-tight">
+                  {hireCategory === 'people'
+                    ? t('components.rideWizard.peopleInfo')
+                    : t('components.rideWizard.loadInfo')}
+                </h3>
+                <p className="text-xs text-gray-500">{t('components.rideWizard.helpsPlan')}</p>
+              </div>
+            </header>
+
+            {hireCategory === 'people' ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                    {t('components.rideWizard.passengers')} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={hirePassengers}
+                    onChange={(e) => setHirePassengers(e.target.value)}
+                    placeholder="30"
+                    className={plainInput}
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                    {t('components.rideWizard.tripPurpose')}
+                  </label>
+                  <input
+                    type="text"
+                    value={hirePurpose}
+                    onChange={(e) => setHirePurpose(e.target.value)}
+                    placeholder={t('components.rideWizard.tripPurposePlaceholder')}
+                    className={plainInput}
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                    {t('components.rideWizard.travelWhen')}
+                  </label>
+                  <input
+                    type="text"
+                    value={hireWhen}
+                    onChange={(e) => setHireWhen(e.target.value)}
+                    placeholder={t('components.rideWizard.travelWhenPlaceholder')}
+                    className={plainInput}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                    {t('components.rideWizard.loadDescription')} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={hireLoadDesc}
+                    onChange={(e) => setHireLoadDesc(e.target.value)}
+                    placeholder={t('components.rideWizard.loadDescriptionPlaceholder')}
+                    className={plainInput}
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                    {t('components.rideWizard.approxWeight')}
+                  </label>
+                  <input
+                    type="text"
+                    value={hireWeight}
+                    onChange={(e) => setHireWeight(e.target.value)}
+                    placeholder={t('components.rideWizard.approxWeightPlaceholder')}
+                    className={plainInput}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4">
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                {t('components.rideWizard.additionalInfo')}
+              </label>
+              <textarea
+                value={hireNotes}
+                onChange={(e) => setHireNotes(e.target.value)}
+                rows={3}
+                placeholder={t('components.rideWizard.hirePlaceholder')}
+                className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                disabled={loading}
+              />
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* ===== ERRAND (Send a Rider) ===== */}
+      {currentStep === 'errand' && (
+        <div className="space-y-5">
+          <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+            <header className="flex items-center gap-2.5 mb-4">
+              <Send className="w-5 h-5 text-gray-400 shrink-0" />
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 leading-tight">
+                  {t('components.rideWizard.errandTitle')}
+                </h3>
+                <p className="text-xs text-gray-500">{t('components.rideWizard.errandSubtitle')}</p>
+              </div>
+            </header>
+
+            <div className="space-y-4">
+              {/* (i) Where should the rider go */}
+              <LocationField
+                which="dropoff"
+                loc={dropoff}
+                label={t('components.rideWizard.errandWhereGo')}
+                placeholder={t('components.rideWizard.errandWhereGoPlaceholder')}
+                onChange={onDropoffChange}
+                onMapClick={() => setMapPickerOpen('dropoff')}
+                onCategoryClick={() => setCategoryPickerOpen('dropoff')}
+              />
+
+              {/* (ii) Reason */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                  {t('components.rideWizard.errandReason')} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={errandReason}
+                  onChange={(e) => setErrandReason(e.target.value)}
+                  placeholder={t('components.rideWizard.errandReasonPlaceholder')}
+                  className={plainInput}
+                  disabled={loading}
+                />
+              </div>
+
+              {/* (iii) Contact phone in that area (optional) */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                  {t('components.rideWizard.errandContact')}{' '}
+                  <span className="text-gray-400">({t('common.optional')})</span>
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    value={dropoff.phone}
+                    onChange={(e) => onDropoffChange('phone', e.target.value)}
+                    placeholder="0712 345 678"
+                    className={inputClass}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              {/* (iv) Your location */}
+              <LocationField
+                which="pickup"
+                loc={pickup}
+                label={t('components.rideWizard.errandYourLocation')}
+                placeholder={t('components.rideWizard.typeOrPickMap')}
+                onChange={onPickupChange}
+                onMapClick={() => setMapPickerOpen('pickup')}
+                onCategoryClick={() => setCategoryPickerOpen('pickup')}
+                onUseCurrentLocation={useCurrentLocation}
+                locating={locating}
+              />
+
+              <YourContact name={pickup.name} phone={pickup.phone} />
+
+              {/* (v) Additional info */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                  {t('components.rideWizard.additionalInfo')}
+                </label>
+                <textarea
+                  value={errandNotes}
+                  onChange={(e) => setErrandNotes(e.target.value)}
+                  rows={3}
+                  placeholder={t('components.rideWizard.errandNotesPlaceholder')}
+                  className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* ===== DETAILS (delivery / ride) ===== */}
+      {currentStep === 'details' && (
+        <div className="space-y-5">
           <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <header className="flex items-center gap-2.5 mb-4">
               <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
@@ -373,11 +767,7 @@ export default function RequestRideWizard({
                 <h3 className="text-base font-semibold text-gray-900 leading-tight">
                   {svc === 'delivery'
                     ? t('components.rideWizard.pickupDropoff')
-                    : svc === 'ride'
-                    ? t('components.rideWizard.yourTrip')
-                    : svc === 'hire'
-                    ? t('components.rideWizard.whereStart')
-                    : t('components.rideWizard.whereDeliver')}
+                    : t('components.rideWizard.yourTrip')}
                 </h3>
                 <p className="text-xs text-gray-500">{serviceDef?.label}</p>
               </div>
@@ -387,17 +777,13 @@ export default function RequestRideWizard({
               <LocationField
                 which="pickup"
                 loc={pickup}
-                label={
-                  svc === 'hire'
-                    ? t('components.rideWizard.startLocation')
-                    : svc === 'errand'
-                    ? t('components.rideWizard.yourLocationDeliver')
-                    : t('components.rideWizard.pickupLocation')
-                }
+                label={t('components.rideWizard.pickupLocation')}
                 placeholder={t('components.rideWizard.typeOrPickMap')}
                 onChange={onPickupChange}
                 onMapClick={() => setMapPickerOpen('pickup')}
                 onCategoryClick={() => setCategoryPickerOpen('pickup')}
+                onUseCurrentLocation={useCurrentLocation}
+                locating={locating}
               />
 
               <YourContact name={pickup.name} phone={pickup.phone} />
@@ -417,7 +803,9 @@ export default function RequestRideWizard({
               {needsRecipient && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">{t('components.rideWizard.recipientName')}</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                      {t('components.rideWizard.recipientName')}
+                    </label>
                     <div className="relative">
                       <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <input
@@ -431,7 +819,9 @@ export default function RequestRideWizard({
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">{t('components.rideWizard.recipientPhone')}</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                      {t('components.rideWizard.recipientPhone')}
+                    </label>
                     <div className="relative">
                       <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <input
@@ -439,10 +829,14 @@ export default function RequestRideWizard({
                         inputMode="tel"
                         value={dropoff.phone}
                         onChange={(e) => onDropoffChange('phone', e.target.value)}
+                        onBlur={(e) => onPhoneBlur(e.target.value)}
                         placeholder="+255..."
                         className={inputClass}
                         disabled={loading}
                       />
+                      {isCheckingPhone && (
+                        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -450,13 +844,15 @@ export default function RequestRideWizard({
             </div>
           </section>
 
-          {/* Service-specific details */}
+          {/* Delivery package */}
           {svc === 'delivery' && (
             <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
               <header className="flex items-center gap-2.5 mb-4">
                 <Package className="w-5 h-5 text-gray-400 shrink-0" />
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 leading-tight">{t('components.rideWizard.packageDetails')}</h3>
+                  <h3 className="text-base font-semibold text-gray-900 leading-tight">
+                    {t('components.rideWizard.packageDetails')}
+                  </h3>
                   <p className="text-xs text-gray-500">{t('common.optional')}</p>
                 </div>
               </header>
@@ -540,38 +936,23 @@ export default function RequestRideWizard({
             </section>
           )}
 
-          {svc !== 'delivery' && (
+          {/* Ride notes (optional) */}
+          {svc === 'ride' && (
             <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
               <header className="flex items-center gap-2.5 mb-4">
-                {svc === 'errand' ? (
-                  <ShoppingBag className="w-5 h-5 text-gray-400 shrink-0" />
-                ) : svc === 'hire' ? (
-                  <Clock className="w-5 h-5 text-gray-400 shrink-0" />
-                ) : (
-                  <UserRound className="w-5 h-5 text-gray-400 shrink-0" />
-                )}
+                <UserRound className="w-5 h-5 text-gray-400 shrink-0" />
                 <div>
                   <h3 className="text-base font-semibold text-gray-900 leading-tight">
-                    {svc === 'errand'
-                      ? t('components.rideWizard.whatNeed')
-                      : svc === 'hire'
-                      ? t('components.rideWizard.durationPlan')
-                      : t('components.rideWizard.tripNotes')}
+                    {t('components.rideWizard.tripNotes')}
                   </h3>
-                  <p className="text-xs text-gray-500">{detailsRequired ? t('common.required') : t('common.optional')}</p>
+                  <p className="text-xs text-gray-500">{t('common.optional')}</p>
                 </div>
               </header>
               <textarea
                 value={serviceDetails}
                 onChange={(e) => setServiceDetails(e.target.value)}
                 rows={4}
-                placeholder={
-                  svc === 'errand'
-                    ? t('components.rideWizard.errandPlaceholder')
-                    : svc === 'hire'
-                    ? t('components.rideWizard.hirePlaceholder')
-                    : t('components.rideWizard.tripPlaceholder')
-                }
+                placeholder={t('components.rideWizard.tripPlaceholder')}
                 className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50"
                 disabled={loading}
               />
@@ -580,8 +961,8 @@ export default function RequestRideWizard({
         </div>
       )}
 
-      {/* ===== STEP 4: TIME & REVIEW ===== */}
-      {step === 3 && (
+      {/* ===== TIME & REVIEW ===== */}
+      {currentStep === 'time' && (
         <div className="space-y-5">
           <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <header className="flex items-center gap-2.5 mb-4">
@@ -631,17 +1012,27 @@ export default function RequestRideWizard({
           <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <h3 className="text-base font-semibold text-gray-900 mb-3">{t('components.rideWizard.review')}</h3>
             <dl className="space-y-2 text-sm">
-              <ReviewRow label={t('components.rideWizard.service')} value={serviceDef?.label || '-'} />
-              <ReviewRow label={t('components.rideWizard.transport')} value={vehicleName || '-'} />
+              <ReviewRow label={t('components.rideWizard.service')} value={serviceLabelText} />
+              {svc !== 'errand' && <ReviewRow label={t('components.rideWizard.transport')} value={transportText} />}
               <ReviewRow
-                label={svc === 'hire' ? t('components.rideWizard.start') : svc === 'errand' ? t('components.rideWizard.deliverTo') : t('components.deliveries.pickup')}
+                label={svc === 'errand' ? t('components.rideWizard.errandYourLocation') : t('components.rideWizard.start')}
                 value={pickup.address || '-'}
               />
-              {needsDropoff && <ReviewRow label={t('components.rideWizard.destination')} value={dropoff.address || '-'} />}
+              {(needsDropoff || svc === 'errand' || svc === 'hire') && (
+                <ReviewRow label={t('components.rideWizard.destination')} value={dropoff.address || '-'} />
+              )}
               {needsRecipient && (
                 <ReviewRow label={t('components.rideWizard.recipient')} value={`${dropoff.name || '-'} · ${dropoff.phone || '-'}`} />
               )}
-              {serviceDetails && <ReviewRow label={t('components.rideWizard.details')} value={serviceDetails} />}
+              {svc === 'errand' && errandReason && (
+                <ReviewRow label={t('components.rideWizard.errandReason')} value={errandReason} />
+              )}
+              {svc === 'hire' && buildHireDetails() && (
+                <ReviewRow label={t('components.rideWizard.details')} value={buildHireDetails()} />
+              )}
+              {svc === 'ride' && serviceDetails && (
+                <ReviewRow label={t('components.rideWizard.details')} value={serviceDetails} />
+              )}
               <ReviewRow
                 label={t('components.rideWizard.when')}
                 value={scheduleLater && scheduledAt ? new Date(scheduledAt).toLocaleString() : t('components.rideWizard.asap')}
@@ -678,7 +1069,7 @@ export default function RequestRideWizard({
             {t('common.back')}
           </button>
         )}
-        {step < STEP_KEYS.length - 1 ? (
+        {!isLastStep ? (
           <button
             type="button"
             onClick={goNext}
@@ -746,7 +1137,7 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4">
       <dt className="text-gray-500 shrink-0">{label}</dt>
-      <dd className="text-gray-900 font-medium text-right break-words">{value}</dd>
+      <dd className="text-gray-900 font-medium text-right break-words whitespace-pre-line">{value}</dd>
     </div>
   );
 }
@@ -780,6 +1171,8 @@ function LocationField({
   onChange,
   onMapClick,
   onCategoryClick,
+  onUseCurrentLocation,
+  locating,
 }: {
   which: 'pickup' | 'dropoff';
   loc: LocationState;
@@ -788,6 +1181,8 @@ function LocationField({
   onChange: (field: keyof LocationState, value: any) => void;
   onMapClick: () => void;
   onCategoryClick: () => void;
+  onUseCurrentLocation?: () => void;
+  locating?: boolean;
 }) {
   const t = useT();
   const accent =
@@ -806,14 +1201,27 @@ function LocationField({
         placeholder={placeholder}
         icon={which}
       />
-      <button
-        type="button"
-        onClick={onCategoryClick}
-        className={`mt-1.5 inline-flex items-center gap-1.5 text-xs font-semibold ${accent}`}
-      >
-        <MapPin className="w-3.5 h-3.5" />
-        {t('components.rideWizard.suggestions')}
-      </button>
+      <div className="mt-1.5 flex flex-wrap items-center gap-4">
+        <button
+          type="button"
+          onClick={onCategoryClick}
+          className={`inline-flex items-center gap-1.5 text-xs font-semibold ${accent}`}
+        >
+          <MapPin className="w-3.5 h-3.5" />
+          {t('components.rideWizard.suggestions')}
+        </button>
+        {onUseCurrentLocation && (
+          <button
+            type="button"
+            onClick={onUseCurrentLocation}
+            disabled={locating}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-dark disabled:opacity-60"
+          >
+            {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
+            {t('components.rideWizard.useCurrentLocation')}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

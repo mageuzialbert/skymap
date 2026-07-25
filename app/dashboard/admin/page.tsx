@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Building2, Users, BarChart3, Image, FileText, Loader2, Settings, Receipt, CreditCard, MessageSquare } from 'lucide-react';
+import { Building2, Users, BarChart3, Image, FileText, Loader2, Settings, Receipt, CreditCard, MessageSquare, Truck } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import { useRouter } from 'next/navigation';
 import { useT } from '@/lib/i18n';
@@ -55,6 +55,13 @@ export default function AdminDashboard() {
       icon: Building2,
       href: '/dashboard/admin/delivery-packages',
       color: 'bg-cyan-500',
+    },
+    {
+      title: t('admin.cards.hireVehicles.title'),
+      description: t('admin.cards.hireVehicles.desc'),
+      icon: Truck,
+      href: '/dashboard/admin/hire-vehicles',
+      color: 'bg-orange-500',
     },
     {
       title: t('admin.cards.expenseCategories.title'),

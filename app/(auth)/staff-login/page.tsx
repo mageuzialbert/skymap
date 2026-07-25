@@ -83,6 +83,8 @@ export default function StaffLoginPage() {
 
         {/* Logo/Branding */}
         <div className="text-center mb-8">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo1.jpeg" alt="The Skymap" className="w-16 h-16 mx-auto mb-3 rounded-xl object-cover" />
           <h1 className="text-3xl font-bold text-primary mb-2">
             The SkayMap
           </h1>

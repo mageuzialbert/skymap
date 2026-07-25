@@ -66,7 +66,7 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/logo.png" alt="The Skymap" className="w-8 h-8" />
+            <img src="/logo1.jpeg" alt="The Skymap" className="w-8 h-8" />
             <span className="text-lg font-bold text-gray-900">{t('common.appName')}</span>
           </Link>
           <Link
@@ -86,7 +86,7 @@ export default function AboutPage() {
         <div className="relative max-w-5xl mx-auto px-4 pt-12 pb-20 sm:pt-16 sm:pb-24 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur mb-5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/logo.png" alt="The Skymap" className="w-10 h-10" />
+            <img src="/logo1.jpeg" alt="The Skymap" className="w-10 h-10" />
           </div>
           <span className="inline-block text-xs font-semibold tracking-[0.2em] uppercase text-white/70 mb-3">
             About The Skymap

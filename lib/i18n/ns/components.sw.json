@@ -1,5 +1,23 @@
 {
   "components": {
+    "serviceTypes": {
+      "errand": {
+        "label": "Tuma Mtu",
+        "desc": "Tuma mtumaji aende mahali kununua, kuchukua au kukabidhi kitu kwa niaba yako."
+      },
+      "delivery": {
+        "label": "Usafirishaji wa Kifurushi",
+        "desc": "Tuma kifurushi kutoka sehemu moja kwenda kwa mpokeaji sehemu nyingine."
+      },
+      "ride": {
+        "label": "Safari",
+        "desc": "Chukuliwa na ufikishwe unakoenda."
+      },
+      "hire": {
+        "label": "Kukodi Gari",
+        "desc": "Kodisha gari zima kwa abiria au mizigo - njia na muda vinaweza kutofautiana."
+      }
+    },
     "camera": {
       "capturePhoto": "Piga picha",
       "closeCamera": "Funga kamera",
@@ -206,7 +224,42 @@
       "whereDeliver": "Tufikishe wapi?",
       "wherePickup": "Tuchukue wapi?"
     },
+    "hireVehicles": {
+      "loadError": "Imeshindwa kupakia magari. Tafadhali jaribu tena.",
+      "none": "Hakuna magari yanayopatikana katika aina hii bado.",
+      "capacity": "{{value}} {{unit}}"
+    },
     "rideWizard": {
+      "chooseHireVehicle": "Chagua gari la kukodi",
+      "choosePeopleOrLoad": "Kwanza chagua unachobeba, kisha chagua gari",
+      "carryPeople": "Kubeba Abiria",
+      "carryLoads": "Kubeba Mizigo",
+      "tripRoute": "Njia",
+      "peopleInfo": "Maelezo ya safari",
+      "loadInfo": "Maelezo ya mzigo",
+      "helpsPlan": "Hii inatusaidia kupanga gari na dereva sahihi kwa ajili yako.",
+      "passengers": "Idadi ya abiria",
+      "tripPurpose": "Madhumuni ya safari",
+      "tripPurposePlaceholder": "mf. Harusi, tukio la kikazi, safari ya shule",
+      "travelWhen": "Tarehe na muda wa safari",
+      "travelWhenPlaceholder": "mf. Tarehe 12 Agosti, kuondoka saa 1 asubuhi",
+      "loadDescription": "Unasafirisha nini?",
+      "loadDescriptionPlaceholder": "mf. Mifuko ya saruji, samani, vifaa vya ujenzi",
+      "approxWeight": "Uzito / idadi takriban",
+      "approxWeightPlaceholder": "mf. Tani 5, mifuko 200",
+      "additionalInfo": "Taarifa za ziada",
+      "errandTitle": "Tuma Mtu",
+      "errandSubtitle": "Tuambie aende wapi na ufanye nini.",
+      "errandWhereGo": "Mtumaji aende wapi?",
+      "errandWhereGoPlaceholder": "mf. Stendi ya Ubungo",
+      "errandReason": "Afanye nini huko?",
+      "errandReasonPlaceholder": "mf. Kutuma kifurushi, kuchukua hati, kununua kitu",
+      "errandContact": "Simu ya mtu wa mahali hapo",
+      "errandYourLocation": "Mahali ulipo",
+      "errandNotesPlaceholder": "Kitu kingine chochote mtumaji anapaswa kujua",
+      "useCurrentLocation": "Tumia mahali nilipo sasa",
+      "locationUnavailable": "Mahali hapapatikani kwenye kifaa hiki.",
+      "locationDenied": "Imeshindwa kupata mahali ulipo. Tafadhali ruhusu ufikiaji wa mahali.",
       "asap": "Haraka iwezekanavyo",
       "asapHint": "Dereva anapangwa mara moja.",
       "camera": "Kamera",

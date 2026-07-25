@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
         <div className="flex items-center mb-4">
           <Link href="/" className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/logo.png" alt="The Skymap" className="w-8 h-8" />
+            <img src="/logo1.jpeg" alt="The Skymap" className="w-8 h-8" />
             <span className="text-lg font-bold text-primary">The Skymap</span>
           </Link>
         </div>
