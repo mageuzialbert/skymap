@@ -27,6 +27,8 @@ import {
 import { getCurrentUser, logout } from "@/lib/auth";
 import { getUserRole } from "@/lib/roles";
 import { PermissionsProvider, usePermissions } from "@/lib/permissions-context";
+import { useT } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 // Navigation item interface with permission requirements
 interface NavItem {
@@ -40,6 +42,7 @@ interface NavItem {
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useT();
   const [user, setUser] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -84,7 +87,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -107,128 +110,128 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   };
 
   const businessNavItems: NavItem[] = [
-    { href: "/dashboard/business", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/business/request-ride", label: "Order Delivery", icon: Bike },
+    { href: "/dashboard/business", label: t("nav.overview"), icon: LayoutDashboard },
+    { href: "/dashboard/business/request-ride", label: t("nav.orderDelivery"), icon: Bike },
     {
       href: "/dashboard/business/rides",
-      label: "Rides History",
+      label: t("nav.ridesHistory"),
       icon: Package,
     },
-    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
-    { href: "/dashboard/business/invoices", label: "Invoices", icon: Receipt },
-    { href: "/dashboard/business/profile", label: "Profile", icon: User },
-    { href: "/dashboard/business/verify", label: "Verify", icon: Shield },
+    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageSquare },
+    { href: "/dashboard/business/invoices", label: t("nav.invoices"), icon: Receipt },
+    { href: "/dashboard/business/profile", label: t("nav.profile"), icon: User },
+    { href: "/dashboard/business/verify", label: t("nav.verify"), icon: Shield },
   ];
 
   // Admin has access to all items - no permission filtering needed
   const adminNavItems: NavItem[] = [
-    { href: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/admin/businesses", label: "Clients", icon: Building2 },
-    { href: "/dashboard/admin/users", label: "Users", icon: User },
-    { href: "/dashboard/staff/deliveries", label: "Deliveries", icon: Package },
-    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
+    { href: "/dashboard/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
+    { href: "/dashboard/admin/businesses", label: t("nav.clients"), icon: Building2 },
+    { href: "/dashboard/admin/users", label: t("nav.users"), icon: User },
+    { href: "/dashboard/staff/deliveries", label: t("nav.deliveries"), icon: Package },
+    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageSquare },
     {
       href: "/dashboard/staff/operations",
-      label: "Operations",
+      label: t("nav.operations"),
       icon: BarChart3,
     },
-    { href: "/dashboard/staff/financial", label: "Financial", icon: Receipt },
-    { href: "/dashboard/admin/vehicles", label: "Vehicles", icon: Bike },
-    { href: "/dashboard/admin/cms/sliders", label: "CMS Sliders", icon: Image },
-    { href: "/dashboard/admin/cms/videos", label: "CMS Videos", icon: Video },
+    { href: "/dashboard/staff/financial", label: t("nav.financial"), icon: Receipt },
+    { href: "/dashboard/admin/vehicles", label: t("nav.vehicles"), icon: Bike },
+    { href: "/dashboard/admin/cms/sliders", label: t("nav.cmsSliders"), icon: Image },
+    { href: "/dashboard/admin/cms/videos", label: t("nav.cmsVideos"), icon: Video },
     {
       href: "/dashboard/admin/cms/content",
-      label: "CMS Content",
+      label: t("nav.cmsContent"),
       icon: FileText,
     },
-    { href: "/dashboard/admin/sms/templates", label: "SMS", icon: MessageSquare },
+    { href: "/dashboard/admin/sms/templates", label: t("nav.sms"), icon: MessageSquare },
   ];
 
   // Staff nav items with permission requirements
   const staffNavItems: NavItem[] = [
-    { href: "/dashboard/staff", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard/staff", label: t("nav.dashboard"), icon: LayoutDashboard },
     {
       href: "/dashboard/staff/deliveries",
-      label: "Deliveries",
+      label: t("nav.deliveries"),
       icon: Package,
       modules: ["deliveries"],
     },
-    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
+    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageSquare },
     {
       href: "/dashboard/admin/businesses",
-      label: "Clients",
+      label: t("nav.clients"),
       icon: Building2,
       modules: ["businesses"],
     },
     {
       href: "/dashboard/admin/users",
-      label: "Users",
+      label: t("nav.users"),
       icon: User,
       modules: ["users"],
     },
     {
       href: "/dashboard/staff/operations",
-      label: "Operations",
+      label: t("nav.operations"),
       icon: BarChart3,
       modules: ["operations"],
     },
     {
       href: "/dashboard/staff/financial",
-      label: "Financial",
+      label: t("nav.financial"),
       icon: Receipt,
       modules: ["financial"],
     },
     {
       href: "/dashboard/admin/invoices",
-      label: "Invoices",
+      label: t("nav.invoices"),
       icon: FileText,
       modules: ["invoices"],
     },
     {
       href: "/dashboard/admin/expenses",
-      label: "Expenses",
+      label: t("nav.expenses"),
       icon: BarChart3,
       modules: ["expenses"],
     },
     {
       href: "/dashboard/admin/delivery-packages",
-      label: "Packages",
+      label: t("nav.packages"),
       icon: FolderOpen,
       modules: ["delivery_packages"],
     },
     {
       href: "/dashboard/admin/vehicles",
-      label: "Vehicles",
+      label: t("nav.vehicles"),
       icon: Bike,
       modules: ["vehicles"],
     },
     {
       href: "/dashboard/admin/cms/sliders",
-      label: "CMS Sliders",
+      label: t("nav.cmsSliders"),
       icon: Image,
       modules: ["cms_sliders"],
     },
     {
       href: "/dashboard/admin/cms/videos",
-      label: "CMS Videos",
+      label: t("nav.cmsVideos"),
       icon: Video,
       modules: ["cms_videos"],
     },
     {
       href: "/dashboard/admin/cms/content",
-      label: "CMS Content",
+      label: t("nav.cmsContent"),
       icon: FileText,
       modules: ["cms_content"],
     },
     {
       href: "/dashboard/admin/company-profile",
-      label: "Company",
+      label: t("nav.company"),
       icon: Settings,
       modules: ["company_profile"],
     },
     {
       href: "/dashboard/admin/payment-instructions",
-      label: "Payments",
+      label: t("nav.payments"),
       icon: CreditCard,
       modules: ["payment_instructions"],
     },
@@ -236,24 +239,24 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
   // Rider nav items with permission requirements
   const riderNavItems: NavItem[] = [
-    { href: "/dashboard/rider", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard/rider", label: t("nav.dashboard"), icon: LayoutDashboard },
     {
       href: "/dashboard/rider/jobs",
-      label: "My Jobs",
+      label: t("nav.myJobs"),
       icon: Package,
       permissions: ["deliveries.view_assigned"],
     },
-    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
-    { href: "/dashboard/rider/profile", label: "Profile", icon: User },
+    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageSquare },
+    { href: "/dashboard/rider/profile", label: t("nav.profile"), icon: User },
     {
       href: "/dashboard/rider/create-delivery",
-      label: "Create Delivery",
+      label: t("nav.createDelivery"),
       icon: Package,
       permissions: ["deliveries.create"],
     },
     {
       href: "/dashboard/rider/register-business",
-      label: "Register Business",
+      label: t("nav.registerBusiness"),
       icon: Building2,
       permissions: ["businesses.create"],
     },
@@ -303,7 +306,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
                   className="lg:hidden mr-3 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  aria-label="Toggle sidebar"
+                  aria-label={t("nav.toggleSidebar")}
                 >
                   {sidebarOpen ? (
                     <X className="w-6 h-6" />
@@ -322,12 +325,13 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <span className="text-sm text-gray-600 hidden sm:inline">
                 {user?.user_metadata?.business_name || user?.email}
               </span>
+              <LanguageSwitcher variant="dark" />
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline">{t("common.logout")}</span>
               </button>
             </div>
           </div>

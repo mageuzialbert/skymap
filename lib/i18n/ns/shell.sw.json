@@ -1,1 +1,30 @@
-{}
+{
+  "nav": {
+    "overview": "Muhtasari",
+    "orderDelivery": "Agiza Uwasilishaji",
+    "ridesHistory": "Historia ya Safari",
+    "messages": "Ujumbe",
+    "invoices": "Ankara",
+    "profile": "Wasifu",
+    "verify": "Thibitisha",
+    "dashboard": "Dashibodi",
+    "clients": "Wateja",
+    "users": "Watumiaji",
+    "deliveries": "Uwasilishaji",
+    "operations": "Uendeshaji",
+    "financial": "Fedha",
+    "vehicles": "Magari",
+    "cmsSliders": "Slaidi za CMS",
+    "cmsVideos": "Video za CMS",
+    "cmsContent": "Maudhui ya CMS",
+    "sms": "SMS",
+    "expenses": "Matumizi",
+    "packages": "Vifurushi",
+    "company": "Kampuni",
+    "payments": "Malipo",
+    "myJobs": "Kazi Zangu",
+    "createDelivery": "Tengeneza Uwasilishaji",
+    "registerBusiness": "Sajili Biashara",
+    "toggleSidebar": "Fungua au funga menyu"
+  }
+}

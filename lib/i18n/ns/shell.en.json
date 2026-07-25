@@ -1,1 +1,30 @@
-{}
+{
+  "nav": {
+    "overview": "Overview",
+    "orderDelivery": "Order Delivery",
+    "ridesHistory": "Rides History",
+    "messages": "Messages",
+    "invoices": "Invoices",
+    "profile": "Profile",
+    "verify": "Verify",
+    "dashboard": "Dashboard",
+    "clients": "Clients",
+    "users": "Users",
+    "deliveries": "Deliveries",
+    "operations": "Operations",
+    "financial": "Financial",
+    "vehicles": "Vehicles",
+    "cmsSliders": "CMS Sliders",
+    "cmsVideos": "CMS Videos",
+    "cmsContent": "CMS Content",
+    "sms": "SMS",
+    "expenses": "Expenses",
+    "packages": "Packages",
+    "company": "Company",
+    "payments": "Payments",
+    "myJobs": "My Jobs",
+    "createDelivery": "Create Delivery",
+    "registerBusiness": "Register Business",
+    "toggleSidebar": "Toggle sidebar"
+  }
+}
