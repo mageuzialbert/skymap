@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, X, FileText, Printer } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 import InvoiceDocument from '@/components/invoices/InvoiceDocument';
 
 interface Invoice {
@@ -76,6 +77,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function BusinessInvoicesPage() {
+  const t = useT();
   const router = useRouter();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -212,9 +214,9 @@ export default function BusinessInvoicesPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('business.invoices.title')}</h1>
         <p className="text-gray-600 mt-2">
-          View and manage your weekly invoices
+          {t('business.invoices.subtitle')}
         </p>
       </div>
 
@@ -225,19 +227,19 @@ export default function BusinessInvoicesPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Invoice Number
+                  {t('business.invoices.col.invoiceNumber')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Period
+                  {t('business.invoices.col.period')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
+                  {t('business.invoices.col.amount')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  {t('business.invoices.col.status')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Generated
+                  {t('business.invoices.col.generated')}
                 </th>
               </tr>
             </thead>
@@ -245,7 +247,7 @@ export default function BusinessInvoicesPage() {
               {invoices.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                    No invoices found. Invoices are generated weekly for completed deliveries.
+                    {t('business.invoices.empty')}
                   </td>
                 </tr>
               ) : (
@@ -290,14 +292,14 @@ export default function BusinessInvoicesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10">
-              <h2 className="text-2xl font-bold text-gray-900">Invoice Details</h2>
+              <h2 className="text-2xl font-bold text-gray-900">{t('business.invoices.details')}</h2>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => router.push(`/dashboard/business/invoices/${selectedInvoice.id}/print`)}
                   className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
                 >
                   <Printer className="w-4 h-4" />
-                  Print / PDF
+                  {t('business.invoices.printPdf')}
                 </button>
                 <button
                   onClick={() => {

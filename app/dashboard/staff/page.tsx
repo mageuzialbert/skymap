@@ -6,6 +6,7 @@ import { Package, Clock, CheckCircle, TrendingUp, Plus, UserCheck, Loader2, Rece
 import { getUserRole } from '@/lib/roles';
 import Link from 'next/link';
 import DeliveriesTable from '@/components/deliveries/DeliveriesTable';
+import { useT } from '@/lib/i18n';
 
 interface Delivery {
   id: string;
@@ -34,6 +35,7 @@ interface Delivery {
 }
 
 export default function StaffDashboard() {
+  const t = useT();
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,13 +97,13 @@ export default function StaffDashboard() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Staff Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('staff.dashboard.title')}</h1>
         <Link
           href="/dashboard/staff/deliveries?action=create"
           className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
         >
           <Plus className="w-5 h-5" />
-          Create Delivery
+          {t('staff.dashboard.createDelivery')}
         </Link>
       </div>
 
@@ -110,7 +112,7 @@ export default function StaffDashboard() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Deliveries</p>
+              <p className="text-sm text-gray-600">{t('staff.dashboard.totalDeliveries')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.totalDeliveries}</p>
             </div>
             <Package className="w-8 h-8 text-primary" />
@@ -120,7 +122,7 @@ export default function StaffDashboard() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Pending Assignments</p>
+              <p className="text-sm text-gray-600">{t('staff.dashboard.pendingAssignments')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
                 {statusCounts.CREATED || 0}
               </p>
@@ -132,7 +134,7 @@ export default function StaffDashboard() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">In Transit</p>
+              <p className="text-sm text-gray-600">{t('staff.dashboard.inTransit')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
                 {(statusCounts.IN_TRANSIT || 0) + (statusCounts.PICKED_UP || 0)}
               </p>
@@ -144,7 +146,7 @@ export default function StaffDashboard() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Completed Today</p>
+              <p className="text-sm text-gray-600">{t('staff.dashboard.completedToday')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.completedToday}</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
@@ -154,7 +156,7 @@ export default function StaffDashboard() {
 
       {/* Status Distribution */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Deliveries by Status</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('staff.dashboard.deliveriesByStatus')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(statusCounts).map(([status, count]) => (
             <div key={status} className="text-center">
@@ -167,7 +169,7 @@ export default function StaffDashboard() {
 
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('staff.dashboard.quickActions')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             href="/dashboard/staff/invoices/create"
@@ -175,8 +177,8 @@ export default function StaffDashboard() {
           >
             <Receipt className="w-8 h-8 text-primary" />
             <div>
-              <h3 className="font-semibold text-gray-900">Create Invoice</h3>
-              <p className="text-sm text-gray-600">Generate invoice for a business</p>
+              <h3 className="font-semibold text-gray-900">{t('staff.dashboard.createInvoice')}</h3>
+              <p className="text-sm text-gray-600">{t('staff.dashboard.createInvoiceDesc')}</p>
             </div>
           </Link>
         </div>
@@ -185,12 +187,12 @@ export default function StaffDashboard() {
       {/* Recent Deliveries */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Recent Deliveries</h2>
+          <h2 className="text-lg font-semibold">{t('staff.dashboard.recentDeliveries')}</h2>
           <Link
             href="/dashboard/staff/deliveries"
             className="text-primary hover:text-primary-dark text-sm"
           >
-            View all →
+            {t('staff.dashboard.viewAll')}
           </Link>
         </div>
         <DeliveriesTable

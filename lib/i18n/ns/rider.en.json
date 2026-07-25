@@ -1,1 +1,152 @@
-{}
+{
+  "rider": {
+    "status": {
+      "PENDING_CONFIRMATION": "Pending Confirmation",
+      "ASSIGNED": "Assigned",
+      "PICKED_UP": "Picked Up",
+      "IN_TRANSIT": "In Transit",
+      "DELIVERED": "Delivered",
+      "FAILED": "Failed",
+      "REJECTED": "Rejected"
+    },
+    "common": {
+      "call": "Call",
+      "navigate": "Navigate"
+    },
+    "dashboard": {
+      "title": "Rider Dashboard",
+      "subtitle": "Manage your assigned deliveries",
+      "assigned": "Assigned",
+      "inProgress": "In Progress",
+      "completedToday": "Completed Today",
+      "quickActions": "Quick Actions",
+      "viewAllJobs": "View All Jobs",
+      "recentDeliveries": "Recent Deliveries",
+      "viewAll": "View all →",
+      "noDeliveries": "No deliveries assigned yet",
+      "deliveryNumber": "Delivery #{{id}}"
+    },
+    "jobs": {
+      "title": "My Jobs",
+      "subtitle": "Assigned deliveries",
+      "allStatuses": "All Statuses",
+      "noneFound": "No deliveries found",
+      "noneAssigned": "You don't have any assigned deliveries yet.",
+      "noneWithStatus": "No deliveries with status \"{{status}}\""
+    },
+    "jobDetail": {
+      "title": "Delivery Details",
+      "idLabel": "ID: {{id}}",
+      "notFound": "Delivery not found or you are not assigned to it",
+      "failedLoad": "Failed to load delivery",
+      "failedLoadDetails": "Failed to load delivery details",
+      "backToJobs": "← Back to Jobs",
+      "declineConfirm": "Decline this ride? It will be sent back for reassignment.",
+      "failedUpdateStatus": "Failed to update status",
+      "failedConfirm": "Failed to confirm ride",
+      "failedDecline": "Failed to decline ride"
+    },
+    "profile": {
+      "title": "My Profile",
+      "notFound": "Profile not found.",
+      "riderFallback": "Rider",
+      "active": "Active",
+      "inactive": "Inactive",
+      "phoneNumber": "Phone Number",
+      "phoneHint": "This is the only detail you can change. Contact admin for other changes.",
+      "phoneUpdated": "Phone number updated.",
+      "failedUpdatePhone": "Failed to update phone",
+      "details": "Details",
+      "name": "Name",
+      "email": "Email",
+      "licenseNumber": "License Number",
+      "meansOfTransport": "Means of Transport"
+    },
+    "createDelivery": {
+      "backToDashboard": "Back to Dashboard",
+      "title": "Create New Delivery",
+      "subtitle": "Fill in the details below to create a new delivery order",
+      "created": "Delivery Created!",
+      "redirecting": "Redirecting to dashboard...",
+      "selectBusiness": "Please select a business",
+      "failed": "Failed to create delivery"
+    },
+    "registerBusiness": {
+      "backToDashboard": "Back to Dashboard",
+      "title": "Register New Business",
+      "subtitle": "Fill in the details below to register a new business",
+      "registered": "Business Registered!",
+      "successMsg": "The business has been successfully registered.",
+      "redirecting": "Redirecting to dashboard...",
+      "feePositive": "Delivery fee must be a positive number",
+      "failed": "Failed to register business"
+    },
+    "card": {
+      "unknownBusiness": "Unknown Business",
+      "pickup": "Pickup",
+      "dropoff": "Drop-off",
+      "callLabel": "Call {{label}}",
+      "minAgo": "{{count}}m ago",
+      "hourAgo": "{{count}}h ago",
+      "dayAgo": "{{count}}d ago"
+    },
+    "details": {
+      "goToPickup": "Go to Pickup",
+      "goToDropoff": "Go to Drop-off",
+      "navigateToPickup": "Navigate to Pickup",
+      "navigateToDropoff": "Navigate to Drop-off",
+      "gpsReady": "GPS Ready",
+      "openInGoogleMaps": "Open in Google Maps",
+      "newRideTitle": "New ride assigned to you",
+      "newRideBody": "Please confirm to accept this ride, then you can start it. Decline to send it back for reassignment.",
+      "awaitingTitle": "Awaiting Confirmation",
+      "awaitingBody": "This delivery is pending approval from staff/admin. Once confirmed, you will be able to start the delivery.",
+      "rejectedTitle": "Delivery Rejected",
+      "rejectedBody": "This delivery request was rejected by staff/admin.",
+      "business": "Business",
+      "unknown": "Unknown",
+      "client": "Client",
+      "chatWithClient": "Chat with client",
+      "pickupLocation": "Pickup Location",
+      "dropoffLocation": "Drop-off Location",
+      "requestDetails": "Request Details",
+      "packageDetails": "Package Details",
+      "packageImage": "Package Image:",
+      "viewFull": "View Full",
+      "deliveryTimeline": "Delivery Timeline",
+      "decline": "Decline",
+      "confirmRide": "Confirm Ride",
+      "updateDeliveryStatus": "Update Delivery Status"
+    },
+    "statusModal": {
+      "title": "Update Delivery Status",
+      "currentStatus": "Current Status",
+      "newStatus": "New Status *",
+      "note": "Note (Optional)",
+      "notePlaceholder": "Add any additional notes...",
+      "updating": "Updating...",
+      "updateStatus": "Update Status",
+      "selectStatus": "Please select a status",
+      "cannotTransition": "Cannot transition from {{from}} to {{to}}",
+      "failedUpdate": "Failed to update status",
+      "options": {
+        "PICKED_UP": {
+          "label": "Picked Up",
+          "description": "Package has been collected from pickup location"
+        },
+        "IN_TRANSIT": {
+          "label": "In Transit",
+          "description": "Package is on the way to destination"
+        },
+        "DELIVERED": {
+          "label": "Delivered",
+          "description": "Package has been successfully delivered"
+        },
+        "FAILED": {
+          "label": "Failed",
+          "description": "Delivery could not be completed"
+        }
+      }
+    }
+  }
+}

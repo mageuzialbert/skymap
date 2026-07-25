@@ -1,1 +1,193 @@
-{}
+{
+  "business": {
+    "overview": {
+      "welcome": "Karibu, {{name}}!",
+      "fallbackName": "Biashara",
+      "subtitle": "Huu hapa muhtasari wa shughuli zako za usafirishaji",
+      "totalDeliveries": "Jumla ya Usafirishaji",
+      "pendingDeliveries": "Usafirishaji Unaosubiri",
+      "completedDeliveries": "Usafirishaji Uliokamilika",
+      "totalInvoices": "Jumla ya Ankara",
+      "unpaidInvoices": "Ankara Zisizolipwa",
+      "quickActions": "Vitendo vya Haraka",
+      "createNewDelivery": "Tengeneza Usafirishaji Mpya",
+      "viewAllDeliveries": "Tazama Usafirishaji Wote",
+      "viewInvoices": "Tazama Ankara"
+    },
+    "deliveries": {
+      "title": "Usafirishaji",
+      "createDelivery": "Tengeneza Usafirishaji",
+      "createNewDelivery": "Tengeneza Usafirishaji Mpya",
+      "filterByStatus": "Chuja kwa Hali:",
+      "showingCount": "Inaonyesha {{shown}} kati ya {{total}} usafirishaji",
+      "status": {
+        "all": "Hali Zote",
+        "created": "Imetengenezwa",
+        "assigned": "Imepangiwa",
+        "pickedUp": "Imechukuliwa",
+        "inTransit": "Njiani",
+        "delivered": "Imefikishwa",
+        "failed": "Imeshindwa"
+      },
+      "col": {
+        "id": "Kitambulisho",
+        "pickup": "Mahali pa Kuchukua",
+        "dropoff": "Mahali pa Kufikisha",
+        "status": "Hali",
+        "fee": "Ada (TZS)",
+        "created": "Imetengenezwa"
+      },
+      "empty": "Hakuna usafirishaji uliopatikana. Tengeneza usafirishaji wako wa kwanza!",
+      "emptyFiltered": "Hakuna usafirishaji wenye hali \"{{status}}\".",
+      "createFailed": "Imeshindwa kutengeneza usafirishaji"
+    },
+    "deliveryDetails": {
+      "profileNotFound": "Wasifu wa biashara haukupatikana",
+      "loadFailed": "Imeshindwa kupakia taarifa za usafirishaji",
+      "notFound": "Usafirishaji haukupatikana",
+      "back": "Rudi kwenye Usafirishaji"
+    },
+    "invoices": {
+      "title": "Ankara",
+      "subtitle": "Tazama na simamia ankara zako za kila wiki",
+      "col": {
+        "invoiceNumber": "Namba ya Ankara",
+        "period": "Kipindi",
+        "amount": "Kiasi",
+        "status": "Hali",
+        "generated": "Imetengenezwa"
+      },
+      "empty": "Hakuna ankara zilizopatikana. Ankara hutengenezwa kila wiki kwa usafirishaji uliokamilika.",
+      "details": "Taarifa za Ankara",
+      "printPdf": "Chapisha / PDF"
+    },
+    "invoicePrint": {
+      "notFound": "Ankara haikupatikana",
+      "goBack": "Rudi nyuma",
+      "back": "Rudi",
+      "printSave": "Chapisha / Hifadhi kama PDF"
+    },
+    "profile": {
+      "title": "Mipangilio ya Wasifu",
+      "subtitle": "Sasisha taarifa za biashara yako na anuani",
+      "businessLogo": "Nembo ya Biashara",
+      "logoImage": "Picha ya Nembo",
+      "uploading": "Inapakia...",
+      "uploadLogo": "Pakia Nembo",
+      "remove": "Ondoa",
+      "logoHint": "Inashauriwa: PNG au SVG, isizidi 5MB. Nembo yako itaonekana kwenye wasifu wa biashara yako.",
+      "logoAlt": "Nembo ya Biashara",
+      "businessInfo": "Taarifa za Biashara",
+      "businessName": "Jina la Biashara *",
+      "phoneNumber": "Namba ya Simu",
+      "phoneHint": "Namba ya simu haiwezi kubadilishwa. Ithibitishe kwenye ukurasa wa Uthibitisho.",
+      "emailAddress": "Anuani ya Barua Pepe",
+      "emailHint": "Barua pepe haiwezi kubadilishwa. Ithibitishe kwenye ukurasa wa Uthibitisho.",
+      "addressInfo": "Taarifa za Anuani",
+      "mapsLoadError": "Google Maps imeshindwa kupakia. Bado unaweza kuandika anuani mwenyewe.",
+      "businessAddress": "Anuani ya Biashara",
+      "streetAddress": "Anuani ya mtaa",
+      "loadingMaps": "Inapakia ramani...",
+      "city": "Jiji",
+      "postalCode": "Namba ya Posta",
+      "region": "Mkoa",
+      "selectRegion": "Chagua Mkoa",
+      "district": "Wilaya",
+      "selectDistrict": "Chagua Wilaya",
+      "selectRegionFirst": "Tafadhali chagua mkoa kwanza",
+      "saveChanges": "Hifadhi Mabadiliko",
+      "passwordSettings": "Mipangilio ya Nenosiri",
+      "passwordDesc": "Weka nenosiri jipya kwa akaunti yako. Hii ni muhimu hasa iwapo uliingia kwa kutumia namba ya SMS.",
+      "newPassword": "Nenosiri Jipya *",
+      "enterNewPassword": "Weka nenosiri jipya",
+      "passwordHint": "Lazima liwe na angalau herufi 8",
+      "confirmPasswordLabel": "Thibitisha Nenosiri *",
+      "confirmNewPassword": "Thibitisha nenosiri jipya",
+      "updating": "Inasasisha...",
+      "updatePassword": "Sasisha Nenosiri",
+      "msg": {
+        "profileUpdated": "Wasifu umesasishwa kikamilifu!",
+        "logoUploaded": "Nembo imepakiwa kikamilifu!",
+        "logoRemoved": "Nembo imeondolewa kikamilifu!",
+        "passwordUpdated": "Nenosiri limesasishwa kikamilifu!",
+        "sessionError": "Hitilafu ya kipindi. Tafadhali jaribu kuingia tena.",
+        "noSession": "Hakuna kipindi hai. Tafadhali ingia.",
+        "authError": "Hitilafu ya uthibitishaji. Tafadhali jaribu kuingia tena.",
+        "userNotFound": "Mtumiaji hakupatikana. Tafadhali ingia.",
+        "loadFailed": "Imeshindwa kupakia wasifu. Tafadhali jaribu kupakia upya ukurasa.",
+        "notAuthenticated": "Hujathibitishwa",
+        "businessNotFound": "Biashara haikupatikana. Tafadhali wasiliana na msaada.",
+        "updateFailed": "Imeshindwa kusasisha wasifu",
+        "uploadFailed": "Imeshindwa kupakia nembo",
+        "removeFailed": "Imeshindwa kuondoa nembo",
+        "resetFailed": "Imeshindwa kubadilisha nenosiri"
+      }
+    },
+    "verify": {
+      "title": "Thibitisha Akaunti",
+      "subtitle": "Thibitisha namba yako ya simu na anuani ya barua pepe ili kulinda akaunti yako",
+      "phoneVerification": "Uthibitisho wa Namba ya Simu",
+      "verified": "Imethibitishwa",
+      "notVerified": "Haijathibitishwa",
+      "phoneNumber": "Namba ya Simu",
+      "sendCode": "Tuma Namba ya Uthibitisho",
+      "enterCode": "Weka Namba ya Uthibitisho",
+      "verifying": "Inathibitisha...",
+      "verifyPhone": "Thibitisha Simu",
+      "emailVerification": "Uthibitisho wa Barua Pepe",
+      "emailChangeWarning": "Kubadilisha barua pepe yako kutahitaji uthibitisho upya.",
+      "placeholderEmailWarning": "Unatumia barua pepe ya muda. Tafadhali weka anuani yako halisi ya barua pepe ili kupokea taarifa muhimu.",
+      "emailAddress": "Anuani ya Barua Pepe",
+      "enterEmail": "Weka anuani yako ya barua pepe",
+      "updateVerifyEmail": "Sasisha na Thibitisha Barua Pepe",
+      "sendVerificationEmail": "Tuma Barua Pepe ya Uthibitisho",
+      "msg": {
+        "phoneRequired": "Namba ya simu inahitajika",
+        "codeSentSuccess": "Namba ya uthibitisho imetumwa kikamilifu! Tafadhali angalia simu yako.",
+        "codeSentDev": "Namba ya uthibitisho imetumwa! (Hali ya majaribio - Namba: {{code}})",
+        "sendOtpFailed": "Imeshindwa kutuma OTP",
+        "invalidOtp": "OTP si sahihi",
+        "notAuthenticated": "Hujathibitishwa",
+        "updateEmailFailed": "Imeshindwa kusasisha barua pepe",
+        "emailSentSuccess": "Barua pepe ya uthibitisho imetumwa! Tafadhali angalia kikasha chako na bofya kiungo cha uthibitisho.",
+        "sendEmailFailed": "Imeshindwa kutuma barua pepe ya uthibitisho"
+      }
+    },
+    "rides": {
+      "filters": "Vichujio",
+      "clear": "Futa",
+      "dateFrom": "Tarehe kuanzia",
+      "dateTo": "Tarehe hadi",
+      "timeFrom": "Muda kuanzia",
+      "timeTo": "Muda hadi",
+      "statusLabel": "Hali",
+      "status": {
+        "all": "Zote",
+        "created": "Imetengenezwa",
+        "assigned": "Imepangiwa",
+        "pickedUp": "Imechukuliwa",
+        "inTransit": "Njiani",
+        "delivered": "Imefikishwa",
+        "failed": "Imeshindwa",
+        "rejected": "Imekataliwa"
+      },
+      "showingCount": "Inaonyesha {{shown}} kati ya {{total}} safari",
+      "col": {
+        "service": "Huduma",
+        "route": "Njia",
+        "vehicle": "Chombo",
+        "date": "Tarehe",
+        "time": "Muda",
+        "status": "Hali",
+        "cost": "Gharama"
+      },
+      "noRequests": "Hakuna maombi yaliyopatikana.",
+      "noRides": "Hakuna safari zilizopatikana."
+    },
+    "requestRide": {
+      "title": "Ombi Jipya",
+      "subtitle": "Chagua huduma na utuambie maelezo - tutashughulikia mengine.",
+      "mapsNotConfigured": "Google Maps haijasanidiwa. Uchaguzi wa anuani unaihitaji. Tafadhali wasiliana na msaada."
+    }
+  }
+}

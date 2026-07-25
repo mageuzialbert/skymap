@@ -1,1 +1,75 @@
-{}
+{
+  "authx": {
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "forgotPassword": "Forgot password?",
+    "verifying": "Verifying...",
+    "login": {
+      "subtitle": "Sign in to your account",
+      "smsCode": "SMS Code",
+      "phonePlaceholder": "0712345678 or +255712345678",
+      "passwordPlaceholder": "Enter your password",
+      "sendVerificationCode": "Send Verification Code",
+      "enterVerificationCode": "Enter Verification Code",
+      "codeSentTo": "Enter the 6-digit code sent to {{phone}}",
+      "verifyAndSignIn": "Verify & Sign In",
+      "registerBusiness": "Register your business",
+      "devCodeSent": "Verification code sent! (Dev mode - Code: {{code}})"
+    },
+    "register": {
+      "namePlaceholder": "Your name or business",
+      "emailPlaceholder": "your@email.com",
+      "phonePlaceholder": "Phone number",
+      "passwordPlaceholder": "At least 6 characters",
+      "confirmPlaceholder": "Confirm your password"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "subtitle1": "Choose how to receive your reset code.",
+      "subtitle2": "Enter the code and your new password.",
+      "subtitle3": "All done!",
+      "phonePlaceholder": "7XX XXX XXX",
+      "smsTzNote": "SMS codes are available for Tanzania (+255) numbers.",
+      "emailAddress": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "verificationCode": "Verification code",
+      "newPassword": "New password",
+      "passwordPlaceholder8": "At least 8 characters",
+      "confirmNewPassword": "Confirm new password",
+      "confirmPlaceholder": "Re-enter your new password",
+      "resetPassword": "Reset password",
+      "doneMessage": "Your password has been reset. You can now sign in with your new password.",
+      "goToLogin": "Go to login",
+      "rememberedIt": "Remembered it?",
+      "backToLogin": "Back to login",
+      "codeSentPhone": "We sent a 6-digit code to your phone.",
+      "codeSentEmail": "We sent a 6-digit code to your email."
+    },
+    "staff": {
+      "portalSubtitle": "Staff & Admin Portal",
+      "emailAddress": "Email Address",
+      "staffOnly": "This login is for staff, admin, and riders only. Please use the business login.",
+      "areYouBusiness": "Are you a business?",
+      "businessLogin": "Business Login"
+    },
+    "errors": {
+      "loginFailed": "Login failed",
+      "invalidTzNumber": "Enter a valid Tanzania number (e.g., 0759561311 or +255759561311)",
+      "failedSendOtp": "Failed to send OTP",
+      "failedVerifyOtp": "Failed to verify OTP",
+      "sessionNotCreated": "Session was not created. Please try again.",
+      "invalidOtp": "Invalid OTP",
+      "nameRequired": "Name is required",
+      "invalidEmail": "Please enter a valid email address",
+      "invalidPhone": "Please enter a valid phone number (6-15 digits).",
+      "passwordMin6": "Password must be at least 6 characters",
+      "passwordsMismatch": "Passwords do not match",
+      "failedSendCode": "Failed to send verification code",
+      "registrationFailed": "Registration failed",
+      "failedSendResetCode": "Failed to send reset code",
+      "passwordMin8": "Password must be at least 8 characters",
+      "failedResetPassword": "Failed to reset password",
+      "failedGetSession": "Failed to get user session"
+    }
+  }
+}

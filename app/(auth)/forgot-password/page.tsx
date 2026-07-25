@@ -3,13 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MessageSquare, Mail, Loader2, ArrowLeft, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { MessageSquare, Mail, Loader2, ArrowLeft, Eye, EyeOff, CheckCircle2, Home } from 'lucide-react';
 import { requestPasswordReset, confirmPasswordReset } from '@/lib/auth';
+import LanguageSwitcher from '@/components/common/LanguageSwitcher';
+import { useT } from '@/lib/i18n';
 
 type Channel = 'sms' | 'email';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const t = useT();
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1=request, 2=reset, 3=done
   const [channel, setChannel] = useState<Channel>('email');
   const [phone, setPhone] = useState('');
@@ -39,12 +42,12 @@ export default function ForgotPasswordPage() {
         email: channel === 'email' ? email.trim() : undefined,
       });
       setInfo(
-        `We sent a 6-digit code to your ${channel === 'sms' ? 'phone' : 'email'}.` +
+        (channel === 'sms' ? t('authx.forgot.codeSentPhone') : t('authx.forgot.codeSentEmail')) +
           (res.debugOtp ? ` (dev code: ${res.debugOtp})` : '')
       );
       setStep(2);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset code');
+      setError(err instanceof Error ? err.message : t('authx.errors.failedSendResetCode'));
     } finally {
       setLoading(false);
     }
@@ -53,9 +56,9 @@ export default function ForgotPasswordPage() {
   async function handleReset(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    if (code.length !== 6) return setError('Enter the 6-digit code');
-    if (password.length < 8) return setError('Password must be at least 8 characters');
-    if (password !== confirm) return setError('Passwords do not match');
+    if (code.length !== 6) return setError(t('auth.enterCode'));
+    if (password.length < 8) return setError(t('authx.errors.passwordMin8'));
+    if (password !== confirm) return setError(t('authx.errors.passwordsMismatch'));
     setLoading(true);
     try {
       const res = await confirmPasswordReset({
@@ -69,7 +72,7 @@ export default function ForgotPasswordPage() {
       setResetRole(res.role);
       setStep(3);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reset password');
+      setError(err instanceof Error ? err.message : t('authx.errors.failedResetPassword'));
     } finally {
       setLoading(false);
     }
@@ -80,6 +83,18 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 px-4 py-8">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+        {/* Top row: back to home + language switcher */}
+        <div className="flex items-center justify-between mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            {t('common.backToHome')}
+          </Link>
+          <LanguageSwitcher />
+        </div>
+
         {/* Header */}
         <div className="flex items-center mb-4">
           <Link href="/" className="flex items-center gap-2">
@@ -90,11 +105,11 @@ export default function ForgotPasswordPage() {
         </div>
 
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Reset your password</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('authx.forgot.title')}</h1>
           <p className="text-gray-600 text-sm mt-1">
-            {step === 1 && 'Choose how to receive your reset code.'}
-            {step === 2 && 'Enter the code and your new password.'}
-            {step === 3 && 'All done!'}
+            {step === 1 && t('authx.forgot.subtitle1')}
+            {step === 2 && t('authx.forgot.subtitle2')}
+            {step === 3 && t('authx.forgot.subtitle3')}
           </p>
         </div>
 
@@ -117,7 +132,7 @@ export default function ForgotPasswordPage() {
                 }`}
               >
                 <MessageSquare className="w-5 h-5" />
-                <span className="text-sm font-medium">SMS</span>
+                <span className="text-sm font-medium">{t('auth.channelSms')}</span>
               </button>
               <button
                 type="button"
@@ -127,13 +142,13 @@ export default function ForgotPasswordPage() {
                 }`}
               >
                 <Mail className="w-5 h-5" />
-                <span className="text-sm font-medium">Email</span>
+                <span className="text-sm font-medium">{t('auth.channelEmail')}</span>
               </button>
             </div>
 
             {channel === 'sms' ? (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone number</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.phone')}</label>
                 <div className="flex">
                   <span className="inline-flex items-center px-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md text-gray-600 text-sm">
                     +255
@@ -145,21 +160,21 @@ export default function ForgotPasswordPage() {
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 12))}
                     required
                     className="flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-r-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="7XX XXX XXX"
+                    placeholder={t('authx.forgot.phonePlaceholder')}
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">SMS codes are available for Tanzania (+255) numbers.</p>
+                <p className="text-xs text-gray-400 mt-1">{t('authx.forgot.smsTzNote')}</p>
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('authx.forgot.emailAddress')}</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="you@example.com"
+                  placeholder={t('authx.forgot.emailPlaceholder')}
                 />
               </div>
             )}
@@ -170,7 +185,7 @@ export default function ForgotPasswordPage() {
               className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Send code
+              {t('auth.sendCode')}
             </button>
           </form>
         )}
@@ -179,7 +194,7 @@ export default function ForgotPasswordPage() {
         {step === 2 && (
           <form onSubmit={handleReset} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Verification code</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('authx.forgot.verificationCode')}</label>
               <input
                 type="text"
                 value={code}
@@ -195,12 +210,12 @@ export default function ForgotPasswordPage() {
                 disabled={loading}
                 className="text-xs text-primary hover:underline mt-1.5 disabled:opacity-50"
               >
-                Resend code
+                {t('auth.resendCode')}
               </button>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">New password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('authx.forgot.newPassword')}</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -208,13 +223,13 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   minLength={8}
                   className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="At least 8 characters"
+                  placeholder={t('authx.forgot.passwordPlaceholder8')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
                   className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('authx.hidePassword') : t('authx.showPassword')}
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -223,7 +238,7 @@ export default function ForgotPasswordPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm new password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('authx.forgot.confirmNewPassword')}</label>
               <div className="relative">
                 <input
                   type={showConfirm ? 'text' : 'password'}
@@ -231,13 +246,13 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setConfirm(e.target.value)}
                   minLength={8}
                   className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Re-enter your new password"
+                  placeholder={t('authx.forgot.confirmPlaceholder')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm((s) => !s)}
                   className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-                  aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                  aria-label={showConfirm ? t('authx.hidePassword') : t('authx.showPassword')}
                   tabIndex={-1}
                 >
                   {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -256,7 +271,7 @@ export default function ForgotPasswordPage() {
                 className="flex items-center justify-center gap-1 bg-gray-100 text-gray-700 py-2.5 px-4 rounded-md hover:bg-gray-200 transition-colors font-medium"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {t('common.back')}
               </button>
               <button
                 type="submit"
@@ -264,7 +279,7 @@ export default function ForgotPasswordPage() {
                 className="flex-1 flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Reset password
+                {t('authx.forgot.resetPassword')}
               </button>
             </div>
           </form>
@@ -277,22 +292,22 @@ export default function ForgotPasswordPage() {
               <CheckCircle2 className="w-9 h-9 text-green-600" />
             </div>
             <p className="text-gray-700">
-              Your password has been reset. You can now sign in with your new password.
+              {t('authx.forgot.doneMessage')}
             </p>
             <button
               onClick={() => router.push(loginHref)}
               className="w-full bg-primary text-white py-2.5 px-4 rounded-md hover:bg-primary-dark transition-colors font-medium"
             >
-              Go to login
+              {t('authx.forgot.goToLogin')}
             </button>
           </div>
         )}
 
         {step !== 3 && (
           <div className="text-center mt-6 text-sm text-gray-600">
-            Remembered it?{' '}
+            {t('authx.forgot.rememberedIt')}{' '}
             <Link href="/login" className="text-primary font-medium hover:underline">
-              Back to login
+              {t('authx.forgot.backToLogin')}
             </Link>
           </div>
         )}

@@ -7,6 +7,7 @@ import usePlacesAutocomplete, {
   getLatLng,
 } from 'use-places-autocomplete';
 import { MapPin, Search, Loader2 } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface LocationPickerProps {
   label: string;
@@ -44,6 +45,7 @@ export default function LocationPicker({
   disabled = false,
   placeholder,
 }: LocationPickerProps) {
+  const t = useT();
   const [markerPosition, setMarkerPosition] = useState<google.maps.LatLngLiteral | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
@@ -144,7 +146,7 @@ export default function LocationPicker({
           className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${
             error ? 'border-red-300 focus:ring-red-200' : 'border-gray-300'
           }`}
-          placeholder={placeholder || "Search address..."}
+          placeholder={placeholder || t('components.locationPicker.searchPlaceholder')}
         />
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
              {!ready && <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />}

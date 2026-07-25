@@ -6,8 +6,10 @@ import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { getUserRole } from '@/lib/roles';
 import DeliveryDetails from '@/components/deliveries/DeliveryDetails';
+import { useT } from '@/lib/i18n';
 
 export default function StaffDeliveryDetailsPage({ params }: { params: { id: string } }) {
+  const t = useT();
   const router = useRouter();
   const [delivery, setDelivery] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,7 @@ export default function StaffDeliveryDetailsPage({ params }: { params: { id: str
 
       } catch (err) {
         console.error('Error loading delivery:', err);
-        setError('Failed to load delivery details');
+        setError(t('staff.deliveryDetail.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -88,13 +90,13 @@ export default function StaffDeliveryDetailsPage({ params }: { params: { id: str
   if (error || !delivery) {
     return (
       <div className="p-8 text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">{error || 'Delivery not found'}</h2>
-        <Link 
+        <h2 className="text-xl font-bold text-gray-900 mb-2">{error || t('staff.deliveryDetail.notFound')}</h2>
+        <Link
           href="/dashboard/staff/deliveries"
           className="text-primary hover:underline flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Deliveries
+          {t('staff.deliveryDetail.backToDeliveries')}
         </Link>
       </div>
     );
@@ -107,7 +109,7 @@ export default function StaffDeliveryDetailsPage({ params }: { params: { id: str
         className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to Deliveries
+        {t('staff.deliveryDetail.backToDeliveries')}
       </Link>
       
       <DeliveryDetails delivery={delivery} />

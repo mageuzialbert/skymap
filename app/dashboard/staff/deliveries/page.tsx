@@ -9,6 +9,7 @@ import DeliveryForm, {
   DeliveryFormData,
 } from "@/components/deliveries/DeliveryForm";
 import RiderAssignmentModal from "@/components/deliveries/RiderAssignmentModal";
+import { useT } from "@/lib/i18n";
 
 interface Delivery {
   id: string;
@@ -39,6 +40,7 @@ interface Delivery {
 }
 
 export default function StaffDeliveriesPage() {
+  const t = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [role, setRole] = useState<string | null>(null);
@@ -125,7 +127,7 @@ export default function StaffDeliveriesPage() {
 
   async function handleCreateDelivery(data: DeliveryFormData) {
     if (!data.business_id) {
-      setError("Please select a business");
+      setError(t("staff.deliveries.selectBusinessError"));
       return;
     }
 
@@ -141,14 +143,14 @@ export default function StaffDeliveriesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create delivery");
+        throw new Error(errorData.error || t("staff.deliveries.createFailed"));
       }
 
       setShowCreateForm(false);
       loadDeliveries();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to create delivery",
+        err instanceof Error ? err.message : t("staff.deliveries.createFailed"),
       );
     } finally {
       setSubmitting(false);
@@ -173,14 +175,14 @@ export default function StaffDeliveriesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to assign rider");
+        throw new Error(errorData.error || t("staff.deliveries.assignFailed"));
       }
 
       setShowAssignModal(false);
       setSelectedDeliveryId(null);
       loadDeliveries();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to assign rider");
+      setError(err instanceof Error ? err.message : t("staff.deliveries.assignFailed"));
     } finally {
       setAssigning(false);
     }
@@ -211,13 +213,13 @@ export default function StaffDeliveriesPage() {
         const errorData = await response.json();
         // Always reload to show fresh state after error
         await loadDeliveries();
-        throw new Error(errorData.error || "Failed to confirm delivery");
+        throw new Error(errorData.error || t("staff.deliveries.confirmFailed"));
       }
 
       loadDeliveries();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to confirm delivery",
+        err instanceof Error ? err.message : t("staff.deliveries.confirmFailed"),
       );
     } finally {
       setConfirming(false);
@@ -227,7 +229,7 @@ export default function StaffDeliveriesPage() {
   async function handleRejectDelivery(deliveryId: string) {
     if (confirming) return;
 
-    const reason = window.prompt("Enter rejection reason (optional):");
+    const reason = window.prompt(t("staff.deliveries.rejectReasonPrompt"));
     if (reason === null) return; // User cancelled
 
     setConfirming(true);
@@ -247,13 +249,13 @@ export default function StaffDeliveriesPage() {
         const errorData = await response.json();
         // Always reload to show fresh state after error
         await loadDeliveries();
-        throw new Error(errorData.error || "Failed to reject delivery");
+        throw new Error(errorData.error || t("staff.deliveries.rejectFailed"));
       }
 
       loadDeliveries();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to reject delivery",
+        err instanceof Error ? err.message : t("staff.deliveries.rejectFailed"),
       );
     } finally {
       setConfirming(false);
@@ -263,9 +265,7 @@ export default function StaffDeliveriesPage() {
   async function handleDeleteDelivery(deliveryId: string) {
     if (deleting) return;
 
-    const confirmed = window.confirm(
-      "Are you sure you want to permanently delete this delivery? This action cannot be undone and will also delete all associated charges and events.",
-    );
+    const confirmed = window.confirm(t("staff.deliveries.deleteConfirm"));
     if (!confirmed) return;
 
     setDeleting(true);
@@ -278,13 +278,13 @@ export default function StaffDeliveriesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete delivery");
+        throw new Error(errorData.error || t("staff.deliveries.deleteFailed"));
       }
 
       loadDeliveries();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to delete delivery",
+        err instanceof Error ? err.message : t("staff.deliveries.deleteFailed"),
       );
     } finally {
       setDeleting(false);
@@ -315,14 +315,14 @@ export default function StaffDeliveriesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update fee");
+        throw new Error(errorData.error || t("staff.deliveries.updateFeeFailed"));
       }
 
       setShowFeeModal(false);
       setEditingDeliveryId(null);
       loadDeliveries();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update fee");
+      setError(err instanceof Error ? err.message : t("staff.deliveries.updateFeeFailed"));
     } finally {
       setSavingFee(false);
     }
@@ -340,18 +340,18 @@ export default function StaffDeliveriesPage() {
   function handleExport(format: "csv" | "excel") {
     // Build CSV content
     const headers = [
-      "ID",
-      "Business",
-      "Pickup Name",
-      "Pickup Address",
-      "Pickup Phone",
-      "Dropoff Name",
-      "Dropoff Address",
-      "Dropoff Phone",
-      "Status",
-      "Rider",
-      "Fee (TZS)",
-      "Created",
+      t("staff.deliveries.export.id"),
+      t("staff.deliveries.export.business"),
+      t("staff.deliveries.export.pickupName"),
+      t("staff.deliveries.export.pickupAddress"),
+      t("staff.deliveries.export.pickupPhone"),
+      t("staff.deliveries.export.dropoffName"),
+      t("staff.deliveries.export.dropoffAddress"),
+      t("staff.deliveries.export.dropoffPhone"),
+      t("staff.deliveries.export.status"),
+      t("staff.deliveries.export.rider"),
+      t("staff.deliveries.export.fee"),
+      t("staff.deliveries.export.created"),
     ];
 
     const rows = deliveries.map((d) => [
@@ -410,16 +410,16 @@ export default function StaffDeliveriesPage() {
                 loadDeliveries();
               }}
               className="flex items-center gap-1 text-red-600 hover:text-red-800 font-medium"
-              title="Refresh deliveries list"
+              title={t("staff.deliveries.refreshTitle")}
             >
               <RefreshCw className="w-4 h-4" />
-              Refresh
+              {t("staff.deliveries.refresh")}
             </button>
             <button
               onClick={() => setError("")}
               className="text-red-500 hover:text-red-700"
             >
-              Dismiss
+              {t("staff.deliveries.dismiss")}
             </button>
           </div>
         </div>
@@ -427,7 +427,7 @@ export default function StaffDeliveriesPage() {
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">
-          Deliveries Management
+          {t("staff.deliveries.title")}
         </h1>
         {!showCreateForm && (
           <button
@@ -435,7 +435,7 @@ export default function StaffDeliveriesPage() {
             className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
           >
             <Plus className="w-5 h-5" />
-            Create Delivery
+            {t("staff.deliveries.createDelivery")}
           </button>
         )}
       </div>
@@ -443,7 +443,7 @@ export default function StaffDeliveriesPage() {
       {showCreateForm && (
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Create New Delivery</h2>
+            <h2 className="text-xl font-semibold">{t("staff.deliveries.createNewDelivery")}</h2>
             <button
               onClick={() => {
                 setShowCreateForm(false);
@@ -487,10 +487,10 @@ export default function StaffDeliveriesPage() {
       {showFeeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Edit Delivery Fee</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("staff.deliveries.editFeeTitle")}</h3>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Fee Amount (TZS)
+                {t("staff.deliveries.feeAmount")}
               </label>
               <input
                 type="number"
@@ -510,14 +510,14 @@ export default function StaffDeliveriesPage() {
                 }}
                 className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleSaveFee}
                 disabled={savingFee}
                 className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
               >
-                {savingFee ? "Saving..." : "Save"}
+                {savingFee ? t("common.saving") : t("common.save")}
               </button>
             </div>
           </div>

@@ -6,8 +6,10 @@ import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { usePermissions } from '@/lib/permissions-context';
 import DeliveryForm, { DeliveryFormData } from '@/components/deliveries/DeliveryForm';
+import { useT } from '@/lib/i18n';
 
 export default function RiderCreateDeliveryPage() {
+  const t = useT();
   const router = useRouter();
   const { role, hasPermission, loading: permissionsLoading } = usePermissions();
   const [submitting, setSubmitting] = useState(false);
@@ -28,7 +30,7 @@ export default function RiderCreateDeliveryPage() {
 
   async function handleCreateDelivery(data: DeliveryFormData) {
     if (!data.business_id) {
-      setError('Please select a business');
+      setError(t('rider.createDelivery.selectBusiness'));
       return;
     }
 
@@ -44,7 +46,7 @@ export default function RiderCreateDeliveryPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create delivery');
+        throw new Error(errorData.error || t('rider.createDelivery.failed'));
       }
 
       setSuccess(true);
@@ -54,7 +56,7 @@ export default function RiderCreateDeliveryPage() {
         router.push('/dashboard/rider');
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create delivery');
+      setError(err instanceof Error ? err.message : t('rider.createDelivery.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -72,8 +74,8 @@ export default function RiderCreateDeliveryPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Delivery Created!</h2>
-        <p className="text-gray-600">Redirecting to dashboard...</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('rider.createDelivery.created')}</h2>
+        <p className="text-gray-600">{t('rider.createDelivery.redirecting')}</p>
       </div>
     );
   }
@@ -86,10 +88,10 @@ export default function RiderCreateDeliveryPage() {
           className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
+          {t('rider.createDelivery.backToDashboard')}
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Create New Delivery</h1>
-        <p className="text-gray-600 mt-1">Fill in the details below to create a new delivery order</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('rider.createDelivery.title')}</h1>
+        <p className="text-gray-600 mt-1">{t('rider.createDelivery.subtitle')}</p>
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-6">

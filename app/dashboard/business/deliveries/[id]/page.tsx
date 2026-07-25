@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useT } from '@/lib/i18n';
 import DeliveryDetails from '@/components/deliveries/DeliveryDetails';
 
 export default function BusinessDeliveryDetailsPage({ params }: { params: { id: string } }) {
+  const t = useT();
   const router = useRouter();
   const [delivery, setDelivery] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -30,7 +32,7 @@ export default function BusinessDeliveryDetailsPage({ params }: { params: { id: 
           .single();
 
         if (!business) {
-          setError('Business profile not found');
+          setError(t('business.deliveryDetails.profileNotFound'));
           setLoading(false);
           return;
         }
@@ -52,7 +54,7 @@ export default function BusinessDeliveryDetailsPage({ params }: { params: { id: 
         setDelivery(data);
       } catch (err) {
         console.error('Error loading delivery:', err);
-        setError('Failed to load delivery details');
+        setError(t('business.deliveryDetails.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -71,13 +73,13 @@ export default function BusinessDeliveryDetailsPage({ params }: { params: { id: 
   if (error || !delivery) {
     return (
       <div className="p-8 text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">{error || 'Delivery not found'}</h2>
-        <Link 
+        <h2 className="text-xl font-bold text-gray-900 mb-2">{error || t('business.deliveryDetails.notFound')}</h2>
+        <Link
           href="/dashboard/business/deliveries"
           className="text-primary hover:underline flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Deliveries
+          {t('business.deliveryDetails.back')}
         </Link>
       </div>
     );
@@ -90,9 +92,9 @@ export default function BusinessDeliveryDetailsPage({ params }: { params: { id: 
         className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to Deliveries
+        {t('business.deliveryDetails.back')}
       </Link>
-      
+
       <DeliveryDetails delivery={delivery} />
     </div>
   );

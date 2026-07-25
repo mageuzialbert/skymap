@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2, User as UserIcon, Phone, Mail, IdCard, Bike, CheckCircle2, Save, Pencil } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 interface RiderProfile {
   id: string;
@@ -17,6 +18,7 @@ interface RiderProfile {
 }
 
 export default function RiderProfilePage() {
+  const t = useT();
   const [profile, setProfile] = useState<RiderProfile | null>(null);
   const [vehicleName, setVehicleName] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -66,13 +68,13 @@ export default function RiderProfilePage() {
         body: JSON.stringify({ phone: phoneInput }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to update phone');
+      if (!res.ok) throw new Error(data.error || t('rider.profile.failedUpdatePhone'));
       setProfile((p) => (p ? { ...p, phone: data.phone } : p));
       setPhoneInput(data.phone);
       setEditingPhone(false);
-      setSuccess('Phone number updated.');
+      setSuccess(t('rider.profile.phoneUpdated'));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update phone');
+      setError(err instanceof Error ? err.message : t('rider.profile.failedUpdatePhone'));
     } finally {
       setSaving(false);
     }
@@ -87,7 +89,7 @@ export default function RiderProfilePage() {
   }
 
   if (!profile) {
-    return <div className="text-center py-10 text-gray-500">Profile not found.</div>;
+    return <div className="text-center py-10 text-gray-500">{t('rider.profile.notFound')}</div>;
   }
 
   const ReadField = ({ icon: Icon, label, value }: { icon: any; label: string; value: string }) => (
@@ -102,7 +104,7 @@ export default function RiderProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">My Profile</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">{t('rider.profile.title')}</h1>
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>
@@ -124,14 +126,14 @@ export default function RiderProfilePage() {
           )}
         </div>
         <div className="min-w-0">
-          <p className="text-lg font-bold text-gray-900 truncate">{profile.name || 'Rider'}</p>
+          <p className="text-lg font-bold text-gray-900 truncate">{profile.name || t('rider.profile.riderFallback')}</p>
           <span
             className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${
               profile.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'
             }`}
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
-            {profile.active ? 'Active' : 'Inactive'}
+            {profile.active ? t('rider.profile.active') : t('rider.profile.inactive')}
           </span>
         </div>
       </div>
@@ -141,7 +143,7 @@ export default function RiderProfilePage() {
         <div className="flex items-center justify-between mb-1">
           <p className="text-sm font-semibold text-gray-900 flex items-center gap-2">
             <Phone className="w-4 h-4 text-primary" />
-            Phone Number
+            {t('rider.profile.phoneNumber')}
           </p>
           {!editingPhone && (
             <button
@@ -149,7 +151,7 @@ export default function RiderProfilePage() {
               className="inline-flex items-center gap-1 text-sm text-primary hover:text-primary-dark font-medium"
             >
               <Pencil className="w-4 h-4" />
-              Edit
+              {t('common.edit')}
             </button>
           )}
         </div>
@@ -169,7 +171,7 @@ export default function RiderProfilePage() {
                 className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Save
+                {t('common.save')}
               </button>
               <button
                 onClick={() => {
@@ -179,23 +181,23 @@ export default function RiderProfilePage() {
                 }}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </div>
         ) : (
           <p className="text-sm font-medium text-gray-900 mt-1">{profile.phone || '-'}</p>
         )}
-        <p className="text-xs text-gray-400 mt-2">This is the only detail you can change. Contact admin for other changes.</p>
+        <p className="text-xs text-gray-400 mt-2">{t('rider.profile.phoneHint')}</p>
       </div>
 
       {/* Read-only details */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h2 className="text-sm font-semibold text-gray-900 mb-2">Details</h2>
-        <ReadField icon={UserIcon} label="Name" value={profile.name || ''} />
-        <ReadField icon={Mail} label="Email" value={profile.email || ''} />
-        <ReadField icon={IdCard} label="License Number" value={profile.license_number || ''} />
-        <ReadField icon={Bike} label="Means of Transport" value={vehicleName} />
+        <h2 className="text-sm font-semibold text-gray-900 mb-2">{t('rider.profile.details')}</h2>
+        <ReadField icon={UserIcon} label={t('rider.profile.name')} value={profile.name || ''} />
+        <ReadField icon={Mail} label={t('rider.profile.email')} value={profile.email || ''} />
+        <ReadField icon={IdCard} label={t('rider.profile.licenseNumber')} value={profile.license_number || ''} />
+        <ReadField icon={Bike} label={t('rider.profile.meansOfTransport')} value={vehicleName} />
       </div>
     </div>
   );

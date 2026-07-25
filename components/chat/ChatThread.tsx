@@ -10,6 +10,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { playChime } from '@/lib/chime';
 import CameraCapture from '@/components/common/CameraCapture';
+import { useT } from '@/lib/i18n';
 
 export interface ChatAttachment {
   type: 'image' | 'video' | 'audio' | 'file' | 'location';
@@ -58,15 +59,15 @@ function MessageTicks({ m }: { m: ChatThreadMessage }) {
   return <Check className="w-4 h-4 text-gray-400" />;
 }
 
-function dayLabel(iso: string): string {
+function dayLabel(iso: string, t: (key: string) => string): string {
   const d = new Date(iso);
   const today = new Date();
   const yest = new Date();
   yest.setDate(today.getDate() - 1);
   const same = (a: Date, b: Date) =>
     a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-  if (same(d, today)) return 'Today';
-  if (same(d, yest)) return 'Yesterday';
+  if (same(d, today)) return t('components.chat.thread.today');
+  if (same(d, yest)) return t('components.chat.thread.yesterday');
   return d.toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
@@ -138,6 +139,7 @@ function AudioMessage({ url, duration, mine }: { url: string; duration?: number;
 /* ------------------------- attachment view ------------------------- */
 
 function AttachmentView({ a, mine }: { a: ChatAttachment; mine: boolean }) {
+  const t = useT();
   if (a.type === 'image' && a.url) {
     // eslint-disable-next-line @next/next/no-img-element
     return (
@@ -165,7 +167,7 @@ function AttachmentView({ a, mine }: { a: ChatAttachment; mine: boolean }) {
           <FileText className="w-5 h-5 text-primary" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-gray-900 truncate">{a.name || 'Document'}</p>
+          <p className="text-sm font-medium text-gray-900 truncate">{a.name || t('components.chat.thread.document')}</p>
           <p className="text-[11px] text-gray-500">{formatBytes(a.size)}</p>
         </div>
         <Download className="w-4 h-4 text-gray-400 shrink-0" />
@@ -181,14 +183,14 @@ function AttachmentView({ a, mine }: { a: ChatAttachment; mine: boolean }) {
       <a href={maps} target="_blank" rel="noopener noreferrer" className="block w-[230px]">
         {staticUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={staticUrl} alt="Shared location" className="rounded-lg w-full h-[120px] object-cover" />
+          <img src={staticUrl} alt={t('components.chat.thread.sharedLocation')} className="rounded-lg w-full h-[120px] object-cover" />
         ) : (
           <div className="rounded-lg w-full h-[90px] bg-gray-100 flex items-center justify-center">
             <MapPin className="w-7 h-7 text-primary" />
           </div>
         )}
         <div className="flex items-center gap-1.5 mt-1 text-sm text-primary font-medium">
-          <MapPin className="w-4 h-4" /> Open location
+          <MapPin className="w-4 h-4" /> {t('components.chat.thread.openLocation')}
         </div>
       </a>
     );
@@ -218,10 +220,11 @@ export default function ChatThread({
   realtimeFilter,
   storagePrefix,
   otherName,
-  subtitle = 'tap to chat',
+  subtitle,
   onBack,
   onClose,
 }: ChatThreadProps) {
+  const t = useT();
   const [messages, setMessages] = useState<ChatThreadMessage[]>([]);
   const [selfId, setSelfId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -408,7 +411,7 @@ export default function ChatThread({
         await refresh();
       } else {
         const d = await res.json().catch(() => ({}));
-        setError(d.error || 'Could not edit message');
+        setError(d.error || t('components.chat.thread.couldNotEdit'));
       }
     } finally {
       setSending(false);
@@ -422,10 +425,10 @@ export default function ChatThread({
       if (res.ok) await refresh();
       else {
         const d = await res.json().catch(() => ({}));
-        setError(d.error || 'Could not delete message');
+        setError(d.error || t('components.chat.thread.couldNotDelete'));
       }
     } catch {
-      setError('Could not delete message');
+      setError(t('components.chat.thread.couldNotDelete'));
     }
   }
 
@@ -447,7 +450,7 @@ export default function ChatThread({
 
   async function uploadAndSend(file: File, type: ChatAttachment['type'], extra: Partial<ChatAttachment> = {}) {
     if (file.size > 50 * 1024 * 1024) {
-      setError('File too large (max 50MB)');
+      setError(t('components.chat.thread.fileTooLarge'));
       return;
     }
     setError('');
@@ -459,7 +462,7 @@ export default function ChatThread({
       await postMessage({ body: caption || undefined, attachment: { type, ...up, ...extra } });
       setDraft('');
     } else {
-      setError('Could not upload the attachment');
+      setError(t('components.chat.thread.couldNotUpload'));
     }
     setUploading(false);
   }
@@ -487,19 +490,19 @@ export default function ChatThread({
   function shareLocation() {
     setAttachOpen(false);
     if (!navigator.geolocation) {
-      setError('Location is not available on this device');
+      setError(t('components.chat.thread.locationUnavailable'));
       return;
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => postMessage({ attachment: { type: 'location', lat: pos.coords.latitude, lng: pos.coords.longitude } }),
-      () => setError('Could not get your location')
+      () => setError(t('components.chat.thread.couldNotGetLocation'))
     );
   }
 
   /* ----- voice recording ----- */
   async function startRecording() {
     if (typeof MediaRecorder === 'undefined' || !navigator.mediaDevices) {
-      setError('Voice recording is not supported on this device');
+      setError(t('components.chat.thread.voiceNotSupported'));
       return;
     }
     try {
@@ -532,7 +535,7 @@ export default function ChatThread({
         setRecordSeconds(recordSecondsRef.current);
       }, 1000);
     } catch {
-      setError('Microphone permission denied');
+      setError(t('components.chat.thread.micDenied'));
     }
   }
 
@@ -567,7 +570,11 @@ export default function ChatThread({
     setListening(true);
   }
 
-  const headerStatus = otherTyping ? 'typing…' : otherOnline ? 'online' : subtitle;
+  const headerStatus = otherTyping
+    ? t('components.chat.thread.typing')
+    : otherOnline
+    ? t('components.chat.thread.online')
+    : subtitle || t('components.chat.thread.subtitleDefault');
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-white overflow-hidden">
@@ -575,7 +582,7 @@ export default function ChatThread({
       <div className="flex items-center justify-between p-3.5 bg-primary text-white shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
           {onBack && (
-            <button onClick={onBack} className="p-1 -ml-1 lg:hidden text-white/90 hover:text-white" aria-label="Back">
+            <button onClick={onBack} className="p-1 -ml-1 lg:hidden text-white/90 hover:text-white" aria-label={t('common.back')}>
               <ArrowLeft className="w-5 h-5" />
             </button>
           )}
@@ -591,13 +598,13 @@ export default function ChatThread({
           <button
             onClick={toggleMute}
             className="p-2 text-white/80 hover:text-white rounded-lg hover:bg-white/10"
-            title={muted ? 'Unmute' : 'Mute'}
-            aria-label={muted ? 'Unmute' : 'Mute'}
+            title={muted ? t('components.chat.thread.unmute') : t('components.chat.thread.mute')}
+            aria-label={muted ? t('components.chat.thread.unmute') : t('components.chat.thread.mute')}
           >
             {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
           </button>
           {onClose && (
-            <button onClick={onClose} className="p-2 text-white/80 hover:text-white rounded-lg hover:bg-white/10" aria-label="Close">
+            <button onClick={onClose} className="p-2 text-white/80 hover:text-white rounded-lg hover:bg-white/10" aria-label={t('common.close')}>
               <X className="w-5 h-5" />
             </button>
           )}
@@ -612,13 +619,13 @@ export default function ChatThread({
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-center text-sm text-gray-500 px-6">
-            No messages yet. Send a message, photo, voice note or your location.
+            {t('components.chat.thread.noMessages')}
           </div>
         ) : (
           messages.map((m, i) => {
             const mine = m.sender_id === selfId;
             const prev = messages[i - 1];
-            const showDay = !prev || dayLabel(prev.created_at) !== dayLabel(m.created_at);
+            const showDay = !prev || dayLabel(prev.created_at, t) !== dayLabel(m.created_at, t);
             const sameAsPrev = !showDay && prev && prev.sender_id === m.sender_id;
             const hasAttachment = !!m.attachment;
             return (
@@ -626,7 +633,7 @@ export default function ChatThread({
                 {showDay && (
                   <div className="flex justify-center my-3">
                     <span className="px-3 py-1 rounded-full bg-white/80 text-gray-600 text-[11px] font-medium shadow-sm">
-                      {dayLabel(m.created_at)}
+                      {dayLabel(m.created_at, t)}
                     </span>
                   </div>
                 )}
@@ -651,7 +658,7 @@ export default function ChatThread({
                       }`}
                     >
                       <Ban className="w-4 h-4 shrink-0" />
-                      <span>This message was deleted</span>
+                      <span>{t('components.chat.thread.deletedMessage')}</span>
                       <span className="text-[10px] not-italic text-gray-400 ml-1">{timeLabel(m.created_at)}</span>
                     </div>
                   ) : (
@@ -669,7 +676,7 @@ export default function ChatThread({
                       )}
                       {m.body && <p className={`whitespace-pre-wrap break-words leading-snug ${hasAttachment ? 'px-1.5' : ''}`}>{m.body}</p>}
                       <div className={`flex items-center justify-end gap-1 mt-0.5 ${hasAttachment ? 'px-1.5 pb-0.5' : '-mr-0.5'}`}>
-                        {m.edited_at && <span className="text-[10px] text-gray-400 italic mr-0.5">edited</span>}
+                        {m.edited_at && <span className="text-[10px] text-gray-400 italic mr-0.5">{t('components.chat.thread.edited')}</span>}
                         <span className="text-[10px] text-gray-500">{timeLabel(m.created_at)}</span>
                         {mine && <MessageTicks m={m} />}
                       </div>
@@ -718,11 +725,11 @@ export default function ChatThread({
           <>
             <div className="fixed inset-0 z-10" onClick={() => setAttachOpen(false)} />
             <div className="absolute bottom-full left-2 mb-2 z-20 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 grid grid-cols-2 gap-1 w-56">
-              <AttachTile icon={Camera} label="Camera" color="text-rose-600 bg-rose-50" onClick={() => { setAttachOpen(false); setCameraOpen(true); }} />
-              <AttachTile icon={ImageIcon} label="Photo/Video" color="text-violet-600 bg-violet-50" onClick={() => galleryInputRef.current?.click()} />
-              <AttachTile icon={Video} label="Record video" color="text-blue-600 bg-blue-50" onClick={() => videoInputRef.current?.click()} />
-              <AttachTile icon={FileText} label="Document" color="text-amber-600 bg-amber-50" onClick={() => docInputRef.current?.click()} />
-              <AttachTile icon={MapPin} label="Location" color="text-emerald-600 bg-emerald-50" onClick={shareLocation} />
+              <AttachTile icon={Camera} label={t('components.chat.thread.attachCamera')} color="text-rose-600 bg-rose-50" onClick={() => { setAttachOpen(false); setCameraOpen(true); }} />
+              <AttachTile icon={ImageIcon} label={t('components.chat.thread.attachPhotoVideo')} color="text-violet-600 bg-violet-50" onClick={() => galleryInputRef.current?.click()} />
+              <AttachTile icon={Video} label={t('components.chat.thread.attachRecordVideo')} color="text-blue-600 bg-blue-50" onClick={() => videoInputRef.current?.click()} />
+              <AttachTile icon={FileText} label={t('components.chat.thread.attachDocument')} color="text-amber-600 bg-amber-50" onClick={() => docInputRef.current?.click()} />
+              <AttachTile icon={MapPin} label={t('components.chat.thread.attachLocation')} color="text-emerald-600 bg-emerald-50" onClick={shareLocation} />
             </div>
           </>
         )}
@@ -731,8 +738,8 @@ export default function ChatThread({
         {editingId && (
           <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-100 bg-primary/5">
             <Pencil className="w-4 h-4 text-primary shrink-0" />
-            <span className="text-xs text-gray-600 flex-1">Editing message</span>
-            <button onClick={cancelEdit} className="p-1 text-gray-400 hover:text-gray-700" aria-label="Cancel edit">
+            <span className="text-xs text-gray-600 flex-1">{t('components.chat.thread.editingMessage')}</span>
+            <button onClick={cancelEdit} className="p-1 text-gray-400 hover:text-gray-700" aria-label={t('components.chat.thread.cancelEdit')}>
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -740,15 +747,15 @@ export default function ChatThread({
 
         {recording ? (
           <div className="flex items-center gap-3 p-3">
-            <button onClick={() => stopRecording(false)} className="p-2 text-red-600 hover:bg-red-50 rounded-full" aria-label="Cancel">
+            <button onClick={() => stopRecording(false)} className="p-2 text-red-600 hover:bg-red-50 rounded-full" aria-label={t('common.cancel')}>
               <Trash2 className="w-5 h-5" />
             </button>
             <div className="flex-1 flex items-center gap-2 text-red-600">
               <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse" />
               <span className="text-sm font-medium tabular-nums">{formatDuration(recordSeconds)}</span>
-              <span className="text-xs text-gray-400">Recording… tap send to finish</span>
+              <span className="text-xs text-gray-400">{t('components.chat.thread.recordingHint')}</span>
             </div>
-            <button onClick={() => stopRecording(true)} className="p-2.5 bg-primary text-white rounded-full" aria-label="Send voice">
+            <button onClick={() => stopRecording(true)} className="p-2.5 bg-primary text-white rounded-full" aria-label={t('components.chat.thread.sendVoice')}>
               <Send className="w-5 h-5" />
             </button>
           </div>
@@ -760,7 +767,7 @@ export default function ChatThread({
                 onClick={() => setAttachOpen((o) => !o)}
                 disabled={uploading}
                 className="p-2.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-full transition-colors shrink-0"
-                aria-label="Attach"
+                aria-label={t('components.chat.thread.attach')}
               >
                 <Plus className="w-5 h-5" />
               </button>
@@ -780,7 +787,7 @@ export default function ChatThread({
                   }
                 }}
                 rows={1}
-                placeholder={uploading ? 'Uploading…' : 'Type a message…'}
+                placeholder={uploading ? t('components.chat.thread.uploading') : t('components.chat.thread.typeMessage')}
                 disabled={uploading}
                 className="flex-1 resize-none max-h-28 bg-transparent px-2 py-2.5 text-sm focus:outline-none"
               />
@@ -789,8 +796,8 @@ export default function ChatThread({
                   type="button"
                   onClick={toggleDictation}
                   className={`p-2 rounded-full shrink-0 ${listening ? 'text-red-600 animate-pulse' : 'text-gray-500 hover:text-primary'}`}
-                  title="Dictate"
-                  aria-label="Dictate"
+                  title={t('components.chat.thread.dictate')}
+                  aria-label={t('components.chat.thread.dictate')}
                 >
                   <Mic className="w-5 h-5" />
                 </button>
@@ -806,7 +813,7 @@ export default function ChatThread({
                 onClick={sendText}
                 disabled={sending || (!!editingId && !draft.trim())}
                 className="p-2.5 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 shrink-0"
-                aria-label={editingId ? 'Save edit' : 'Send'}
+                aria-label={editingId ? t('components.chat.thread.saveEdit') : t('components.chat.thread.send')}
               >
                 {sending ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -820,7 +827,7 @@ export default function ChatThread({
               <button
                 onClick={startRecording}
                 className="p-2.5 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors shrink-0"
-                aria-label="Record voice message"
+                aria-label={t('components.chat.thread.recordVoice')}
               >
                 <Mic className="w-5 h-5" />
               </button>

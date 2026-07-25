@@ -5,6 +5,7 @@ import { MessageCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { playChime } from '@/lib/chime';
 import ChatThread from '@/components/chat/ChatThread';
+import { useT } from '@/lib/i18n';
 
 interface ChatMessage {
   id: string;
@@ -36,12 +37,13 @@ const MUTE_KEY = 'skymap_chat_muted';
 export default function ChatLauncher({
   deliveryId,
   otherName,
-  label = 'Chat',
+  label,
   variant = 'button',
   preview,
   timeText,
   initialUnread = 0,
 }: ChatLauncherProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(initialUnread);
   const [selfId, setSelfId] = useState<string | null>(null);
@@ -125,11 +127,11 @@ export default function ChatLauncher({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <p className="font-semibold text-gray-900 truncate">{otherName || 'Chat'}</p>
+              <p className="font-semibold text-gray-900 truncate">{otherName || t('components.chat.defaultLabel')}</p>
               {timeText && <span className="text-xs text-gray-400 shrink-0">{timeText}</span>}
             </div>
             <p className={`text-sm truncate ${unread > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-              {preview || 'Tap to open the conversation'}
+              {preview || t('components.chat.tapToOpen')}
             </p>
           </div>
         </button>
@@ -140,7 +142,7 @@ export default function ChatLauncher({
           className="relative inline-flex items-center justify-center gap-2 w-full py-3 bg-primary/10 text-primary font-semibold rounded-xl hover:bg-primary/15 transition-colors"
         >
           <MessageCircle className="w-5 h-5" />
-          <span>{label}</span>
+          <span>{label ?? t('components.chat.defaultLabel')}</span>
           {unread > 0 && (
             <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">
               {unread > 9 ? '9+' : unread}
@@ -159,8 +161,8 @@ export default function ChatLauncher({
               realtimeTable="chat_messages"
               realtimeFilter={`delivery_id=eq.${deliveryId}`}
               storagePrefix={`delivery/${deliveryId}`}
-              otherName={otherName || 'Chat'}
-              subtitle={`Ride ${deliveryId.slice(0, 8)}`}
+              otherName={otherName || t('components.chat.defaultLabel')}
+              subtitle={`${t('components.chat.rideSubtitle')} ${deliveryId.slice(0, 8)}`}
               onClose={handleClose}
             />
           </div>

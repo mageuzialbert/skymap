@@ -5,6 +5,7 @@ import { Package, MapPin, Phone, User, Clock, FileText, Navigation, ExternalLink
 import StatusUpdateModal from './StatusUpdateModal';
 import ChatLauncher from '@/components/chat/ChatLauncher';
 import ServiceBadge, { formatSchedule } from '@/components/common/ServiceBadge';
+import { useT } from '@/lib/i18n';
 
 interface Delivery {
   id: string;
@@ -78,6 +79,7 @@ export default function DeliveryDetails({
   onDecline,
   loading = false,
 }: DeliveryDetailsProps) {
+  const t = useT();
   const [showStatusModal, setShowStatusModal] = useState(false);
 
   // The rider must accept (confirm) an assigned ride before they can start it.
@@ -114,7 +116,7 @@ export default function DeliveryDetails({
         lat: delivery.pickup_latitude,
         lng: delivery.pickup_longitude,
         address: delivery.pickup_address,
-        label: 'Navigate to Pickup',
+        label: t('rider.details.navigateToPickup'),
       };
     } else if (delivery.status === 'PICKED_UP' || delivery.status === 'IN_TRANSIT') {
       return {
@@ -122,7 +124,7 @@ export default function DeliveryDetails({
         lat: delivery.dropoff_latitude,
         lng: delivery.dropoff_longitude,
         address: delivery.dropoff_address,
-        label: 'Navigate to Drop-off',
+        label: t('rider.details.navigateToDropoff'),
       };
     }
     return null;
@@ -146,7 +148,7 @@ export default function DeliveryDetails({
             statusColors[delivery.status] || statusColors.ASSIGNED
           }`}
         >
-          {delivery.status.replace('_', ' ')}
+          {t(`rider.status.${delivery.status}`)}
         </span>
       </div>
 
@@ -158,9 +160,9 @@ export default function DeliveryDetails({
               <Clock className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h4 className="font-semibold text-blue-900">New ride assigned to you</h4>
+              <h4 className="font-semibold text-blue-900">{t('rider.details.newRideTitle')}</h4>
               <p className="text-sm text-blue-700 mt-1">
-                Please confirm to accept this ride, then you can start it. Decline to send it back for reassignment.
+                {t('rider.details.newRideBody')}
               </p>
             </div>
           </div>
@@ -175,9 +177,9 @@ export default function DeliveryDetails({
               <Clock className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <h4 className="font-semibold text-purple-900">Awaiting Confirmation</h4>
+              <h4 className="font-semibold text-purple-900">{t('rider.details.awaitingTitle')}</h4>
               <p className="text-sm text-purple-700 mt-1">
-                This delivery is pending approval from staff/admin. Once confirmed, you will be able to start the delivery.
+                {t('rider.details.awaitingBody')}
               </p>
             </div>
           </div>
@@ -192,9 +194,9 @@ export default function DeliveryDetails({
               <Clock className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <h4 className="font-semibold text-red-900">Delivery Rejected</h4>
+              <h4 className="font-semibold text-red-900">{t('rider.details.rejectedTitle')}</h4>
               <p className="text-sm text-red-700 mt-1">
-                This delivery request was rejected by staff/admin.
+                {t('rider.details.rejectedBody')}
               </p>
             </div>
           </div>
@@ -208,11 +210,11 @@ export default function DeliveryDetails({
             <div className="flex items-center gap-2">
               <Navigation className="w-5 h-5" />
               <span className="font-semibold">
-                {nextDestination.type === 'pickup' ? 'Go to Pickup' : 'Go to Drop-off'}
+                {nextDestination.type === 'pickup' ? t('rider.details.goToPickup') : t('rider.details.goToDropoff')}
               </span>
             </div>
             {(nextDestination.lat && nextDestination.lng) && (
-              <span className="text-xs bg-white/20 px-2 py-1 rounded-full">GPS Ready</span>
+              <span className="text-xs bg-white/20 px-2 py-1 rounded-full">{t('rider.details.gpsReady')}</span>
             )}
           </div>
           <p className="text-sm text-white/90 mb-3 line-clamp-2">{nextDestination.address}</p>
@@ -223,7 +225,7 @@ export default function DeliveryDetails({
             className="flex items-center justify-center gap-2 w-full bg-white text-primary font-semibold py-3 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <Navigation className="w-5 h-5" />
-            Open in Google Maps
+            {t('rider.details.openInGoogleMaps')}
           </a>
         </div>
       )}
@@ -234,11 +236,11 @@ export default function DeliveryDetails({
           <div className="p-2 bg-primary/10 rounded-lg">
             <Package className="w-5 h-5 text-primary" />
           </div>
-          <h3 className="font-semibold text-gray-900">Business</h3>
+          <h3 className="font-semibold text-gray-900">{t('rider.details.business')}</h3>
         </div>
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-700">
-            <p className="font-medium">{delivery.businesses?.name || 'Unknown'}</p>
+            <p className="font-medium">{delivery.businesses?.name || t('rider.details.unknown')}</p>
             <p className="text-gray-500">{delivery.businesses?.phone || ''}</p>
           </div>
           {delivery.businesses?.phone && (
@@ -256,8 +258,8 @@ export default function DeliveryDetails({
           <div className="mt-4">
             <ChatLauncher
               deliveryId={delivery.id}
-              otherName={delivery.businesses?.name || 'Client'}
-              label="Chat with client"
+              otherName={delivery.businesses?.name || t('rider.details.client')}
+              label={t('rider.details.chatWithClient')}
             />
           </div>
         )}
@@ -269,7 +271,7 @@ export default function DeliveryDetails({
           <div className="p-2 bg-blue-100 rounded-lg">
             <MapPin className="w-5 h-5 text-blue-600" />
           </div>
-          <h3 className="font-semibold text-gray-900">Pickup Location</h3>
+          <h3 className="font-semibold text-gray-900">{t('rider.details.pickupLocation')}</h3>
           {delivery.pickup_latitude && delivery.pickup_longitude && (
             <span className="ml-auto text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">GPS</span>
           )}
@@ -285,7 +287,7 @@ export default function DeliveryDetails({
               className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
             >
               <Phone className="w-4 h-4" />
-              Call
+              {t('rider.common.call')}
             </a>
             <a
               href={getNavigationUrl(delivery.pickup_latitude, delivery.pickup_longitude, delivery.pickup_address)}
@@ -294,7 +296,7 @@ export default function DeliveryDetails({
               className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium"
             >
               <Navigation className="w-4 h-4" />
-              Navigate
+              {t('rider.common.navigate')}
             </a>
           </div>
         </div>
@@ -307,7 +309,7 @@ export default function DeliveryDetails({
           <div className="p-2 bg-green-100 rounded-lg">
             <MapPin className="w-5 h-5 text-green-600" />
           </div>
-          <h3 className="font-semibold text-gray-900">Drop-off Location</h3>
+          <h3 className="font-semibold text-gray-900">{t('rider.details.dropoffLocation')}</h3>
           {delivery.dropoff_latitude && delivery.dropoff_longitude && (
             <span className="ml-auto text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">GPS</span>
           )}
@@ -324,7 +326,7 @@ export default function DeliveryDetails({
                 className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
               >
                 <Phone className="w-4 h-4" />
-                Call
+                {t('rider.common.call')}
               </a>
             )}
             <a
@@ -334,7 +336,7 @@ export default function DeliveryDetails({
               className="flex-1 flex items-center justify-center gap-2 py-3 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
             >
               <Navigation className="w-4 h-4" />
-              Navigate
+              {t('rider.common.navigate')}
             </a>
           </div>
         </div>
@@ -348,7 +350,7 @@ export default function DeliveryDetails({
             <div className="p-2 bg-gray-100 rounded-lg">
               <ClipboardList className="w-5 h-5 text-gray-600" />
             </div>
-            <h3 className="font-semibold text-gray-900">Request Details</h3>
+            <h3 className="font-semibold text-gray-900">{t('rider.details.requestDetails')}</h3>
           </div>
           <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
             {delivery.service_details}
@@ -363,7 +365,7 @@ export default function DeliveryDetails({
             <div className="p-2 bg-amber-100 rounded-lg">
               <FileText className="w-5 h-5 text-amber-600" />
             </div>
-            <h3 className="font-semibold text-gray-900">Package Details</h3>
+            <h3 className="font-semibold text-gray-900">{t('rider.details.packageDetails')}</h3>
           </div>
           
           {delivery.package_description && (
@@ -374,7 +376,7 @@ export default function DeliveryDetails({
 
           {delivery.package_image_url && (
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Package Image:</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{t('rider.details.packageImage')}</p>
               <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 w-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
@@ -388,7 +390,7 @@ export default function DeliveryDetails({
                   rel="noopener noreferrer"
                   className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded backdrop-blur-sm transition-colors"
                 >
-                  View Full
+                  {t('rider.details.viewFull')}
                 </a>
               </div>
             </div>
@@ -403,7 +405,7 @@ export default function DeliveryDetails({
             <div className="p-2 bg-gray-100 rounded-lg">
               <Clock className="w-5 h-5 text-gray-600" />
             </div>
-            <h3 className="font-semibold text-gray-900">Delivery Timeline</h3>
+            <h3 className="font-semibold text-gray-900">{t('rider.details.deliveryTimeline')}</h3>
           </div>
           <div className="space-y-3">
             {events.map((event, index) => (
@@ -421,7 +423,7 @@ export default function DeliveryDetails({
                         statusColors[event.status] || statusColors.ASSIGNED
                       }`}
                     >
-                      {event.status.replace('_', ' ')}
+                      {t(`rider.status.${event.status}`)}
                     </span>
                     <span className="text-xs text-gray-500">
                       {formatDateTime(event.created_at)}
@@ -445,14 +447,14 @@ export default function DeliveryDetails({
             disabled={loading}
             className="flex-1 bg-red-50 text-red-700 py-4 rounded-xl hover:bg-red-100 transition-colors font-semibold disabled:opacity-50"
           >
-            Decline
+            {t('rider.details.decline')}
           </button>
           <button
             onClick={() => onConfirm?.()}
             disabled={loading}
             className="flex-[2] bg-primary text-white py-4 rounded-xl hover:bg-primary-dark transition-colors font-semibold text-lg flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            Confirm Ride
+            {t('rider.details.confirmRide')}
           </button>
         </div>
       ) : canUpdateStatus ? (
@@ -461,7 +463,7 @@ export default function DeliveryDetails({
             onClick={() => setShowStatusModal(true)}
             className="w-full bg-primary text-white py-4 rounded-xl hover:bg-primary-dark transition-colors font-semibold text-lg flex items-center justify-center gap-2"
           >
-            Update Delivery Status
+            {t('rider.details.updateDeliveryStatus')}
           </button>
         </div>
       ) : null}

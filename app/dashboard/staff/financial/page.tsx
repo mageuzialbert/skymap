@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import FinancialDashboard from '@/components/financial/FinancialDashboard';
+import { useT } from '@/lib/i18n';
 
 export default function StaffFinancialPage() {
+  const t = useT();
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +67,7 @@ export default function StaffFinancialPage() {
   if (!data) {
     return (
       <div className="text-center py-8 text-gray-500">
-        Failed to load financial data
+        {t('staff.financial.loadFailed')}
       </div>
     );
   }
@@ -73,20 +75,20 @@ export default function StaffFinancialPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Financial Analytics</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('staff.financial.title')}</h1>
       </div>
 
       {/* Date Range Selector */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="flex items-center gap-4 flex-wrap">
-          <label className="text-sm font-medium text-gray-700">Date Range:</label>
+          <label className="text-sm font-medium text-gray-700">{t('staff.financial.dateRange')}</label>
           <input
             type="date"
             value={dateRange.start}
             onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
             className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
           />
-          <span className="text-gray-500">to</span>
+          <span className="text-gray-500">{t('staff.financial.to')}</span>
           <input
             type="date"
             value={dateRange.end}
@@ -98,7 +100,7 @@ export default function StaffFinancialPage() {
               onClick={() => setDateRange({ start: '', end: '' })}
               className="text-sm text-gray-600 hover:text-gray-800 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
             >
-              Clear
+              {t('staff.financial.clear')}
             </button>
           )}
         </div>

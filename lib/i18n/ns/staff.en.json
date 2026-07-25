@@ -1,1 +1,95 @@
-{}
+{
+  "staff": {
+    "dashboard": {
+      "title": "Staff Dashboard",
+      "createDelivery": "Create Delivery",
+      "totalDeliveries": "Total Deliveries",
+      "pendingAssignments": "Pending Assignments",
+      "inTransit": "In Transit",
+      "completedToday": "Completed Today",
+      "deliveriesByStatus": "Deliveries by Status",
+      "quickActions": "Quick Actions",
+      "createInvoice": "Create Invoice",
+      "createInvoiceDesc": "Generate invoice for a business",
+      "recentDeliveries": "Recent Deliveries",
+      "viewAll": "View all →"
+    },
+    "deliveries": {
+      "title": "Deliveries Management",
+      "createDelivery": "Create Delivery",
+      "createNewDelivery": "Create New Delivery",
+      "refresh": "Refresh",
+      "refreshTitle": "Refresh deliveries list",
+      "dismiss": "Dismiss",
+      "editFeeTitle": "Edit Delivery Fee",
+      "feeAmount": "Fee Amount (TZS)",
+      "selectBusinessError": "Please select a business",
+      "createFailed": "Failed to create delivery",
+      "assignFailed": "Failed to assign rider",
+      "confirmFailed": "Failed to confirm delivery",
+      "rejectFailed": "Failed to reject delivery",
+      "deleteFailed": "Failed to delete delivery",
+      "updateFeeFailed": "Failed to update fee",
+      "rejectReasonPrompt": "Enter rejection reason (optional):",
+      "deleteConfirm": "Are you sure you want to permanently delete this delivery? This action cannot be undone and will also delete all associated charges and events.",
+      "export": {
+        "id": "ID",
+        "business": "Business",
+        "pickupName": "Pickup Name",
+        "pickupAddress": "Pickup Address",
+        "pickupPhone": "Pickup Phone",
+        "dropoffName": "Dropoff Name",
+        "dropoffAddress": "Dropoff Address",
+        "dropoffPhone": "Dropoff Phone",
+        "status": "Status",
+        "rider": "Rider",
+        "fee": "Fee (TZS)",
+        "created": "Created"
+      }
+    },
+    "deliveryDetail": {
+      "notFound": "Delivery not found",
+      "loadFailed": "Failed to load delivery details",
+      "backToDeliveries": "Back to Deliveries"
+    },
+    "operations": {
+      "title": "Operations Dashboard",
+      "loadFailed": "Failed to load operations data"
+    },
+    "financial": {
+      "title": "Financial Analytics",
+      "loadFailed": "Failed to load financial data",
+      "dateRange": "Date Range:",
+      "to": "to",
+      "clear": "Clear"
+    },
+    "invoices": {
+      "title": "Create Invoice",
+      "subtitle": "Create a new invoice or proforma invoice for a business",
+      "loadBusinessesFailed": "Failed to load businesses",
+      "createFailed": "Failed to create invoice",
+      "invoiceDetails": "Invoice Details",
+      "business": "Business *",
+      "selectBusiness": "Select Business",
+      "invoiceType": "Invoice Type *",
+      "invoice": "Invoice",
+      "proformaInvoice": "Proforma Invoice",
+      "startDate": "Start Date *",
+      "endDate": "End Date *",
+      "dueDate": "Due Date",
+      "notes": "Notes / Terms",
+      "notesPlaceholder": "Additional notes or terms for this invoice...",
+      "chargesPreview": "Charges Preview",
+      "noCharges": "No charges found in the selected date range",
+      "date": "Date",
+      "description": "Description",
+      "amount": "Amount",
+      "deliveryCharge": "Delivery charge",
+      "total": "Total",
+      "chargesIncluded": "{{count}} charges will be included in this invoice",
+      "creating": "Creating...",
+      "createInvoiceBtn": "Create Invoice",
+      "createProformaBtn": "Create Proforma Invoice"
+    }
+  }
+}

@@ -1,1 +1,193 @@
-{}
+{
+  "business": {
+    "overview": {
+      "welcome": "Welcome, {{name}}!",
+      "fallbackName": "Business",
+      "subtitle": "Here's an overview of your delivery operations",
+      "totalDeliveries": "Total Deliveries",
+      "pendingDeliveries": "Pending Deliveries",
+      "completedDeliveries": "Completed Deliveries",
+      "totalInvoices": "Total Invoices",
+      "unpaidInvoices": "Unpaid Invoices",
+      "quickActions": "Quick Actions",
+      "createNewDelivery": "Create New Delivery",
+      "viewAllDeliveries": "View All Deliveries",
+      "viewInvoices": "View Invoices"
+    },
+    "deliveries": {
+      "title": "Deliveries",
+      "createDelivery": "Create Delivery",
+      "createNewDelivery": "Create New Delivery",
+      "filterByStatus": "Filter by Status:",
+      "showingCount": "Showing {{shown}} of {{total}} deliveries",
+      "status": {
+        "all": "All Statuses",
+        "created": "Created",
+        "assigned": "Assigned",
+        "pickedUp": "Picked Up",
+        "inTransit": "In Transit",
+        "delivered": "Delivered",
+        "failed": "Failed"
+      },
+      "col": {
+        "id": "ID",
+        "pickup": "Pickup",
+        "dropoff": "Drop-off",
+        "status": "Status",
+        "fee": "Fee (TZS)",
+        "created": "Created"
+      },
+      "empty": "No deliveries found. Create your first delivery!",
+      "emptyFiltered": "No deliveries found with status \"{{status}}\".",
+      "createFailed": "Failed to create delivery"
+    },
+    "deliveryDetails": {
+      "profileNotFound": "Business profile not found",
+      "loadFailed": "Failed to load delivery details",
+      "notFound": "Delivery not found",
+      "back": "Back to Deliveries"
+    },
+    "invoices": {
+      "title": "Invoices",
+      "subtitle": "View and manage your weekly invoices",
+      "col": {
+        "invoiceNumber": "Invoice Number",
+        "period": "Period",
+        "amount": "Amount",
+        "status": "Status",
+        "generated": "Generated"
+      },
+      "empty": "No invoices found. Invoices are generated weekly for completed deliveries.",
+      "details": "Invoice Details",
+      "printPdf": "Print / PDF"
+    },
+    "invoicePrint": {
+      "notFound": "Invoice not found",
+      "goBack": "Go back",
+      "back": "Back",
+      "printSave": "Print / Save as PDF"
+    },
+    "profile": {
+      "title": "Profile Settings",
+      "subtitle": "Update your business information and address",
+      "businessLogo": "Business Logo",
+      "logoImage": "Logo Image",
+      "uploading": "Uploading...",
+      "uploadLogo": "Upload Logo",
+      "remove": "Remove",
+      "logoHint": "Recommended: PNG or SVG, max 5MB. Your logo will appear on your business profile.",
+      "logoAlt": "Business Logo",
+      "businessInfo": "Business Information",
+      "businessName": "Business Name *",
+      "phoneNumber": "Phone Number",
+      "phoneHint": "Phone number cannot be changed. Verify it in the Verification page.",
+      "emailAddress": "Email Address",
+      "emailHint": "Email cannot be changed. Verify it in the Verification page.",
+      "addressInfo": "Address Information",
+      "mapsLoadError": "Google Maps failed to load. You can still enter addresses manually.",
+      "businessAddress": "Business Address",
+      "streetAddress": "Street address",
+      "loadingMaps": "Loading maps...",
+      "city": "City",
+      "postalCode": "Postal Code",
+      "region": "Region",
+      "selectRegion": "Select Region",
+      "district": "District",
+      "selectDistrict": "Select District",
+      "selectRegionFirst": "Please select a region first",
+      "saveChanges": "Save Changes",
+      "passwordSettings": "Password Settings",
+      "passwordDesc": "Set a new password for your account. This is especially useful if you logged in via SMS code.",
+      "newPassword": "New Password *",
+      "enterNewPassword": "Enter new password",
+      "passwordHint": "Must be at least 8 characters long",
+      "confirmPasswordLabel": "Confirm Password *",
+      "confirmNewPassword": "Confirm new password",
+      "updating": "Updating...",
+      "updatePassword": "Update Password",
+      "msg": {
+        "profileUpdated": "Profile updated successfully!",
+        "logoUploaded": "Logo uploaded successfully!",
+        "logoRemoved": "Logo removed successfully!",
+        "passwordUpdated": "Password updated successfully!",
+        "sessionError": "Session error. Please try logging in again.",
+        "noSession": "No active session. Please log in.",
+        "authError": "Authentication error. Please try logging in again.",
+        "userNotFound": "User not found. Please log in.",
+        "loadFailed": "Failed to load profile. Please try refreshing the page.",
+        "notAuthenticated": "Not authenticated",
+        "businessNotFound": "Business not found. Please contact support.",
+        "updateFailed": "Failed to update profile",
+        "uploadFailed": "Failed to upload logo",
+        "removeFailed": "Failed to remove logo",
+        "resetFailed": "Failed to reset password"
+      }
+    },
+    "verify": {
+      "title": "Verify Account",
+      "subtitle": "Verify your phone number and email address to secure your account",
+      "phoneVerification": "Phone Number Verification",
+      "verified": "Verified",
+      "notVerified": "Not Verified",
+      "phoneNumber": "Phone Number",
+      "sendCode": "Send Verification Code",
+      "enterCode": "Enter Verification Code",
+      "verifying": "Verifying...",
+      "verifyPhone": "Verify Phone",
+      "emailVerification": "Email Verification",
+      "emailChangeWarning": "Changing your email will require re-verification.",
+      "placeholderEmailWarning": "You're using a placeholder email. Please enter your real email address to receive important updates.",
+      "emailAddress": "Email Address",
+      "enterEmail": "Enter your email address",
+      "updateVerifyEmail": "Update & Verify Email",
+      "sendVerificationEmail": "Send Verification Email",
+      "msg": {
+        "phoneRequired": "Phone number is required",
+        "codeSentSuccess": "Verification code sent successfully! Please check your phone.",
+        "codeSentDev": "Verification code sent! (Dev mode - Code: {{code}})",
+        "sendOtpFailed": "Failed to send OTP",
+        "invalidOtp": "Invalid OTP",
+        "notAuthenticated": "Not authenticated",
+        "updateEmailFailed": "Failed to update email",
+        "emailSentSuccess": "Verification email sent! Please check your inbox and click the verification link.",
+        "sendEmailFailed": "Failed to send verification email"
+      }
+    },
+    "rides": {
+      "filters": "Filters",
+      "clear": "Clear",
+      "dateFrom": "Date from",
+      "dateTo": "Date to",
+      "timeFrom": "Time from",
+      "timeTo": "Time to",
+      "statusLabel": "Status",
+      "status": {
+        "all": "All",
+        "created": "Created",
+        "assigned": "Assigned",
+        "pickedUp": "Picked up",
+        "inTransit": "In transit",
+        "delivered": "Delivered",
+        "failed": "Failed",
+        "rejected": "Rejected"
+      },
+      "showingCount": "Showing {{shown}} of {{total}} rides",
+      "col": {
+        "service": "Service",
+        "route": "Route",
+        "vehicle": "Vehicle",
+        "date": "Date",
+        "time": "Time",
+        "status": "Status",
+        "cost": "Cost"
+      },
+      "noRequests": "No requests found.",
+      "noRides": "No rides found."
+    },
+    "requestRide": {
+      "title": "New Request",
+      "subtitle": "Choose a service and tell us the details - we'll handle the rest.",
+      "mapsNotConfigured": "Google Maps is not configured. Address selection requires it. Please contact support."
+    }
+  }
+}

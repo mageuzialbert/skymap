@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { AlertTriangle, Info, Loader2, X } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 export type ConfirmTone = 'danger' | 'warning' | 'info';
 
@@ -39,13 +40,14 @@ export default function ConfirmDialog({
   isOpen,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   tone = 'info',
   loading = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const t = useT();
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e: KeyboardEvent) => {
@@ -77,7 +79,7 @@ export default function ConfirmDialog({
           onClick={onCancel}
           disabled={loading}
           className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50"
-          aria-label="Close"
+          aria-label={t('common.close')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -101,7 +103,7 @@ export default function ConfirmDialog({
             disabled={loading}
             className="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {cancelLabel}
+            {cancelLabel ?? t('common.cancel')}
           </button>
           <button
             type="button"
@@ -110,7 +112,7 @@ export default function ConfirmDialog({
             className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg focus:outline-none focus:ring-4 transition-colors disabled:opacity-60 cursor-pointer ${styles.button}`}
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {confirmLabel}
+            {confirmLabel ?? t('common.confirm')}
           </button>
         </div>
       </div>

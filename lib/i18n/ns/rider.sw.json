@@ -1,1 +1,152 @@
-{}
+{
+  "rider": {
+    "status": {
+      "PENDING_CONFIRMATION": "Inasubiri Uthibitisho",
+      "ASSIGNED": "Umepangiwa",
+      "PICKED_UP": "Imechukuliwa",
+      "IN_TRANSIT": "Njiani",
+      "DELIVERED": "Imefikishwa",
+      "FAILED": "Imeshindikana",
+      "REJECTED": "Imekataliwa"
+    },
+    "common": {
+      "call": "Piga simu",
+      "navigate": "Elekeza"
+    },
+    "dashboard": {
+      "title": "Dashibodi ya Dereva",
+      "subtitle": "Simamia usafirishaji uliopangiwa",
+      "assigned": "Umepangiwa",
+      "inProgress": "Yanaendelea",
+      "completedToday": "Yamekamilika Leo",
+      "quickActions": "Vitendo vya Haraka",
+      "viewAllJobs": "Tazama Kazi Zote",
+      "recentDeliveries": "Usafirishaji wa Karibuni",
+      "viewAll": "Tazama zote →",
+      "noDeliveries": "Hakuna usafirishaji uliopangiwa bado",
+      "deliveryNumber": "Usafirishaji #{{id}}"
+    },
+    "jobs": {
+      "title": "Kazi Zangu",
+      "subtitle": "Usafirishaji uliopangiwa",
+      "allStatuses": "Hali Zote",
+      "noneFound": "Hakuna usafirishaji uliopatikana",
+      "noneAssigned": "Huna usafirishaji wowote uliopangiwa bado.",
+      "noneWithStatus": "Hakuna usafirishaji wenye hali \"{{status}}\""
+    },
+    "jobDetail": {
+      "title": "Maelezo ya Usafirishaji",
+      "idLabel": "Kitambulisho: {{id}}",
+      "notFound": "Usafirishaji haukupatikana au hukupangiwa",
+      "failedLoad": "Imeshindwa kupakia usafirishaji",
+      "failedLoadDetails": "Imeshindwa kupakia maelezo ya usafirishaji",
+      "backToJobs": "← Rudi kwenye Kazi",
+      "declineConfirm": "Kataa safari hii? Itarudishwa ili ipangiwe upya.",
+      "failedUpdateStatus": "Imeshindwa kusasisha hali",
+      "failedConfirm": "Imeshindwa kuthibitisha safari",
+      "failedDecline": "Imeshindwa kukataa safari"
+    },
+    "profile": {
+      "title": "Wasifu Wangu",
+      "notFound": "Wasifu haukupatikana.",
+      "riderFallback": "Dereva",
+      "active": "Yupo Kazini",
+      "inactive": "Hayupo Kazini",
+      "phoneNumber": "Namba ya Simu",
+      "phoneHint": "Hii ndiyo taarifa pekee unayoweza kubadilisha. Wasiliana na msimamizi kwa mabadiliko mengine.",
+      "phoneUpdated": "Namba ya simu imesasishwa.",
+      "failedUpdatePhone": "Imeshindwa kusasisha namba ya simu",
+      "details": "Maelezo",
+      "name": "Jina",
+      "email": "Barua pepe",
+      "licenseNumber": "Namba ya Leseni",
+      "meansOfTransport": "Njia ya Usafiri"
+    },
+    "createDelivery": {
+      "backToDashboard": "Rudi kwenye Dashibodi",
+      "title": "Tengeneza Usafirishaji Mpya",
+      "subtitle": "Jaza maelezo hapa chini ili kutengeneza oda mpya ya usafirishaji",
+      "created": "Usafirishaji Umetengenezwa!",
+      "redirecting": "Inaelekeza kwenye dashibodi...",
+      "selectBusiness": "Tafadhali chagua biashara",
+      "failed": "Imeshindwa kutengeneza usafirishaji"
+    },
+    "registerBusiness": {
+      "backToDashboard": "Rudi kwenye Dashibodi",
+      "title": "Sajili Biashara Mpya",
+      "subtitle": "Jaza maelezo hapa chini ili kusajili biashara mpya",
+      "registered": "Biashara Imesajiliwa!",
+      "successMsg": "Biashara imesajiliwa kwa mafanikio.",
+      "redirecting": "Inaelekeza kwenye dashibodi...",
+      "feePositive": "Ada ya usafirishaji lazima iwe namba chanya",
+      "failed": "Imeshindwa kusajili biashara"
+    },
+    "card": {
+      "unknownBusiness": "Biashara Isiyojulikana",
+      "pickup": "Kuchukua",
+      "dropoff": "Kufikisha",
+      "callLabel": "Piga simu {{label}}",
+      "minAgo": "dakika {{count}} zilizopita",
+      "hourAgo": "saa {{count}} zilizopita",
+      "dayAgo": "siku {{count}} zilizopita"
+    },
+    "details": {
+      "goToPickup": "Nenda Kuchukua",
+      "goToDropoff": "Nenda Kufikisha",
+      "navigateToPickup": "Elekeza Mahali pa Kuchukua",
+      "navigateToDropoff": "Elekeza Mahali pa Kufikisha",
+      "gpsReady": "GPS Tayari",
+      "openInGoogleMaps": "Fungua katika Google Maps",
+      "newRideTitle": "Safari mpya umepangiwa",
+      "newRideBody": "Tafadhali thibitisha ili kukubali safari hii, kisha unaweza kuanza. Kataa ili irudishwe kupangiwa upya.",
+      "awaitingTitle": "Inasubiri Uthibitisho",
+      "awaitingBody": "Usafirishaji huu unasubiri idhini ya wafanyakazi/msimamizi. Ukishathibitishwa, utaweza kuanza usafirishaji.",
+      "rejectedTitle": "Usafirishaji Umekataliwa",
+      "rejectedBody": "Ombi hili la usafirishaji lilikataliwa na wafanyakazi/msimamizi.",
+      "business": "Biashara",
+      "unknown": "Haijulikani",
+      "client": "Mteja",
+      "chatWithClient": "Ongea na mteja",
+      "pickupLocation": "Mahali pa Kuchukua",
+      "dropoffLocation": "Mahali pa Kufikisha",
+      "requestDetails": "Maelezo ya Ombi",
+      "packageDetails": "Maelezo ya Kifurushi",
+      "packageImage": "Picha ya Kifurushi:",
+      "viewFull": "Tazama Kamili",
+      "deliveryTimeline": "Ratiba ya Usafirishaji",
+      "decline": "Kataa",
+      "confirmRide": "Thibitisha Safari",
+      "updateDeliveryStatus": "Sasisha Hali ya Usafirishaji"
+    },
+    "statusModal": {
+      "title": "Sasisha Hali ya Usafirishaji",
+      "currentStatus": "Hali ya Sasa",
+      "newStatus": "Hali Mpya *",
+      "note": "Dokezo (Si Lazima)",
+      "notePlaceholder": "Ongeza dokezo lolote la ziada...",
+      "updating": "Inasasisha...",
+      "updateStatus": "Sasisha Hali",
+      "selectStatus": "Tafadhali chagua hali",
+      "cannotTransition": "Haiwezi kubadilika kutoka {{from}} kwenda {{to}}",
+      "failedUpdate": "Imeshindwa kusasisha hali",
+      "options": {
+        "PICKED_UP": {
+          "label": "Imechukuliwa",
+          "description": "Kifurushi kimechukuliwa kutoka mahali pa kuchukua"
+        },
+        "IN_TRANSIT": {
+          "label": "Njiani",
+          "description": "Kifurushi kiko njiani kwenda mahali pa kufikisha"
+        },
+        "DELIVERED": {
+          "label": "Imefikishwa",
+          "description": "Kifurushi kimefikishwa kwa mafanikio"
+        },
+        "FAILED": {
+          "label": "Imeshindikana",
+          "description": "Usafirishaji haukuweza kukamilika"
+        }
+      }
+    }
+  }
+}

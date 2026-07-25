@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { X, Plus, Loader2, Filter } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 import DeliveryForm, { DeliveryFormData } from '@/components/deliveries/DeliveryForm';
 
 interface Delivery {
@@ -33,16 +34,17 @@ const statusColors: Record<string, string> = {
 };
 
 const statusOptions = [
-  { value: 'ALL', label: 'All Statuses' },
-  { value: 'CREATED', label: 'Created' },
-  { value: 'ASSIGNED', label: 'Assigned' },
-  { value: 'PICKED_UP', label: 'Picked Up' },
-  { value: 'IN_TRANSIT', label: 'In Transit' },
-  { value: 'DELIVERED', label: 'Delivered' },
-  { value: 'FAILED', label: 'Failed' },
+  { value: 'ALL', labelKey: 'business.deliveries.status.all' },
+  { value: 'CREATED', labelKey: 'business.deliveries.status.created' },
+  { value: 'ASSIGNED', labelKey: 'business.deliveries.status.assigned' },
+  { value: 'PICKED_UP', labelKey: 'business.deliveries.status.pickedUp' },
+  { value: 'IN_TRANSIT', labelKey: 'business.deliveries.status.inTransit' },
+  { value: 'DELIVERED', labelKey: 'business.deliveries.status.delivered' },
+  { value: 'FAILED', labelKey: 'business.deliveries.status.failed' },
 ];
 
 function BusinessDeliveriesContent() {
+  const t = useT();
   const searchParams = useSearchParams();
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [filteredDeliveries, setFilteredDeliveries] = useState<Delivery[]>([]);
@@ -200,7 +202,7 @@ function BusinessDeliveriesContent() {
       setShowCreateForm(false);
       loadDeliveries();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create delivery');
+      setError(err instanceof Error ? err.message : t('business.deliveries.createFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -217,14 +219,14 @@ function BusinessDeliveriesContent() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Deliveries</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('business.deliveries.title')}</h1>
         {!showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
             className="flex items-center space-x-2 bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-medium shadow-sm"
           >
             <Plus className="w-5 h-5" />
-            <span>Create Delivery</span>
+            <span>{t('business.deliveries.createDelivery')}</span>
           </button>
         )}
       </div>
@@ -233,7 +235,7 @@ function BusinessDeliveriesContent() {
       {showCreateForm && (
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Create New Delivery</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('business.deliveries.createNewDelivery')}</h2>
             <button
               onClick={() => {
                 setShowCreateForm(false);
@@ -260,7 +262,7 @@ function BusinessDeliveriesContent() {
       <div className="mb-4 flex items-center gap-4">
         <div className="flex items-center gap-2">
           <Filter className="w-5 h-5 text-gray-600" />
-          <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
+          <label className="text-sm font-medium text-gray-700">{t('business.deliveries.filterByStatus')}</label>
         </div>
         <select
           value={statusFilter}
@@ -269,13 +271,13 @@ function BusinessDeliveriesContent() {
         >
           {statusOptions.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {t(option.labelKey)}
             </option>
           ))}
         </select>
         {statusFilter !== 'ALL' && (
           <span className="text-sm text-gray-600">
-            Showing {filteredDeliveries.length} of {deliveries.length} deliveries
+            {t('business.deliveries.showingCount', { shown: filteredDeliveries.length, total: deliveries.length })}
           </span>
         )}
       </div>
@@ -287,22 +289,22 @@ function BusinessDeliveriesContent() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
+                  {t('business.deliveries.col.id')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Pickup
+                  {t('business.deliveries.col.pickup')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Drop-off
+                  {t('business.deliveries.col.dropoff')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  {t('business.deliveries.col.status')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fee (TZS)
+                  {t('business.deliveries.col.fee')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
+                  {t('business.deliveries.col.created')}
                 </th>
               </tr>
             </thead>
@@ -310,9 +312,9 @@ function BusinessDeliveriesContent() {
               {filteredDeliveries.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                    {deliveries.length === 0 
-                      ? 'No deliveries found. Create your first delivery!'
-                      : `No deliveries found with status "${statusOptions.find(o => o.value === statusFilter)?.label}".`
+                    {deliveries.length === 0
+                      ? t('business.deliveries.empty')
+                      : t('business.deliveries.emptyFiltered', { status: t(statusOptions.find(o => o.value === statusFilter)?.labelKey || 'business.deliveries.status.all') })
                     }
                   </td>
                 </tr>

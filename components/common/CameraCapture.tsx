@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Camera, X, Check, SwitchCamera, Loader2, AlertCircle } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface CameraCaptureProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface CameraCaptureProps {
 }
 
 export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCaptureProps) {
+  const t = useT();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -39,7 +41,7 @@ export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCapt
       stopStream();
 
       if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
-        setError('Your browser does not support camera access. Try uploading from gallery instead.');
+        setError(t('components.camera.errNoSupport'));
         setStarting(false);
         return;
       }
@@ -62,13 +64,13 @@ export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCapt
         if (cancelled) return;
         const name = err instanceof Error ? err.name : '';
         if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-          setError('Camera permission denied. Allow access in your browser settings and try again.');
+          setError(t('components.camera.errPermission'));
         } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
-          setError('No camera detected on this device.');
+          setError(t('components.camera.errNoCamera'));
         } else if (name === 'NotReadableError') {
-          setError('Camera is busy - close any other app using it and try again.');
+          setError(t('components.camera.errBusy'));
         } else {
-          setError('Could not open the camera. Try again or use gallery upload.');
+          setError(t('components.camera.errGeneric'));
         }
         setStarting(false);
       }
@@ -160,26 +162,26 @@ export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCapt
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex flex-col" role="dialog" aria-modal="true" aria-label="Take a photo">
+    <div className="fixed inset-0 z-[60] bg-black flex flex-col" role="dialog" aria-modal="true" aria-label={t('components.camera.takeAPhoto')}>
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4">
         <button
           type="button"
           onClick={handleClose}
           className="p-2.5 bg-black/50 backdrop-blur-sm text-white rounded-full hover:bg-black/70 transition-colors cursor-pointer"
-          aria-label="Close camera"
+          aria-label={t('components.camera.closeCamera')}
         >
           <X className="w-5 h-5" />
         </button>
         <h2 className="text-white text-sm font-semibold drop-shadow">
-          {previewUrl ? 'Review photo' : 'Take photo'}
+          {previewUrl ? t('components.camera.reviewPhoto') : t('components.camera.takePhoto')}
         </h2>
         {!previewUrl && !error ? (
           <button
             type="button"
             onClick={handleSwitchCamera}
             className="p-2.5 bg-black/50 backdrop-blur-sm text-white rounded-full hover:bg-black/70 transition-colors cursor-pointer"
-            aria-label="Switch camera"
+            aria-label={t('components.camera.switchCamera')}
             disabled={starting}
           >
             <SwitchCamera className="w-5 h-5" />
@@ -216,7 +218,7 @@ export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCapt
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
                 <div className="text-center text-white">
                   <Loader2 className="w-10 h-10 mx-auto animate-spin mb-3" />
-                  <p className="text-sm">Starting camera...</p>
+                  <p className="text-sm">{t('components.camera.startingCamera')}</p>
                 </div>
               </div>
             )}
@@ -233,7 +235,7 @@ export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCapt
               onClick={handleRetake}
               className="flex-1 max-w-[180px] px-5 py-3 bg-white/15 backdrop-blur-md border border-white/30 text-white font-semibold rounded-2xl active:scale-[0.98] transition-transform cursor-pointer"
             >
-              Retake
+              {t('components.camera.retake')}
             </button>
             <button
               type="button"
@@ -241,7 +243,7 @@ export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCapt
               className="flex-1 max-w-[200px] flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-black/40 active:scale-[0.98] transition-transform cursor-pointer"
             >
               <Check className="w-5 h-5" />
-              <span>Use photo</span>
+              <span>{t('components.camera.usePhoto')}</span>
             </button>
           </div>
         ) : !error ? (
@@ -250,7 +252,7 @@ export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCapt
               type="button"
               onClick={handleCapture}
               disabled={starting}
-              aria-label="Capture photo"
+              aria-label={t('components.camera.capturePhoto')}
               className="relative w-20 h-20 rounded-full bg-white shadow-2xl active:scale-95 transition-transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="absolute inset-1 rounded-full ring-4 ring-inset ring-black/10" />
@@ -264,7 +266,7 @@ export default function CameraCapture({ isOpen, onClose, onCapture }: CameraCapt
               onClick={handleClose}
               className="px-6 py-3 bg-white/20 backdrop-blur-md border border-white/30 text-white font-semibold rounded-2xl"
             >
-              Close
+              {t('common.close')}
             </button>
           </div>
         )}

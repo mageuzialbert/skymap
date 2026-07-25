@@ -7,6 +7,7 @@ import { MessageSquare, Mail, Loader2, ArrowLeft, Eye, EyeOff, Home } from 'luci
 import { registerBusiness, sendVerificationCode } from '@/lib/auth';
 import CountryCodeSelect from '@/components/common/CountryCodeSelect';
 import { Country, DEFAULT_COUNTRY_CODE, getCountry } from '@/lib/countries';
+import LanguageSwitcher from '@/components/common/LanguageSwitcher';
 import { useT } from '@/lib/i18n';
 
 type Channel = 'sms' | 'email';
@@ -40,12 +41,12 @@ export default function RegisterPage() {
   function validateStep1() {
     setError('');
     if (!formData.businessName.trim()) {
-      setError('Name is required');
+      setError(t('authx.errors.nameRequired'));
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
+      setError(t('authx.errors.invalidEmail'));
       return false;
     }
     return true;
@@ -55,15 +56,15 @@ export default function RegisterPage() {
     setError('');
     const digits = formData.phone.replace(/\D/g, '');
     if (digits.length < 6 || digits.length > 15) {
-      setError('Please enter a valid phone number (6-15 digits).');
+      setError(t('authx.errors.invalidPhone'));
       return false;
     }
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(t('authx.errors.passwordMin6'));
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('authx.errors.passwordsMismatch'));
       return false;
     }
     return true;
@@ -105,7 +106,7 @@ export default function RegisterPage() {
       );
       if (res.debugOtp) setInfo((prev) => `${prev} • Dev code: ${res.debugOtp}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send verification code');
+      setError(err instanceof Error ? err.message : t('authx.errors.failedSendCode'));
     } finally {
       setSending(false);
     }
@@ -130,7 +131,7 @@ export default function RegisterPage() {
       });
       router.push('/dashboard/business');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(err instanceof Error ? err.message : t('authx.errors.registrationFailed'));
     } finally {
       setLoading(false);
     }
@@ -147,14 +148,17 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 px-4 py-8">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-        {/* Back to home */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors mb-4"
-        >
-          <Home className="w-4 h-4" />
-          Back to home
-        </Link>
+        {/* Top row: back to home + language switcher */}
+        <div className="flex items-center justify-between mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            {t('common.backToHome')}
+          </Link>
+          <LanguageSwitcher />
+        </div>
 
         {/* Header */}
         <div className="flex items-center mb-4">
@@ -205,7 +209,7 @@ export default function RegisterPage() {
                 value={formData.businessName}
                 onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Your name or business"
+                placeholder={t('authx.register.namePlaceholder')}
               />
             </div>
             <div>
@@ -215,7 +219,7 @@ export default function RegisterPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="your@email.com"
+                placeholder={t('authx.register.emailPlaceholder')}
               />
             </div>
             <button
@@ -247,7 +251,7 @@ export default function RegisterPage() {
                   inputMode="numeric"
                   maxLength={15}
                   className="flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-r-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Phone number"
+                  placeholder={t('authx.register.phonePlaceholder')}
                 />
               </div>
             </div>
@@ -260,13 +264,13 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   minLength={6}
                   className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="At least 6 characters"
+                  placeholder={t('authx.register.passwordPlaceholder')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
                   className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('authx.hidePassword') : t('authx.showPassword')}
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -284,13 +288,13 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   minLength={6}
                   className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Confirm your password"
+                  placeholder={t('authx.register.confirmPlaceholder')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm((s) => !s)}
                   className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-                  aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                  aria-label={showConfirm ? t('authx.hidePassword') : t('authx.showPassword')}
                   tabIndex={-1}
                 >
                   {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}

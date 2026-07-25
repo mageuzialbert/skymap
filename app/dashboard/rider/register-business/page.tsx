@@ -6,8 +6,10 @@ import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { usePermissions } from '@/lib/permissions-context';
 import BusinessForm, { BusinessFormData } from '@/components/businesses/BusinessForm';
+import { useT } from '@/lib/i18n';
 
 export default function RiderRegisterBusinessPage() {
+  const t = useT();
   const router = useRouter();
   const { role, hasPermission, loading: permissionsLoading } = usePermissions();
   const [submitting, setSubmitting] = useState(false);
@@ -45,7 +47,7 @@ export default function RiderRegisterBusinessPage() {
       if (data.delivery_fee.trim()) {
         const fee = parseFloat(data.delivery_fee);
         if (isNaN(fee) || fee < 0) {
-          throw new Error('Delivery fee must be a positive number');
+          throw new Error(t('rider.registerBusiness.feePositive'));
         }
         createData.delivery_fee = fee;
       }
@@ -58,7 +60,7 @@ export default function RiderRegisterBusinessPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to register business');
+        throw new Error(errorData.error || t('rider.registerBusiness.failed'));
       }
 
       setSuccess(true);
@@ -68,7 +70,7 @@ export default function RiderRegisterBusinessPage() {
         router.push('/dashboard/rider');
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to register business');
+      setError(err instanceof Error ? err.message : t('rider.registerBusiness.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -86,9 +88,9 @@ export default function RiderRegisterBusinessPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Business Registered!</h2>
-        <p className="text-gray-600">The business has been successfully registered.</p>
-        <p className="text-gray-500 text-sm mt-2">Redirecting to dashboard...</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('rider.registerBusiness.registered')}</h2>
+        <p className="text-gray-600">{t('rider.registerBusiness.successMsg')}</p>
+        <p className="text-gray-500 text-sm mt-2">{t('rider.registerBusiness.redirecting')}</p>
       </div>
     );
   }
@@ -101,10 +103,10 @@ export default function RiderRegisterBusinessPage() {
           className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
+          {t('rider.registerBusiness.backToDashboard')}
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Register New Business</h1>
-        <p className="text-gray-600 mt-1">Fill in the details below to register a new business</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('rider.registerBusiness.title')}</h1>
+        <p className="text-gray-600 mt-1">{t('rider.registerBusiness.subtitle')}</p>
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-6">

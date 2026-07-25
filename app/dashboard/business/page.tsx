@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Package, Clock, CheckCircle, Receipt, AlertTriangle, Plus, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 interface DashboardStats {
   totalDeliveries: number;
@@ -14,6 +15,7 @@ interface DashboardStats {
 }
 
 export default function BusinessDashboard() {
+  const t = useT();
   const [stats, setStats] = useState<DashboardStats>({
     totalDeliveries: 0,
     pendingDeliveries: 0,
@@ -112,35 +114,35 @@ export default function BusinessDashboard() {
 
   const statCards = [
     {
-      title: 'Total Deliveries',
+      title: t('business.overview.totalDeliveries'),
       value: stats.totalDeliveries,
       icon: Package,
       color: 'bg-blue-500',
       href: '/dashboard/business/deliveries',
     },
     {
-      title: 'Pending Deliveries',
+      title: t('business.overview.pendingDeliveries'),
       value: stats.pendingDeliveries,
       icon: Clock,
       color: 'bg-yellow-500',
       href: '/dashboard/business/deliveries?status=pending',
     },
     {
-      title: 'Completed Deliveries',
+      title: t('business.overview.completedDeliveries'),
       value: stats.completedDeliveries,
       icon: CheckCircle,
       color: 'bg-green-500',
       href: '/dashboard/business/deliveries?status=delivered',
     },
     {
-      title: 'Total Invoices',
+      title: t('business.overview.totalInvoices'),
       value: stats.totalInvoices,
       icon: Receipt,
       color: 'bg-purple-500',
       href: '/dashboard/business/invoices',
     },
     {
-      title: 'Unpaid Invoices',
+      title: t('business.overview.unpaidInvoices'),
       value: stats.unpaidInvoices,
       icon: AlertTriangle,
       color: 'bg-red-500',
@@ -152,10 +154,10 @@ export default function BusinessDashboard() {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
-          Welcome, {businessName || 'Business'}!
+          {t('business.overview.welcome', { name: businessName || t('business.overview.fallbackName') })}
         </h1>
         <p className="text-gray-600 mt-2">
-          Here&apos;s an overview of your delivery operations
+          {t('business.overview.subtitle')}
         </p>
       </div>
 
@@ -182,26 +184,26 @@ export default function BusinessDashboard() {
 
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('business.overview.quickActions')}</h2>
         <div className="flex flex-wrap gap-4">
           <Link
             href="/dashboard/business/deliveries?action=create"
             className="flex items-center space-x-2 bg-primary text-white px-6 py-3 rounded-md hover:bg-primary-dark transition-colors font-medium"
           >
             <Plus className="w-5 h-5" />
-            <span>Create New Delivery</span>
+            <span>{t('business.overview.createNewDelivery')}</span>
           </Link>
           <Link
             href="/dashboard/business/deliveries"
             className="bg-gray-100 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 transition-colors font-medium"
           >
-            View All Deliveries
+            {t('business.overview.viewAllDeliveries')}
           </Link>
           <Link
             href="/dashboard/business/invoices"
             className="bg-gray-100 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 transition-colors font-medium"
           >
-            View Invoices
+            {t('business.overview.viewInvoices')}
           </Link>
         </div>
       </div>

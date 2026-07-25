@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Filter, Loader2, Package } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import DeliveryCard from '@/components/rider/DeliveryCard';
+import { useT } from '@/lib/i18n';
 
 interface Delivery {
   id: string;
@@ -30,6 +31,7 @@ interface Delivery {
 }
 
 export default function RiderJobsPage() {
+  const t = useT();
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -83,8 +85,8 @@ export default function RiderJobsPage() {
   return (
     <div className="pb-20">
       <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Jobs</h1>
-        <p className="text-gray-600 mt-1">Assigned deliveries</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('rider.jobs.title')}</h1>
+        <p className="text-gray-600 mt-1">{t('rider.jobs.subtitle')}</p>
       </div>
 
       {/* Filter */}
@@ -95,13 +97,13 @@ export default function RiderJobsPage() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
         >
-          <option value="ALL">All Statuses</option>
-          <option value="PENDING_CONFIRMATION">Pending Confirmation</option>
-          <option value="ASSIGNED">Assigned</option>
-          <option value="PICKED_UP">Picked Up</option>
-          <option value="IN_TRANSIT">In Transit</option>
-          <option value="DELIVERED">Delivered</option>
-          <option value="FAILED">Failed</option>
+          <option value="ALL">{t('rider.jobs.allStatuses')}</option>
+          <option value="PENDING_CONFIRMATION">{t('rider.status.PENDING_CONFIRMATION')}</option>
+          <option value="ASSIGNED">{t('rider.status.ASSIGNED')}</option>
+          <option value="PICKED_UP">{t('rider.status.PICKED_UP')}</option>
+          <option value="IN_TRANSIT">{t('rider.status.IN_TRANSIT')}</option>
+          <option value="DELIVERED">{t('rider.status.DELIVERED')}</option>
+          <option value="FAILED">{t('rider.status.FAILED')}</option>
         </select>
       </div>
 
@@ -109,11 +111,11 @@ export default function RiderJobsPage() {
       {deliveries.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <p className="text-gray-500 text-lg mb-2">No deliveries found</p>
+          <p className="text-gray-500 text-lg mb-2">{t('rider.jobs.noneFound')}</p>
           <p className="text-gray-400 text-sm">
-            {statusFilter === 'ALL' 
-              ? 'You don\'t have any assigned deliveries yet.'
-              : `No deliveries with status "${statusFilter}"`}
+            {statusFilter === 'ALL'
+              ? t('rider.jobs.noneAssigned')
+              : t('rider.jobs.noneWithStatus', { status: statusFilter })}
           </p>
         </div>
       ) : (

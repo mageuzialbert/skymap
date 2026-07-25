@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { COUNTRIES, Country, flagUrl, getCountry } from '@/lib/countries';
+import { useT } from '@/lib/i18n';
 
 interface Props {
   value: string;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function CountryCodeSelect({ value, onChange, disabled }: Props) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -94,14 +96,14 @@ export default function CountryCodeSelect({ value, onChange, disabled }: Props) 
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search country or code..."
+              placeholder={t('components.countrySelect.searchPlaceholder')}
               className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
           <ul ref={listRef} className="max-h-64 overflow-y-auto py-1" role="listbox">
             {filtered.length === 0 && (
               <li className="px-3 py-4 text-center text-sm text-gray-500">
-                No countries found
+                {t('components.countrySelect.noResults')}
               </li>
             )}
             {filtered.map(c => (

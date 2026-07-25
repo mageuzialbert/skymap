@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import DeliveryDetails from '@/components/rider/DeliveryDetails';
 import Link from 'next/link';
+import { useT } from '@/lib/i18n';
 
 interface Delivery {
   id: string;
@@ -49,6 +50,7 @@ interface DeliveryEvent {
 }
 
 export default function RiderJobDetailsPage() {
+  const t = useT();
   const router = useRouter();
   const params = useParams();
   const deliveryId = params.id as string;
@@ -69,10 +71,10 @@ export default function RiderJobDetailsPage() {
         if (foundDelivery) {
           setDelivery(foundDelivery);
         } else {
-          setError('Delivery not found or you are not assigned to it');
+          setError(t('rider.jobDetail.notFound'));
         }
       } else {
-        setError('Failed to load delivery');
+        setError(t('rider.jobDetail.failedLoad'));
       }
 
       // Load delivery events
@@ -83,11 +85,11 @@ export default function RiderJobDetailsPage() {
       }
     } catch (error) {
       console.error('Error loading delivery details:', error);
-      setError('Failed to load delivery details');
+      setError(t('rider.jobDetail.failedLoadDetails'));
     } finally {
       setLoading(false);
     }
-  }, [deliveryId]);
+  }, [deliveryId, t]);
 
   useEffect(() => {
     async function checkRole() {
@@ -115,13 +117,13 @@ export default function RiderJobDetailsPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update status');
+        throw new Error(errorData.error || t('rider.jobDetail.failedUpdateStatus'));
       }
 
       // Reload delivery and events
       await loadDeliveryDetails();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update status');
+      setError(err instanceof Error ? err.message : t('rider.jobDetail.failedUpdateStatus'));
       throw err;
     } finally {
       setUpdating(false);
@@ -135,18 +137,18 @@ export default function RiderJobDetailsPage() {
       const res = await fetch(`/api/rider/deliveries/${deliveryId}/confirm`, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to confirm ride');
+        throw new Error(data.error || t('rider.jobDetail.failedConfirm'));
       }
       await loadDeliveryDetails();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to confirm ride');
+      setError(err instanceof Error ? err.message : t('rider.jobDetail.failedConfirm'));
     } finally {
       setUpdating(false);
     }
   }
 
   async function handleDecline() {
-    if (!confirm('Decline this ride? It will be sent back for reassignment.')) return;
+    if (!confirm(t('rider.jobDetail.declineConfirm'))) return;
     setUpdating(true);
     setError('');
     try {
@@ -157,11 +159,11 @@ export default function RiderJobDetailsPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to decline ride');
+        throw new Error(data.error || t('rider.jobDetail.failedDecline'));
       }
       router.push('/dashboard/rider/jobs');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to decline ride');
+      setError(err instanceof Error ? err.message : t('rider.jobDetail.failedDecline'));
       setUpdating(false);
     }
   }
@@ -182,7 +184,7 @@ export default function RiderJobDetailsPage() {
           href="/dashboard/rider/jobs"
           className="text-primary hover:text-primary-dark"
         >
-          ← Back to Jobs
+          {t('rider.jobDetail.backToJobs')}
         </Link>
       </div>
     );
@@ -202,8 +204,8 @@ export default function RiderJobDetailsPage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Delivery Details</h1>
-          <p className="text-gray-600 mt-1">ID: {delivery.id.slice(0, 8)}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('rider.jobDetail.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('rider.jobDetail.idLabel', { id: delivery.id.slice(0, 8) })}</p>
         </div>
       </div>
 

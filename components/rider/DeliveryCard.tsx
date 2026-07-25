@@ -3,6 +3,7 @@
 import { Clock, ChevronRight, Navigation, Phone } from 'lucide-react';
 import Link from 'next/link';
 import ServiceBadge, { formatSchedule } from '@/components/common/ServiceBadge';
+import { useT } from '@/lib/i18n';
 
 interface Delivery {
   id: string;
@@ -43,17 +44,8 @@ const statusColors: Record<string, string> = {
   REJECTED: 'bg-red-100 text-red-800 border border-red-300',
 };
 
-const statusLabels: Record<string, string> = {
-  PENDING_CONFIRMATION: 'Pending Confirmation',
-  ASSIGNED: 'Assigned',
-  PICKED_UP: 'Picked Up',
-  IN_TRANSIT: 'In Transit',
-  DELIVERED: 'Delivered',
-  FAILED: 'Failed',
-  REJECTED: 'Rejected',
-};
-
 export default function DeliveryCard({ delivery }: DeliveryCardProps) {
+  const t = useT();
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -63,11 +55,11 @@ export default function DeliveryCard({ delivery }: DeliveryCardProps) {
     const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 60) {
-      return `${diffMins}m ago`;
+      return t('rider.card.minAgo', { count: diffMins });
     } else if (diffHours < 24) {
-      return `${diffHours}h ago`;
+      return t('rider.card.hourAgo', { count: diffHours });
     } else if (diffDays < 7) {
-      return `${diffDays}d ago`;
+      return t('rider.card.dayAgo', { count: diffDays });
     } else {
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
@@ -81,7 +73,7 @@ export default function DeliveryCard({ delivery }: DeliveryCardProps) {
         lng: delivery.pickup_longitude,
         address: delivery.pickup_address,
         phone: delivery.pickup_phone,
-        label: 'Pickup',
+        label: t('rider.card.pickup'),
       };
     } else if (delivery.status === 'PICKED_UP' || delivery.status === 'IN_TRANSIT') {
       return {
@@ -89,7 +81,7 @@ export default function DeliveryCard({ delivery }: DeliveryCardProps) {
         lng: delivery.dropoff_longitude,
         address: delivery.dropoff_address,
         phone: delivery.dropoff_phone,
-        label: 'Drop-off',
+        label: t('rider.card.dropoff'),
       };
     }
     return null;
@@ -114,7 +106,7 @@ export default function DeliveryCard({ delivery }: DeliveryCardProps) {
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <ServiceBadge serviceType={delivery.service_type} />
                 <span className="font-semibold text-gray-900 truncate">
-                  {delivery.businesses?.name || 'Unknown Business'}
+                  {delivery.businesses?.name || t('rider.card.unknownBusiness')}
                 </span>
               </div>
               <div className="text-sm text-gray-600 space-y-1">
@@ -139,7 +131,7 @@ export default function DeliveryCard({ delivery }: DeliveryCardProps) {
                 statusColors[delivery.status] || statusColors.ASSIGNED
               }`}
             >
-              {statusLabels[delivery.status] || delivery.status}
+              {t(`rider.status.${delivery.status}`)}
             </span>
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <Clock className="w-3.5 h-3.5" />
@@ -158,7 +150,7 @@ export default function DeliveryCard({ delivery }: DeliveryCardProps) {
             className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors border-r border-gray-100"
           >
             <Phone className="w-4 h-4" />
-            Call {nextDest.label}
+            {t('rider.card.callLabel', { label: nextDest.label })}
           </a>
           <a
             href={getNavigationUrl(nextDest.lat, nextDest.lng, nextDest.address)}
@@ -168,7 +160,7 @@ export default function DeliveryCard({ delivery }: DeliveryCardProps) {
             className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
           >
             <Navigation className="w-4 h-4" />
-            Navigate
+            {t('rider.common.navigate')}
           </a>
         </div>
       )}

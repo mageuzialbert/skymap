@@ -1,1 +1,75 @@
-{}
+{
+  "authx": {
+    "showPassword": "Onyesha nenosiri",
+    "hidePassword": "Ficha nenosiri",
+    "forgotPassword": "Umesahau nenosiri?",
+    "verifying": "Inathibitisha...",
+    "login": {
+      "subtitle": "Ingia kwenye akaunti yako",
+      "smsCode": "Msimbo wa SMS",
+      "phonePlaceholder": "0712345678 au +255712345678",
+      "passwordPlaceholder": "Weka nenosiri lako",
+      "sendVerificationCode": "Tuma Msimbo wa Uthibitisho",
+      "enterVerificationCode": "Weka Msimbo wa Uthibitisho",
+      "codeSentTo": "Weka msimbo wa tarakimu 6 uliotumwa kwa {{phone}}",
+      "verifyAndSignIn": "Thibitisha na Uingie",
+      "registerBusiness": "Sajili biashara yako",
+      "devCodeSent": "Msimbo wa uthibitisho umetumwa! (Hali ya majaribio - Msimbo: {{code}})"
+    },
+    "register": {
+      "namePlaceholder": "Jina lako au la biashara",
+      "emailPlaceholder": "yako@barua.com",
+      "phonePlaceholder": "Namba ya simu",
+      "passwordPlaceholder": "Angalau herufi 6",
+      "confirmPlaceholder": "Thibitisha nenosiri lako"
+    },
+    "forgot": {
+      "title": "Weka upya nenosiri lako",
+      "subtitle1": "Chagua jinsi ya kupokea msimbo wako wa kuweka upya.",
+      "subtitle2": "Weka msimbo na nenosiri lako jipya.",
+      "subtitle3": "Imekamilika!",
+      "phonePlaceholder": "7XX XXX XXX",
+      "smsTzNote": "Misimbo ya SMS inapatikana kwa namba za Tanzania (+255).",
+      "emailAddress": "Anwani ya barua pepe",
+      "emailPlaceholder": "wewe@mfano.com",
+      "verificationCode": "Msimbo wa uthibitisho",
+      "newPassword": "Nenosiri jipya",
+      "passwordPlaceholder8": "Angalau herufi 8",
+      "confirmNewPassword": "Thibitisha nenosiri jipya",
+      "confirmPlaceholder": "Weka tena nenosiri lako jipya",
+      "resetPassword": "Weka upya nenosiri",
+      "doneMessage": "Nenosiri lako limewekwa upya. Sasa unaweza kuingia kwa nenosiri lako jipya.",
+      "goToLogin": "Nenda kuingia",
+      "rememberedIt": "Umelikumbuka?",
+      "backToLogin": "Rudi kuingia",
+      "codeSentPhone": "Tumetuma msimbo wa tarakimu 6 kwenye simu yako.",
+      "codeSentEmail": "Tumetuma msimbo wa tarakimu 6 kwenye barua pepe yako."
+    },
+    "staff": {
+      "portalSubtitle": "Lango la Wafanyakazi na Msimamizi",
+      "emailAddress": "Anwani ya Barua Pepe",
+      "staffOnly": "Kuingia huku ni kwa wafanyakazi, wasimamizi, na waendeshaji pekee. Tafadhali tumia kuingia kwa biashara.",
+      "areYouBusiness": "Je, wewe ni biashara?",
+      "businessLogin": "Kuingia kwa Biashara"
+    },
+    "errors": {
+      "loginFailed": "Kuingia kumeshindikana",
+      "invalidTzNumber": "Weka namba sahihi ya Tanzania (mfano, 0759561311 au +255759561311)",
+      "failedSendOtp": "Imeshindwa kutuma OTP",
+      "failedVerifyOtp": "Imeshindwa kuthibitisha OTP",
+      "sessionNotCreated": "Kipindi hakikuundwa. Tafadhali jaribu tena.",
+      "invalidOtp": "OTP si sahihi",
+      "nameRequired": "Jina linahitajika",
+      "invalidEmail": "Tafadhali weka anwani sahihi ya barua pepe",
+      "invalidPhone": "Tafadhali weka namba sahihi ya simu (tarakimu 6-15).",
+      "passwordMin6": "Nenosiri lazima liwe na angalau herufi 6",
+      "passwordsMismatch": "Manenosiri hayalingani",
+      "failedSendCode": "Imeshindwa kutuma msimbo wa uthibitisho",
+      "registrationFailed": "Usajili umeshindikana",
+      "failedSendResetCode": "Imeshindwa kutuma msimbo wa kuweka upya",
+      "passwordMin8": "Nenosiri lazima liwe na angalau herufi 8",
+      "failedResetPassword": "Imeshindwa kuweka upya nenosiri",
+      "failedGetSession": "Imeshindwa kupata kipindi cha mtumiaji"
+    }
+  }
+}

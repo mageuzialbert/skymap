@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Package, CheckCircle, Clock, TrendingUp, Loader2 } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import Link from 'next/link';
+import { useT } from '@/lib/i18n';
 
 interface Delivery {
   id: string;
@@ -14,6 +15,7 @@ interface Delivery {
 }
 
 export default function RiderDashboard() {
+  const t = useT();
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -83,8 +85,8 @@ export default function RiderDashboard() {
   return (
     <div className="pb-20">
       <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Rider Dashboard</h1>
-        <p className="text-gray-600 mt-1">Manage your assigned deliveries</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('rider.dashboard.title')}</h1>
+        <p className="text-gray-600 mt-1">{t('rider.dashboard.subtitle')}</p>
       </div>
 
       {/* Key Metrics */}
@@ -92,7 +94,7 @@ export default function RiderDashboard() {
         <div className="bg-white rounded-lg shadow-md p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Assigned</p>
+              <p className="text-sm text-gray-600">{t('rider.dashboard.assigned')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.assigned}</p>
             </div>
             <Package className="w-8 h-8 text-blue-500" />
@@ -102,7 +104,7 @@ export default function RiderDashboard() {
         <div className="bg-white rounded-lg shadow-md p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">In Progress</p>
+              <p className="text-sm text-gray-600">{t('rider.dashboard.inProgress')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.inProgress}</p>
             </div>
             <TrendingUp className="w-8 h-8 text-orange-500" />
@@ -112,7 +114,7 @@ export default function RiderDashboard() {
         <div className="bg-white rounded-lg shadow-md p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Completed Today</p>
+              <p className="text-sm text-gray-600">{t('rider.dashboard.completedToday')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.completedToday}</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
@@ -122,30 +124,30 @@ export default function RiderDashboard() {
 
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('rider.dashboard.quickActions')}</h2>
         <Link
           href="/dashboard/rider/jobs"
           className="block w-full bg-primary text-white text-center py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors font-medium"
         >
-          View All Jobs
+          {t('rider.dashboard.viewAllJobs')}
         </Link>
       </div>
 
       {/* Recent Deliveries */}
       <div className="bg-white rounded-lg shadow-md p-4">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Recent Deliveries</h2>
+          <h2 className="text-lg font-semibold">{t('rider.dashboard.recentDeliveries')}</h2>
           <Link
             href="/dashboard/rider/jobs"
             className="text-primary hover:text-primary-dark text-sm"
           >
-            View all →
+            {t('rider.dashboard.viewAll')}
           </Link>
         </div>
         {recentDeliveries.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Package className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-            <p>No deliveries assigned yet</p>
+            <p>{t('rider.dashboard.noDeliveries')}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -158,7 +160,7 @@ export default function RiderDashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">
-                      Delivery #{delivery.id.slice(0, 8)}
+                      {t('rider.dashboard.deliveryNumber', { id: delivery.id.slice(0, 8) })}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       {new Date(delivery.created_at).toLocaleDateString()}
@@ -175,7 +177,7 @@ export default function RiderDashboard() {
                         : 'bg-red-100 text-red-800'
                     }`}
                   >
-                    {delivery.status.replace('_', ' ')}
+                    {t(`rider.status.${delivery.status}`)}
                   </span>
                 </div>
               </Link>

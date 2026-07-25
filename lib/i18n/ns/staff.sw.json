@@ -1,1 +1,95 @@
-{}
+{
+  "staff": {
+    "dashboard": {
+      "title": "Dashibodi ya Wafanyakazi",
+      "createDelivery": "Tengeneza Usafirishaji",
+      "totalDeliveries": "Jumla ya Usafirishaji",
+      "pendingAssignments": "Ugawaji Unaosubiri",
+      "inTransit": "Njiani",
+      "completedToday": "Zilizokamilika Leo",
+      "deliveriesByStatus": "Usafirishaji kwa Hali",
+      "quickActions": "Vitendo vya Haraka",
+      "createInvoice": "Tengeneza Ankara",
+      "createInvoiceDesc": "Tengeneza ankara kwa biashara",
+      "recentDeliveries": "Usafirishaji wa Hivi Karibuni",
+      "viewAll": "Tazama zote →"
+    },
+    "deliveries": {
+      "title": "Usimamizi wa Usafirishaji",
+      "createDelivery": "Tengeneza Usafirishaji",
+      "createNewDelivery": "Tengeneza Usafirishaji Mpya",
+      "refresh": "Onyesha upya",
+      "refreshTitle": "Onyesha upya orodha ya usafirishaji",
+      "dismiss": "Ondoa",
+      "editFeeTitle": "Hariri Ada ya Usafirishaji",
+      "feeAmount": "Kiasi cha Ada (TZS)",
+      "selectBusinessError": "Tafadhali chagua biashara",
+      "createFailed": "Imeshindwa kutengeneza usafirishaji",
+      "assignFailed": "Imeshindwa kumpangia dereva",
+      "confirmFailed": "Imeshindwa kuthibitisha usafirishaji",
+      "rejectFailed": "Imeshindwa kukataa usafirishaji",
+      "deleteFailed": "Imeshindwa kufuta usafirishaji",
+      "updateFeeFailed": "Imeshindwa kusasisha ada",
+      "rejectReasonPrompt": "Ingiza sababu ya kukataa (si lazima):",
+      "deleteConfirm": "Una uhakika unataka kufuta usafirishaji huu kabisa? Kitendo hiki hakiwezi kutenduliwa na pia kitafuta malipo na matukio yote yanayohusiana.",
+      "export": {
+        "id": "Kitambulisho",
+        "business": "Biashara",
+        "pickupName": "Jina la Kuchukua",
+        "pickupAddress": "Anwani ya Kuchukua",
+        "pickupPhone": "Simu ya Kuchukua",
+        "dropoffName": "Jina la Kufikisha",
+        "dropoffAddress": "Anwani ya Kufikisha",
+        "dropoffPhone": "Simu ya Kufikisha",
+        "status": "Hali",
+        "rider": "Dereva",
+        "fee": "Ada (TZS)",
+        "created": "Iliundwa"
+      }
+    },
+    "deliveryDetail": {
+      "notFound": "Usafirishaji haukupatikana",
+      "loadFailed": "Imeshindwa kupakia maelezo ya usafirishaji",
+      "backToDeliveries": "Rudi kwenye Usafirishaji"
+    },
+    "operations": {
+      "title": "Dashibodi ya Uendeshaji",
+      "loadFailed": "Imeshindwa kupakia data ya uendeshaji"
+    },
+    "financial": {
+      "title": "Uchambuzi wa Fedha",
+      "loadFailed": "Imeshindwa kupakia data ya fedha",
+      "dateRange": "Kipindi cha Tarehe:",
+      "to": "hadi",
+      "clear": "Futa"
+    },
+    "invoices": {
+      "title": "Tengeneza Ankara",
+      "subtitle": "Tengeneza ankara mpya au ankara ya awali kwa biashara",
+      "loadBusinessesFailed": "Imeshindwa kupakia biashara",
+      "createFailed": "Imeshindwa kutengeneza ankara",
+      "invoiceDetails": "Maelezo ya Ankara",
+      "business": "Biashara *",
+      "selectBusiness": "Chagua Biashara",
+      "invoiceType": "Aina ya Ankara *",
+      "invoice": "Ankara",
+      "proformaInvoice": "Ankara ya Awali",
+      "startDate": "Tarehe ya Kuanza *",
+      "endDate": "Tarehe ya Kumaliza *",
+      "dueDate": "Tarehe ya Mwisho ya Malipo",
+      "notes": "Maelezo / Masharti",
+      "notesPlaceholder": "Maelezo ya ziada au masharti ya ankara hii...",
+      "chargesPreview": "Muhtasari wa Malipo",
+      "noCharges": "Hakuna malipo yaliyopatikana katika kipindi kilichochaguliwa",
+      "date": "Tarehe",
+      "description": "Maelezo",
+      "amount": "Kiasi",
+      "deliveryCharge": "Malipo ya usafirishaji",
+      "total": "Jumla",
+      "chargesIncluded": "Malipo {{count}} yatajumuishwa katika ankara hii",
+      "creating": "Inatengeneza...",
+      "createInvoiceBtn": "Tengeneza Ankara",
+      "createProformaBtn": "Tengeneza Ankara ya Awali"
+    }
+  }
+}

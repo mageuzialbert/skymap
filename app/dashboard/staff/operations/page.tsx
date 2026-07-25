@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import OperationsDashboard from '@/components/operations/OperationsDashboard';
+import { useT } from '@/lib/i18n';
 
 export default function StaffOperationsPage() {
+  const t = useT();
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,14 +52,14 @@ export default function StaffOperationsPage() {
   if (!data) {
     return (
       <div className="text-center py-8 text-gray-500">
-        Failed to load operations data
+        {t('staff.operations.loadFailed')}
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Operations Dashboard</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">{t('staff.operations.title')}</h1>
       <OperationsDashboard data={data} />
     </div>
   );

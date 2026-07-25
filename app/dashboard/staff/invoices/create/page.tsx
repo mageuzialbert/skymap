@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Save, Calendar, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getUserRole } from '@/lib/roles';
+import { useT } from '@/lib/i18n';
 
 interface Business {
   id: string;
@@ -21,6 +22,7 @@ interface Charge {
 }
 
 export default function StaffCreateInvoicePage() {
+  const t = useT();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -79,7 +81,7 @@ export default function StaffCreateInvoicePage() {
       if (error) throw error;
       setBusinesses(data || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load businesses');
+      setError(err instanceof Error ? err.message : t('staff.invoices.loadBusinessesFailed'));
     } finally {
       setLoading(false);
     }
@@ -137,12 +139,12 @@ export default function StaffCreateInvoicePage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to create invoice');
+        throw new Error(data.error || t('staff.invoices.createFailed'));
       }
 
       router.push('/dashboard/staff');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create invoice');
+      setError(err instanceof Error ? err.message : t('staff.invoices.createFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -161,9 +163,9 @@ export default function StaffCreateInvoicePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Create Invoice</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('staff.invoices.title')}</h1>
         <p className="text-gray-600 mt-2">
-          Create a new invoice or proforma invoice for a business
+          {t('staff.invoices.subtitle')}
         </p>
       </div>
 
@@ -175,11 +177,11 @@ export default function StaffCreateInvoicePage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Invoice Details</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('staff.invoices.invoiceDetails')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Business *
+                {t('staff.invoices.business')}
               </label>
               <select
                 value={formData.business_id}
@@ -187,7 +189,7 @@ export default function StaffCreateInvoicePage() {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
-                <option value="">Select Business</option>
+                <option value="">{t('staff.invoices.selectBusiness')}</option>
                 {businesses.map((business) => (
                   <option key={business.id} value={business.id}>
                     {business.name} ({business.phone})
@@ -198,7 +200,7 @@ export default function StaffCreateInvoicePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Invoice Type *
+                {t('staff.invoices.invoiceType')}
               </label>
               <select
                 value={formData.invoice_type}
@@ -206,14 +208,14 @@ export default function StaffCreateInvoicePage() {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
-                <option value="INVOICE">Invoice</option>
-                <option value="PROFORMA">Proforma Invoice</option>
+                <option value="INVOICE">{t('staff.invoices.invoice')}</option>
+                <option value="PROFORMA">{t('staff.invoices.proformaInvoice')}</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Date *
+                {t('staff.invoices.startDate')}
               </label>
               <input
                 type="date"
@@ -226,7 +228,7 @@ export default function StaffCreateInvoicePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                End Date *
+                {t('staff.invoices.endDate')}
               </label>
               <input
                 type="date"
@@ -239,7 +241,7 @@ export default function StaffCreateInvoicePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Due Date
+                {t('staff.invoices.dueDate')}
               </label>
               <input
                 type="date"
@@ -252,14 +254,14 @@ export default function StaffCreateInvoicePage() {
 
           <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notes / Terms
+              {t('staff.invoices.notes')}
             </label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Additional notes or terms for this invoice..."
+              placeholder={t('staff.invoices.notesPlaceholder')}
             />
           </div>
         </div>
@@ -267,7 +269,7 @@ export default function StaffCreateInvoicePage() {
         {/* Charges Preview */}
         {formData.business_id && formData.start_date && formData.end_date && (
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4">Charges Preview</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('staff.invoices.chargesPreview')}</h2>
             {loadingCharges ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -275,7 +277,7 @@ export default function StaffCreateInvoicePage() {
             ) : charges.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                <p>No charges found in the selected date range</p>
+                <p>{t('staff.invoices.noCharges')}</p>
               </div>
             ) : (
               <div>
@@ -284,13 +286,13 @@ export default function StaffCreateInvoicePage() {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Date
+                          {t('staff.invoices.date')}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Description
+                          {t('staff.invoices.description')}
                         </th>
                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                          Amount
+                          {t('staff.invoices.amount')}
                         </th>
                       </tr>
                     </thead>
@@ -301,7 +303,7 @@ export default function StaffCreateInvoicePage() {
                             {new Date(charge.created_at).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900">
-                            {charge.description || 'Delivery charge'}
+                            {charge.description || t('staff.invoices.deliveryCharge')}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900 text-right">
                             TZS {charge.amount.toLocaleString()}
@@ -312,7 +314,7 @@ export default function StaffCreateInvoicePage() {
                     <tfoot className="bg-gray-50">
                       <tr>
                         <td colSpan={2} className="px-4 py-3 text-sm font-bold text-gray-900">
-                          Total
+                          {t('staff.invoices.total')}
                         </td>
                         <td className="px-4 py-3 text-sm font-bold text-gray-900 text-right">
                           TZS {totalAmount.toLocaleString()}
@@ -322,7 +324,7 @@ export default function StaffCreateInvoicePage() {
                   </table>
                 </div>
                 <p className="text-sm text-gray-600">
-                  {charges.length} charge{charges.length !== 1 ? 's' : ''} will be included in this invoice
+                  {t('staff.invoices.chargesIncluded', { count: charges.length })}
                 </p>
               </div>
             )}
@@ -335,7 +337,7 @@ export default function StaffCreateInvoicePage() {
             onClick={() => router.back()}
             className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="submit"
@@ -345,12 +347,12 @@ export default function StaffCreateInvoicePage() {
             {submitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Creating...</span>
+                <span>{t('staff.invoices.creating')}</span>
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span>Create {formData.invoice_type === 'PROFORMA' ? 'Proforma ' : ''}Invoice</span>
+                <span>{formData.invoice_type === 'PROFORMA' ? t('staff.invoices.createProformaBtn') : t('staff.invoices.createInvoiceBtn')}</span>
               </>
             )}
           </button>

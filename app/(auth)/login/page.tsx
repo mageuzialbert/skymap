@@ -57,7 +57,7 @@ export default function LoginPage() {
       await loginWithPassword(phoneNumber, password);
       router.push(getRedirectTarget());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : t('authx.errors.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -75,7 +75,7 @@ export default function LoginPage() {
       // Validate phone format
       const digitsAfter255 = phoneNumber.replace(/^\+255/, '');
       if (!phoneNumber.startsWith('+255') || digitsAfter255.length !== 9) {
-        setError('Enter a valid Tanzania number (e.g., 0759561311 or +255759561311)');
+        setError(t('authx.errors.invalidTzNumber'));
         setLoading(false);
         return;
       }
@@ -86,10 +86,10 @@ export default function LoginPage() {
       
       // Show debug OTP in development
       if (result.debugOtp) {
-        setError(`Verification code sent! (Dev mode - Code: ${result.debugOtp})`);
+        setError(t('authx.login.devCodeSent', { code: result.debugOtp }));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send OTP');
+      setError(err instanceof Error ? err.message : t('authx.errors.failedSendOtp'));
     } finally {
       setLoading(false);
     }
@@ -107,7 +107,7 @@ export default function LoginPage() {
       const result = await verifyOTP(phoneNumber, otp);
       
       if (!result.success) {
-        throw new Error('Failed to verify OTP');
+        throw new Error(t('authx.errors.failedVerifyOtp'));
       }
       
       // Wait a moment for session to be set
@@ -125,14 +125,14 @@ export default function LoginPage() {
       }
       
       if (!user) {
-        throw new Error('Session was not created. Please try again.');
+        throw new Error(t('authx.errors.sessionNotCreated'));
       }
       
       // Redirect to intended destination (or dashboard)
       router.push(getRedirectTarget());
       router.refresh(); // Force refresh to update auth state
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Invalid OTP');
+      setError(err instanceof Error ? err.message : t('authx.errors.invalidOtp'));
       setLoading(false);
     }
   };
@@ -157,7 +157,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-primary mb-2">
             The Skymap Logistics
           </h1>
-          <p className="text-gray-600">Sign in to your account</p>
+          <p className="text-gray-600">{t('authx.login.subtitle')}</p>
         </div>
 
         {/* Login Method Toggle */}
@@ -175,7 +175,7 @@ export default function LoginPage() {
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Password
+            {t('common.password')}
           </button>
           <button
             type="button"
@@ -190,7 +190,7 @@ export default function LoginPage() {
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            SMS Code
+            {t('authx.login.smsCode')}
           </button>
         </div>
 
@@ -205,7 +205,7 @@ export default function LoginPage() {
           <form onSubmit={handlePasswordLogin} className="space-y-4">
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
+                {t('common.phone')}
               </label>
               <input
                 id="phone"
@@ -214,12 +214,12 @@ export default function LoginPage() {
                 onChange={(e) => setPhone(e.target.value)}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="0712345678 or +255712345678"
+                placeholder={t('authx.login.phonePlaceholder')}
               />
             </div>
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
+                {t('common.password')}
               </label>
               <div className="relative">
                 <input
@@ -229,13 +229,13 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Enter your password"
+                  placeholder={t('authx.login.passwordPlaceholder')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
                   className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('authx.hidePassword') : t('authx.showPassword')}
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -243,7 +243,7 @@ export default function LoginPage() {
               </div>
               <div className="text-right mt-1.5">
                 <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                  Forgot password?
+                  {t('authx.forgotPassword')}
                 </Link>
               </div>
             </div>
@@ -252,7 +252,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? t('common.signingIn') : t('common.signIn')}
             </button>
           </form>
         )}
@@ -262,7 +262,7 @@ export default function LoginPage() {
           <form onSubmit={handleSendOTP} className="space-y-4">
             <div>
               <label htmlFor="phone-otp" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
+                {t('common.phone')}
               </label>
               <input
                 id="phone-otp"
@@ -271,7 +271,7 @@ export default function LoginPage() {
                 onChange={(e) => setPhone(e.target.value)}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="0712345678 or +255712345678"
+                placeholder={t('authx.login.phonePlaceholder')}
               />
             </div>
             <button
@@ -279,7 +279,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
-              {loading ? 'Sending...' : 'Send Verification Code'}
+              {loading ? t('common.sending') : t('authx.login.sendVerificationCode')}
             </button>
           </form>
         )}
@@ -289,7 +289,7 @@ export default function LoginPage() {
           <form onSubmit={handleVerifyOTP} className="space-y-4">
             <div>
               <label htmlFor="otp-code" className="block text-sm font-medium text-gray-700 mb-1">
-                Enter Verification Code
+                {t('authx.login.enterVerificationCode')}
               </label>
               <input
                 id="otp-code"
@@ -302,7 +302,7 @@ export default function LoginPage() {
                 placeholder="000000"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Enter the 6-digit code sent to {phone}
+                {t('authx.login.codeSentTo', { phone })}
               </p>
             </div>
             <button
@@ -310,14 +310,14 @@ export default function LoginPage() {
               disabled={loading || otp.length !== 6}
               className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
-              {loading ? 'Verifying...' : 'Verify & Sign In'}
+              {loading ? t('authx.verifying') : t('authx.login.verifyAndSignIn')}
             </button>
             <button
               type="button"
               onClick={() => setOtpSent(false)}
               className="w-full text-sm text-gray-600 hover:text-gray-900"
             >
-              Resend Code
+              {t('auth.resendCode')}
             </button>
           </form>
         )}
@@ -325,9 +325,9 @@ export default function LoginPage() {
         {/* Register Link */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Don&apos;t have an account?{' '}
+            {t('auth.noAccount')}{' '}
             <Link href="/register" className="text-primary hover:text-primary-dark font-medium">
-              Register your business
+              {t('authx.login.registerBusiness')}
             </Link>
           </p>
         </div>

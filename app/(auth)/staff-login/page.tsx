@@ -6,9 +6,12 @@ import Link from 'next/link';
 import { loginWithEmail } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Eye, EyeOff, Home } from 'lucide-react';
+import LanguageSwitcher from '@/components/common/LanguageSwitcher';
+import { useT } from '@/lib/i18n';
 
 export default function StaffLoginPage() {
   const router = useRouter();
+  const t = useT();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +32,7 @@ export default function StaffLoginPage() {
       // Get user role to determine redirect
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        throw new Error('Failed to get user session');
+        throw new Error(t('authx.errors.failedGetSession'));
       }
 
       // Get user role from users table
@@ -51,13 +54,13 @@ export default function StaffLoginPage() {
       } else {
         // If not staff/admin/rider, redirect to business login
         await supabase.auth.signOut();
-        setError('This login is for staff, admin, and riders only. Please use the business login.');
+        setError(t('authx.staff.staffOnly'));
         return;
       }
 
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : t('authx.errors.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -66,21 +69,24 @@ export default function StaffLoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        {/* Back to home */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors mb-4"
-        >
-          <Home className="w-4 h-4" />
-          Back to home
-        </Link>
+        {/* Top row: back to home + language switcher */}
+        <div className="flex items-center justify-between mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            {t('common.backToHome')}
+          </Link>
+          <LanguageSwitcher />
+        </div>
 
         {/* Logo/Branding */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">
             The SkayMap
           </h1>
-          <p className="text-gray-600">Staff & Admin Portal</p>
+          <p className="text-gray-600">{t('authx.staff.portalSubtitle')}</p>
         </div>
 
         {error && (
@@ -93,7 +99,7 @@ export default function StaffLoginPage() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
+              {t('authx.staff.emailAddress')}
             </label>
             <input
               id="email"
@@ -107,7 +113,7 @@ export default function StaffLoginPage() {
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
+              {t('common.password')}
             </label>
             <div className="relative">
               <input
@@ -117,13 +123,13 @@ export default function StaffLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Enter your password"
+                placeholder={t('authx.login.passwordPlaceholder')}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
                 className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? t('authx.hidePassword') : t('authx.showPassword')}
                 tabIndex={-1}
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -131,7 +137,7 @@ export default function StaffLoginPage() {
             </div>
             <div className="text-right mt-1.5">
               <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                Forgot password?
+                {t('authx.forgotPassword')}
               </Link>
             </div>
           </div>
@@ -141,7 +147,7 @@ export default function StaffLoginPage() {
             className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('common.signingIn') : t('common.signIn')}
           </button>
         </form>
 
@@ -150,9 +156,9 @@ export default function StaffLoginPage() {
         {/* Business Login Link */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Are you a business?{' '}
+            {t('authx.staff.areYouBusiness')}{' '}
             <Link href="/login" className="text-primary hover:text-primary-dark font-medium">
-              Business Login
+              {t('authx.staff.businessLogin')}
             </Link>
           </p>
         </div>
