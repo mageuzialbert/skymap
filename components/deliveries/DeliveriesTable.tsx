@@ -17,6 +17,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 import ServiceBadge, { formatSchedule } from "@/components/common/ServiceBadge";
+import { useT } from "@/lib/i18n";
 
 interface Delivery {
   id: string;
@@ -97,6 +98,7 @@ export default function DeliveriesTable({
   onPageChange,
   onPageSizeChange,
 }: DeliveriesTableProps) {
+  const t = useT();
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
   // Calculate pagination info
@@ -137,15 +139,15 @@ export default function DeliveriesTable({
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
           >
-            <option value="ALL">All Statuses</option>
-            <option value="CREATED">Created</option>
-            <option value="PENDING_CONFIRMATION">Pending Confirmation</option>
-            <option value="ASSIGNED">Assigned</option>
-            <option value="PICKED_UP">Picked Up</option>
-            <option value="IN_TRANSIT">In Transit</option>
-            <option value="DELIVERED">Delivered</option>
-            <option value="FAILED">Failed</option>
-            <option value="REJECTED">Rejected</option>
+            <option value="ALL">{t("components.deliveries.allStatuses")}</option>
+            <option value="CREATED">{t("components.deliveryStatus.CREATED")}</option>
+            <option value="PENDING_CONFIRMATION">{t("components.deliveryStatus.PENDING_CONFIRMATION")}</option>
+            <option value="ASSIGNED">{t("components.deliveryStatus.ASSIGNED")}</option>
+            <option value="PICKED_UP">{t("components.deliveryStatus.PICKED_UP")}</option>
+            <option value="IN_TRANSIT">{t("components.deliveryStatus.IN_TRANSIT")}</option>
+            <option value="DELIVERED">{t("components.deliveryStatus.DELIVERED")}</option>
+            <option value="FAILED">{t("components.deliveryStatus.FAILED")}</option>
+            <option value="REJECTED">{t("components.deliveryStatus.REJECTED")}</option>
           </select>
 
           {onExport && (
@@ -153,7 +155,7 @@ export default function DeliveriesTable({
               <button
                 onClick={() => onExport("csv")}
                 className="flex items-center gap-1.5 px-2 sm:px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
-                title="Export to CSV"
+                title={t("components.deliveries.exportCsv")}
               >
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">CSV</span>
@@ -161,7 +163,7 @@ export default function DeliveriesTable({
               <button
                 onClick={() => onExport("excel")}
                 className="flex items-center gap-1.5 px-2 sm:px-3 py-2 text-sm bg-green-100 hover:bg-green-200 text-green-700 rounded-md transition-colors"
-                title="Export to Excel"
+                title={t("components.deliveries.exportExcel")}
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 <span className="hidden sm:inline">Excel</span>
@@ -171,8 +173,8 @@ export default function DeliveriesTable({
         </div>
         <div className="text-sm text-gray-600">
           {hasPagination
-            ? `Showing ${startItem}-${endItem} of ${totalCount} deliveries`
-            : `Showing ${filteredDeliveries.length} of ${deliveries.length} deliveries`}
+            ? t("components.deliveries.showingOfTotal", { start: startItem, end: endItem, total: totalCount ?? 0 })
+            : t("components.deliveries.showingOf", { shown: filteredDeliveries.length, total: deliveries.length })}
         </div>
       </div>
 
@@ -182,7 +184,7 @@ export default function DeliveriesTable({
           <div className="px-3 sm:px-6 py-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2 sm:gap-4 bg-gray-50">
             <div className="flex items-center gap-2">
               <span className="text-xs sm:text-sm text-gray-600">
-                Rows per page:
+                {t("components.deliveries.rowsPerPage")}
               </span>
               <select
                 value={pageSize}
@@ -197,14 +199,14 @@ export default function DeliveriesTable({
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               <span className="text-xs sm:text-sm text-gray-600">
-                Page {page} of {totalPages}
+                {t("components.deliveries.pageOf", { page, total: totalPages })}
               </span>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => onPageChange?.(page - 1)}
                   disabled={page <= 1}
                   className="p-1.5 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Previous page"
+                  title={t("components.deliveries.previousPage")}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -212,7 +214,7 @@ export default function DeliveriesTable({
                   onClick={() => onPageChange?.(page + 1)}
                   disabled={page >= totalPages}
                   className="p-1.5 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Next page"
+                  title={t("components.deliveries.nextPage")}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -226,36 +228,36 @@ export default function DeliveriesTable({
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Service
+                  {t("components.deliveries.service")}
                 </th>
                 {showBusiness && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Client
+                    {t("components.deliveries.client")}
                   </th>
                 )}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Pickup
+                  {t("components.deliveries.pickup")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Drop-off
+                  {t("components.deliveries.dropoff")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  {t("common.status")}
                 </th>
                 {showFee && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fee
+                    {t("components.deliveries.fee")}
                   </th>
                 )}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rider
+                  {t("components.deliveries.rider")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
+                  {t("components.deliveries.created")}
                 </th>
                 {showActions && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    {t("common.actions")}
                   </th>
                 )}
               </tr>
@@ -272,7 +274,7 @@ export default function DeliveriesTable({
                     }
                     className="px-6 py-4 text-center text-gray-500"
                   >
-                    No deliveries found
+                    {t("components.deliveries.noneFound")}
                   </td>
                 </tr>
               ) : (
@@ -287,7 +289,7 @@ export default function DeliveriesTable({
                     {showBusiness && (
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          {delivery.businesses?.name || "Unknown"}
+                          {delivery.businesses?.name || t("components.deliveries.unknown")}
                         </div>
                         <div className="text-sm text-gray-500">
                           {delivery.businesses?.phone || ""}
@@ -322,7 +324,7 @@ export default function DeliveriesTable({
                           statusColors[delivery.status] || statusColors.CREATED
                         }`}
                       >
-                        {delivery.status.replace("_", " ")}
+                        {t("components.deliveryStatus." + delivery.status)}
                       </span>
                     </td>
                     {showFee && (
@@ -346,7 +348,7 @@ export default function DeliveriesTable({
                                 )
                               }
                               className="text-gray-400 hover:text-primary p-1 rounded hover:bg-gray-100"
-                              title="Edit fee"
+                              title={t("components.deliveries.editFee")}
                             >
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
@@ -365,7 +367,7 @@ export default function DeliveriesTable({
                           </div>
                         </div>
                       ) : (
-                        <span className="text-gray-400">Not assigned</span>
+                        <span className="text-gray-400">{t("components.deliveries.notAssigned")}</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -377,10 +379,10 @@ export default function DeliveriesTable({
                           <Link
                             href={`${basePath}/${delivery.id}`}
                             className="text-gray-600 hover:text-primary flex items-center gap-1"
-                            title="View Details"
+                            title={t("components.deliveries.viewDetails")}
                           >
                             <Eye className="w-4 h-4" />
-                            <span className="sr-only">View</span>
+                            <span className="sr-only">{t("components.deliveries.view")}</span>
                           </Link>
                           {delivery.status === "PENDING_CONFIRMATION" &&
                             onConfirm && (
@@ -388,7 +390,7 @@ export default function DeliveriesTable({
                                 onClick={() => onConfirm(delivery.id)}
                                 className="text-green-600 hover:text-green-800 font-medium"
                               >
-                                Confirm
+                                {t("common.confirm")}
                               </button>
                             )}
                           {delivery.status === "PENDING_CONFIRMATION" &&
@@ -397,7 +399,7 @@ export default function DeliveriesTable({
                                 onClick={() => onReject(delivery.id)}
                                 className="text-red-600 hover:text-red-800 font-medium"
                               >
-                                Reject
+                                {t("components.deliveries.reject")}
                               </button>
                             )}
                           {!delivery.assigned_rider_id &&
@@ -407,14 +409,14 @@ export default function DeliveriesTable({
                                 onClick={() => onAssignRider(delivery.id)}
                                 className="text-primary hover:text-primary-dark"
                               >
-                                Assign Rider
+                                {t("components.deliveries.assignRider")}
                               </button>
                             )}
                           {onDelete && (
                             <button
                               onClick={() => onDelete(delivery.id)}
                               className="text-red-500 hover:text-red-700"
-                              title="Delete delivery"
+                              title={t("components.deliveries.deleteDelivery")}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -432,7 +434,7 @@ export default function DeliveriesTable({
         {/* Mobile cards */}
         <div className="md:hidden divide-y divide-gray-100">
           {filteredDeliveries.length === 0 ? (
-            <div className="px-4 py-8 text-center text-gray-500">No deliveries found</div>
+            <div className="px-4 py-8 text-center text-gray-500">{t("components.deliveries.noneFound")}</div>
           ) : (
             filteredDeliveries.map((delivery) => (
               <div key={delivery.id} className="p-4">
@@ -443,7 +445,7 @@ export default function DeliveriesTable({
                       statusColors[delivery.status] || statusColors.CREATED
                     }`}
                   >
-                    {delivery.status.replace(/_/g, " ")}
+                    {t("components.deliveryStatus." + delivery.status)}
                   </span>
                 </div>
 
@@ -470,7 +472,7 @@ export default function DeliveriesTable({
                   <span>{formatDate(delivery.created_at)}</span>
                   <span className="inline-flex items-center gap-1">
                     <User className="w-3.5 h-3.5" />
-                    {delivery.assigned_rider ? delivery.assigned_rider.name : "Unassigned"}
+                    {delivery.assigned_rider ? delivery.assigned_rider.name : t("components.deliveries.unassigned")}
                   </span>
                   {showFee && (
                     <span className="font-medium text-gray-900">
@@ -485,21 +487,21 @@ export default function DeliveriesTable({
                       href={`${basePath}/${delivery.id}`}
                       className="inline-flex items-center gap-1 text-gray-600 hover:text-primary"
                     >
-                      <Eye className="w-4 h-4" /> View
+                      <Eye className="w-4 h-4" /> {t("components.deliveries.view")}
                     </Link>
                     {delivery.status === "PENDING_CONFIRMATION" && onConfirm && (
                       <button onClick={() => onConfirm(delivery.id)} className="text-green-600">
-                        Confirm
+                        {t("common.confirm")}
                       </button>
                     )}
                     {delivery.status === "PENDING_CONFIRMATION" && onReject && (
                       <button onClick={() => onReject(delivery.id)} className="text-red-600">
-                        Reject
+                        {t("components.deliveries.reject")}
                       </button>
                     )}
                     {!delivery.assigned_rider_id && delivery.status === "CREATED" && onAssignRider && (
                       <button onClick={() => onAssignRider(delivery.id)} className="text-primary">
-                        Assign Rider
+                        {t("components.deliveries.assignRider")}
                       </button>
                     )}
                     {showFee && onEditFee && (
@@ -507,7 +509,7 @@ export default function DeliveriesTable({
                         onClick={() => onEditFee(delivery.id, delivery.delivery_fee ?? null)}
                         className="inline-flex items-center gap-1 text-gray-600"
                       >
-                        <Pencil className="w-3.5 h-3.5" /> Fee
+                        <Pencil className="w-3.5 h-3.5" /> {t("components.deliveries.fee")}
                       </button>
                     )}
                     {onDelete && (
@@ -515,7 +517,7 @@ export default function DeliveriesTable({
                         onClick={() => onDelete(delivery.id)}
                         className="inline-flex items-center gap-1 text-red-500"
                       >
-                        <Trash2 className="w-4 h-4" /> Delete
+                        <Trash2 className="w-4 h-4" /> {t("common.delete")}
                       </button>
                     )}
                   </div>

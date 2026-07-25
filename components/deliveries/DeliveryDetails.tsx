@@ -5,6 +5,7 @@ import { useLoadScript, GoogleMap, Marker, DirectionsRenderer } from '@react-goo
 import { Loader2, MapPin, User, Phone, Package, Calendar, AlertCircle, CalendarClock, ClipboardList } from 'lucide-react';
 import ChatLauncher from '@/components/chat/ChatLauncher';
 import ServiceBadge, { formatSchedule } from '@/components/common/ServiceBadge';
+import { useT } from '@/lib/i18n';
 
 interface Delivery {
   id: string;
@@ -56,6 +57,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
+  const t = useT();
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   });
@@ -118,8 +120,8 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
       {/* Header / Status */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="text-sm text-gray-500 mb-1">Request ID: {delivery.id}</div>
-          <h1 className="text-2xl font-bold text-gray-900">Request Details</h1>
+          <div className="text-sm text-gray-500 mb-1">{t('components.deliveryDetails.requestId')}: {delivery.id}</div>
+          <h1 className="text-2xl font-bold text-gray-900">{t('components.deliveryDetails.requestDetails')}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <ServiceBadge serviceType={delivery.service_type} />
             <span className="inline-flex items-center gap-1.5 text-sm text-gray-600">
@@ -130,7 +132,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
         </div>
         <div>
           <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold border ${statusColors[delivery.status] || statusColors.CREATED}`}>
-            {delivery.status.replace('_', ' ')}
+            {t('components.deliveryStatus.' + delivery.status)}
           </span>
         </div>
       </div>
@@ -143,14 +145,14 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
             <div className="p-4 border-b border-gray-200 bg-gray-50">
               <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" />
-                Route Map
+                {t('components.deliveryDetails.routeMap')}
               </h2>
             </div>
             
             {loadError && (
               <div className="p-8 text-center text-amber-600 bg-amber-50">
                 <AlertCircle className="w-8 h-8 mx-auto mb-2" />
-                <p>Map could not be loaded.</p>
+                <p>{t('components.deliveryDetails.mapLoadError')}</p>
               </div>
             )}
 
@@ -172,8 +174,8 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                     mapTypeControl: false,
                   }}
                 >
-                  {pickupLocation && <Marker position={pickupLocation} label="A" title="Pickup" />}
-                  {dropoffLocation && <Marker position={dropoffLocation} label="B" title="Dropoff" />}
+                  {pickupLocation && <Marker position={pickupLocation} label="A" title={t('components.deliveries.pickup')} />}
+                  {dropoffLocation && <Marker position={dropoffLocation} label="B" title={t('components.deliveries.dropoff')} />}
                   {directions && <DirectionsRenderer directions={directions} />}
                 </GoogleMap>
               </div>
@@ -187,7 +189,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
               <div className="p-6 space-y-4">
                 <div className="flex items-center gap-2 text-green-700 font-semibold mb-2">
                   <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">A</div>
-                  Pickup Details
+                  {t('components.deliveryDetails.pickupDetails')}
                 </div>
                 
                 <div className="space-y-3">
@@ -195,7 +197,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                     <User className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <div className="text-sm font-medium text-gray-900">{delivery.pickup_name}</div>
-                      <div className="text-sm text-gray-500">Contact Person</div>
+                      <div className="text-sm text-gray-500">{t('components.deliveryDetails.contactPerson')}</div>
                     </div>
                   </div>
                   
@@ -203,7 +205,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                     <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <div className="text-sm font-medium text-gray-900">{delivery.pickup_phone}</div>
-                      <div className="text-sm text-gray-500">Phone Number</div>
+                      <div className="text-sm text-gray-500">{t('common.phone')}</div>
                     </div>
                   </div>
 
@@ -211,7 +213,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <div className="text-sm font-medium text-gray-900">{delivery.pickup_address}</div>
-                      <div className="text-sm text-gray-500">Address</div>
+                      <div className="text-sm text-gray-500">{t('components.deliveryDetails.address')}</div>
                     </div>
                   </div>
                 </div>
@@ -221,7 +223,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
               <div className="p-6 space-y-4">
                 <div className="flex items-center gap-2 text-blue-700 font-semibold mb-2">
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">B</div>
-                  Drop-off Details
+                  {t('components.deliveryDetails.dropoffDetails')}
                 </div>
 
                 <div className="space-y-3">
@@ -229,7 +231,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                     <User className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <div className="text-sm font-medium text-gray-900">{delivery.dropoff_name}</div>
-                      <div className="text-sm text-gray-500">Recipient</div>
+                      <div className="text-sm text-gray-500">{t('components.deliveryDetails.recipient')}</div>
                     </div>
                   </div>
                   
@@ -237,7 +239,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                     <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <div className="text-sm font-medium text-gray-900">{delivery.dropoff_phone}</div>
-                      <div className="text-sm text-gray-500">Phone Number</div>
+                      <div className="text-sm text-gray-500">{t('common.phone')}</div>
                     </div>
                   </div>
 
@@ -245,7 +247,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <div className="text-sm font-medium text-gray-900">{delivery.dropoff_address}</div>
-                      <div className="text-sm text-gray-500">Address</div>
+                      <div className="text-sm text-gray-500">{t('components.deliveryDetails.address')}</div>
                     </div>
                   </div>
                 </div>
@@ -261,7 +263,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-gray-500" />
-                Request Details
+                {t('components.deliveryDetails.requestDetails')}
               </h3>
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 text-gray-800">
                 <p className="whitespace-pre-wrap">{delivery.service_details}</p>
@@ -274,14 +276,14 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Package className="w-5 h-5 text-gray-500" />
-              Package Information
+              {t('components.deliveryDetails.packageInfo')}
             </h3>
             <div className="bg-amber-50 rounded-lg p-4 border border-amber-100 text-amber-900">
-              <p className="whitespace-pre-wrap">{delivery.package_description || 'No description provided.'}</p>
+              <p className="whitespace-pre-wrap">{delivery.package_description || t('components.deliveryDetails.noDescription')}</p>
             </div>
             {delivery.package_image_url && (
               <div className="mt-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Package Image:</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">{t('components.deliveryDetails.packageImage')}</p>
                 <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 w-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
@@ -295,7 +297,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                     rel="noopener noreferrer"
                     className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded backdrop-blur-sm transition-colors"
                   >
-                    View Full
+                    {t('components.deliveryDetails.viewFull')}
                   </a>
                 </div>
               </div>
@@ -307,7 +309,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <User className="w-5 h-5 text-gray-500" />
-              Assigned Rider
+              {t('components.deliveryDetails.assignedRider')}
             </h3>
             {delivery.assigned_rider ? (
               <div className="space-y-4">
@@ -323,12 +325,12 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                 <ChatLauncher
                   deliveryId={delivery.id}
                   otherName={delivery.assigned_rider.name}
-                  label="Chat with rider"
+                  label={t('components.deliveryDetails.chatWithRider')}
                 />
               </div>
             ) : (
               <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                No rider assigned yet
+                {t('components.deliveryDetails.noRiderYet')}
               </div>
             )}
           </div>
@@ -337,7 +339,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-gray-500" />
-              Timeline
+              {t('components.deliveryDetails.timeline')}
             </h3>
             <div className="space-y-4">
               <div className="flex gap-3">
@@ -345,7 +347,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-900">Created</div>
+                  <div className="text-sm font-medium text-gray-900">{t('components.deliveries.created')}</div>
                   <div className="text-xs text-gray-500">{formatDate(delivery.created_at)}</div>
                 </div>
               </div>

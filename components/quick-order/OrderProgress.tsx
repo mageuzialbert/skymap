@@ -1,18 +1,20 @@
 'use client';
 
 import { Check } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface OrderProgressProps {
   currentStep: number;
 }
 
 const steps = [
-  { number: 1, label: 'Phone Verification' },
-  { number: 2, label: 'Delivery Details' },
-  { number: 3, label: 'Complete' },
+  { number: 1, labelKey: 'components.orderProgress.phoneVerification' },
+  { number: 2, labelKey: 'components.orderProgress.deliveryDetails' },
+  { number: 3, labelKey: 'components.orderProgress.complete' },
 ];
 
 export default function OrderProgress({ currentStep }: OrderProgressProps) {
+  const t = useT();
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between">
@@ -39,7 +41,7 @@ export default function OrderProgress({ currentStep }: OrderProgressProps) {
                   currentStep >= step.number ? 'text-primary' : 'text-gray-500'
                 }`}
               >
-                {step.label}
+                {t(step.labelKey)}
               </span>
             </div>
             {index < steps.length - 1 && (

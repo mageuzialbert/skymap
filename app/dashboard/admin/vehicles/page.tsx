@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, X, Loader2, Bike, Car, Truck, Zap } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface VehicleType {
   id: string;
@@ -31,6 +32,7 @@ async function readError(res: Response): Promise<string> {
 }
 
 export default function AdminVehiclesPage() {
+  const t = useT();
   const [vehicles, setVehicles] = useState<VehicleType[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -56,7 +58,7 @@ export default function AdminVehiclesPage() {
       if (!res.ok) throw new Error(await readError(res));
       setVehicles(await res.json());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load vehicle types');
+      setError(err instanceof Error ? err.message : t('admin.vehicles.errLoad'));
     } finally {
       setLoading(false);
     }
@@ -110,20 +112,20 @@ export default function AdminVehiclesPage() {
       resetForm();
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save vehicle type');
+      setError(err instanceof Error ? err.message : t('admin.vehicles.errSave'));
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this vehicle type?')) return;
+    if (!confirm(t('admin.vehicles.deleteConfirm'))) return;
     try {
       const res = await fetch(`/api/admin/vehicles/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(await readError(res));
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete vehicle type');
+      setError(err instanceof Error ? err.message : t('admin.vehicles.errDelete'));
     }
   }
 
@@ -139,9 +141,9 @@ export default function AdminVehiclesPage() {
     <div className="max-w-4xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Means of Transport</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('admin.vehicles.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Boda, Bajaj, Electric, Car. Price is stored but currently hidden from clients.
+            {t('admin.vehicles.subtitle')}
           </p>
         </div>
         {!showForm && (
@@ -153,7 +155,7 @@ export default function AdminVehiclesPage() {
             className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto justify-center"
           >
             <Plus className="w-5 h-5" />
-            Add Vehicle Type
+            {t('admin.vehicles.add')}
           </button>
         )}
       </div>
@@ -166,7 +168,7 @@ export default function AdminVehiclesPage() {
         <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg sm:text-xl font-semibold">
-              {editing ? 'Edit Vehicle Type' : 'Add Vehicle Type'}
+              {editing ? t('admin.vehicles.editTitle') : t('admin.vehicles.addTitle')}
             </h2>
             <button onClick={resetForm} className="text-gray-500 hover:text-gray-700 p-2 -mr-2">
               <X className="w-5 h-5" />
@@ -176,18 +178,18 @@ export default function AdminVehiclesPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.vehicles.nameLabel')}</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Boda (Motorcycle)"
+                  placeholder={t('admin.vehicles.namePlaceholder')}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Key {editing ? '(read-only)' : '(optional)'}
+                  {editing ? t('admin.vehicles.keyReadonly') : t('admin.vehicles.keyOptional')}
                 </label>
                 <input
                   type="text"
@@ -203,7 +205,7 @@ export default function AdminVehiclesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Price (TZS) - hidden from clients
+                  {t('admin.vehicles.priceLabel')}
                 </label>
                 <input
                   type="number"
@@ -211,12 +213,12 @@ export default function AdminVehiclesPage() {
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="Optional"
+                  placeholder={t('common.optional')}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Display Order</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.vehicles.displayOrder')}</label>
                 <input
                   type="number"
                   min={0}
@@ -228,7 +230,7 @@ export default function AdminVehiclesPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Icon URL (optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.vehicles.iconUrl')}</label>
               <input
                 type="url"
                 value={formData.icon_url}
@@ -247,7 +249,7 @@ export default function AdminVehiclesPage() {
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                <span className="ml-3 text-sm font-medium text-gray-700">Active</span>
+                <span className="ml-3 text-sm font-medium text-gray-700">{t('admin.common.active')}</span>
               </label>
             </div>
 
@@ -257,7 +259,7 @@ export default function AdminVehiclesPage() {
                 onClick={resetForm}
                 className="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg hover:bg-gray-200 transition-colors font-medium"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
@@ -265,7 +267,7 @@ export default function AdminVehiclesPage() {
                 className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
               >
                 {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                Save
+                {t('common.save')}
               </button>
             </div>
           </form>
@@ -276,7 +278,7 @@ export default function AdminVehiclesPage() {
         {vehicles.length === 0 ? (
           <div className="px-4 py-12 text-center">
             <Bike className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500">No vehicle types yet.</p>
+            <p className="text-gray-500">{t('admin.vehicles.empty')}</p>
           </div>
         ) : (
           vehicles.map((v) => {
@@ -299,26 +301,26 @@ export default function AdminVehiclesPage() {
                         v.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                       }`}
                     >
-                      {v.active ? 'Active' : 'Inactive'}
+                      {v.active ? t('admin.common.active') : t('admin.common.inactive')}
                     </span>
                   </div>
                   <p className="text-sm font-semibold text-gray-900 truncate">{v.name}</p>
                   <p className="text-xs text-gray-500">
                     {v.key}
-                    {v.price != null && ` • TZS ${Number(v.price).toLocaleString()} (hidden)`}
+                    {v.price != null && ` • TZS ${Number(v.price).toLocaleString()} (${t('admin.vehicles.hiddenTag')})`}
                   </p>
                   <div className="flex gap-4 mt-2">
                     <button
                       onClick={() => startEdit(v)}
                       className="text-sm text-primary hover:text-primary-dark font-medium transition-colors"
                     >
-                      Edit
+                      {t('common.edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(v.id)}
                       className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
                     >
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </div>
                 </div>

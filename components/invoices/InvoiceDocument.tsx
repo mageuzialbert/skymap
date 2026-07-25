@@ -1,5 +1,7 @@
 'use client';
 
+import { useT } from '@/lib/i18n';
+
 interface CompanyProfile {
   company_name: string;
   logo_url: string | null;
@@ -87,6 +89,7 @@ export default function InvoiceDocument({
   showActions = false,
   onPrint,
 }: InvoiceDocumentProps) {
+  const t = useT();
   return (
     <div className="bg-white p-8 max-w-4xl mx-auto">
       {/* Header Section */}
@@ -112,29 +115,29 @@ export default function InvoiceDocument({
                   {companyProfile.postal_code && ` ${companyProfile.postal_code}`}
                 </p>
               )}
-              {companyProfile?.phone && <p>Phone: {companyProfile.phone}</p>}
-              {companyProfile?.email && <p>Email: {companyProfile.email}</p>}
-              {companyProfile?.tax_id && <p>Tax ID: {companyProfile.tax_id}</p>}
+              {companyProfile?.phone && <p>{t('components.invoice.phone')}: {companyProfile.phone}</p>}
+              {companyProfile?.email && <p>{t('common.email')}: {companyProfile.email}</p>}
+              {companyProfile?.tax_id && <p>{t('components.invoice.taxId')}: {companyProfile.tax_id}</p>}
             </div>
           </div>
           <div className="text-right">
             <div className="mb-4">
               <h2 className="text-4xl font-bold text-primary mb-1">
-                {invoice.invoice_type === 'PROFORMA' ? 'PROFORMA' : 'INVOICE'}
+                {invoice.invoice_type === 'PROFORMA' ? t('components.invoice.proforma') : t('components.invoice.invoice')}
               </h2>
               {invoice.status === 'PROFORMA' && (
                 <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                  PROFORMA
+                  {t('components.invoice.proforma')}
                 </span>
               )}
             </div>
             <div className="text-sm text-gray-700 space-y-1">
               <p>
-                <span className="font-semibold">Invoice #:</span>{' '}
+                <span className="font-semibold">{t('components.invoice.invoiceNumber')}:</span>{' '}
                 <span className="font-mono">{invoice.invoice_number}</span>
               </p>
               <p>
-                <span className="font-semibold">Date:</span>{' '}
+                <span className="font-semibold">{t('common.date')}:</span>{' '}
                 {new Date(invoice.generated_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -143,7 +146,7 @@ export default function InvoiceDocument({
               </p>
               {invoice.due_date && (
                 <p>
-                  <span className="font-semibold">Due Date:</span>{' '}
+                  <span className="font-semibold">{t('components.invoice.dueDate')}:</span>{' '}
                   {new Date(invoice.due_date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -152,7 +155,7 @@ export default function InvoiceDocument({
                 </p>
               )}
               <p>
-                <span className="font-semibold">Status:</span>{' '}
+                <span className="font-semibold">{t('common.status')}:</span>{' '}
                 <span
                   className={`px-2 py-1 text-xs font-semibold rounded-full ${
                     statusColors[invoice.status] || statusColors.DRAFT
@@ -170,7 +173,7 @@ export default function InvoiceDocument({
       {business && (
         <div className="mb-8 grid grid-cols-2 gap-8">
           <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Bill To</h3>
+            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">{t('components.invoice.billTo')}</h3>
             <div className="text-gray-900">
               <p className="font-semibold text-sm">{business.name}</p>
               {business.address && (
@@ -180,11 +183,11 @@ export default function InvoiceDocument({
                   {business.postal_code && ` ${business.postal_code}`}
                 </p>
               )}
-              {business.phone && <p className="text-xs mt-0.5">Phone: {business.phone}</p>}
+              {business.phone && <p className="text-xs mt-0.5">{t('components.invoice.phone')}: {business.phone}</p>}
             </div>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Period</h3>
+            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">{t('components.invoice.period')}</h3>
             <div className="text-gray-900">
               <p className="text-sm">
                 {new Date(invoice.week_start).toLocaleDateString('en-US', {
@@ -209,15 +212,15 @@ export default function InvoiceDocument({
         <table className="min-w-full border-collapse">
           <thead>
             <tr className="bg-primary text-white">
-              <th className="px-6 py-4 text-left text-sm font-semibold uppercase">Description</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase">Amount</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold uppercase">{t('components.financial.description')}</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold uppercase">{t('components.financial.amount')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {invoiceItems.length === 0 ? (
               <tr>
                 <td colSpan={2} className="px-6 py-8 text-center text-gray-500">
-                  No items found
+                  {t('components.invoice.noItems')}
                 </td>
               </tr>
             ) : (
@@ -232,21 +235,21 @@ export default function InvoiceDocument({
                       <div className="space-y-1">
                         {/* Main description */}
                         <div className="font-medium">
-                          {item.description || 'Delivery Service'}
+                          {item.description || t('components.invoice.deliveryService')}
                         </div>
                         
                         {/* Pickup and Dropoff details */}
                         {delivery && (
                           <div className="text-xs text-gray-600 space-y-0.5">
                             <div className="flex items-center gap-1">
-                              <span className="font-medium text-gray-700">From:</span>
+                              <span className="font-medium text-gray-700">{t('components.invoice.from')}:</span>
                               <span>
                                 {delivery.pickup_name}
                                 {pickupLocation && ` (${pickupLocation})`}
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="font-medium text-gray-700">To:</span>
+                              <span className="font-medium text-gray-700">{t('components.invoice.to')}:</span>
                               <span>
                                 {delivery.dropoff_name}
                                 {dropoffLocation && ` (${dropoffLocation})`}
@@ -256,7 +259,7 @@ export default function InvoiceDocument({
                             {/* Package description / Special instructions */}
                             {delivery.package_description && (
                               <div className="flex items-start gap-1 mt-1 pt-1 border-t border-gray-200">
-                                <span className="font-medium text-gray-700">Items:</span>
+                                <span className="font-medium text-gray-700">{t('components.invoice.items')}:</span>
                                 <span className="text-gray-600">{delivery.package_description}</span>
                               </div>
                             )}
@@ -275,7 +278,7 @@ export default function InvoiceDocument({
           <tfoot className="bg-gray-100 border-t-2 border-gray-300">
             <tr>
               <td className="px-6 py-4 text-right text-lg font-bold text-gray-900">
-                Total Amount:
+                {t('components.invoice.totalAmount')}:
               </td>
               <td className="px-6 py-4 text-right text-lg font-bold text-primary">
                 TZS {invoice.total_amount.toLocaleString()}
@@ -303,19 +306,19 @@ export default function InvoiceDocument({
             paymentInstructions.account_number) && (
             <div className="text-sm text-gray-700 space-y-1">
               {paymentInstructions.bank_name && (
-                <p>Bank: {paymentInstructions.bank_name}</p>
+                <p>{t('components.invoice.bank')}: {paymentInstructions.bank_name}</p>
               )}
               {paymentInstructions.account_name && (
-                <p>Account Name: {paymentInstructions.account_name}</p>
+                <p>{t('components.invoice.accountName')}: {paymentInstructions.account_name}</p>
               )}
               {paymentInstructions.account_number && (
-                <p>Account Number: {paymentInstructions.account_number}</p>
+                <p>{t('components.invoice.accountNumber')}: {paymentInstructions.account_number}</p>
               )}
               {paymentInstructions.swift_code && (
-                <p>SWIFT Code: {paymentInstructions.swift_code}</p>
+                <p>{t('components.invoice.swiftCode')}: {paymentInstructions.swift_code}</p>
               )}
               {paymentInstructions.branch && (
-                <p>Branch: {paymentInstructions.branch}</p>
+                <p>{t('components.invoice.branch')}: {paymentInstructions.branch}</p>
               )}
             </div>
           )}
@@ -325,11 +328,11 @@ export default function InvoiceDocument({
       {/* Footer */}
       <div className="mt-12 pt-6 border-t border-gray-300 text-center text-sm text-gray-600">
         <p className="mb-2">
-          Thank you for your business! We appreciate your partnership.
+          {t('components.invoice.thankYou')}
         </p>
         <p>
           &copy; {new Date().getFullYear()}{' '}
-          {companyProfile?.company_name || 'The Skymap Logistics'}. All rights reserved.
+          {companyProfile?.company_name || 'The Skymap Logistics'}. {t('components.invoice.allRightsReserved')}
         </p>
       </div>
 
@@ -340,7 +343,7 @@ export default function InvoiceDocument({
             onClick={onPrint}
             className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
           >
-            Print / Save as PDF
+            {t('components.invoice.printSave')}
           </button>
         </div>
       )}

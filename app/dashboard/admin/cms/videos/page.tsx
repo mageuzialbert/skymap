@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Plus, X, Loader2, Upload, Video as VideoIcon, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 interface HomeVideo {
   id: string;
@@ -41,6 +42,7 @@ async function uploadToBucket(file: File, prefix: string): Promise<string> {
 }
 
 export default function AdminVideosPage() {
+  const t = useT();
   const [videos, setVideos] = useState<HomeVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -82,7 +84,7 @@ export default function AdminVideosPage() {
       if (!res.ok) throw new Error(await readError(res));
       setVideos(await res.json());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load videos');
+      setError(err instanceof Error ? err.message : t('admin.cms.videos.errLoad'));
     } finally {
       setLoading(false);
     }
@@ -129,7 +131,7 @@ export default function AdminVideosPage() {
       }
       setUploading(false);
 
-      if (!videoUrl) throw new Error('Please upload a video file');
+      if (!videoUrl) throw new Error(t('admin.cms.videos.errNoVideo'));
 
       const payload = {
         title: formData.title || null,
@@ -155,7 +157,7 @@ export default function AdminVideosPage() {
       resetForm();
       loadVideos();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save video');
+      setError(err instanceof Error ? err.message : t('admin.cms.videos.errSave'));
     } finally {
       setSubmitting(false);
       setUploading(false);
@@ -163,13 +165,13 @@ export default function AdminVideosPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this video?')) return;
+    if (!confirm(t('admin.cms.videos.deleteConfirm'))) return;
     try {
       const res = await fetch(`/api/admin/cms/videos/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(await readError(res));
       loadVideos();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete video');
+      setError(err instanceof Error ? err.message : t('admin.cms.videos.errDelete'));
     }
   }
 
@@ -177,11 +179,11 @@ export default function AdminVideosPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!ALLOWED_VIDEO.includes(file.type)) {
-      setError('Unsupported video type (use MP4, WebM, OGG, MOV)');
+      setError(t('admin.cms.videos.unsupportedVideo'));
       return;
     }
     if (file.size > MAX_VIDEO_SIZE) {
-      setError('Video exceeds 500MB');
+      setError(t('admin.cms.videos.videoTooBig'));
       return;
     }
     setError('');
@@ -192,7 +194,7 @@ export default function AdminVideosPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!ALLOWED_IMAGE.includes(file.type)) {
-      setError('Unsupported poster type (use JPEG, PNG, WebP)');
+      setError(t('admin.cms.videos.unsupportedPoster'));
       return;
     }
     setError('');
@@ -211,9 +213,9 @@ export default function AdminVideosPage() {
     <div className="max-w-4xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Landing Videos</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('admin.cms.videos.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Videos play first on the home page; the image slideshow shows when no video is set.
+            {t('admin.cms.videos.subtitle')}
           </p>
         </div>
         {!showForm && (
@@ -225,7 +227,7 @@ export default function AdminVideosPage() {
             className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto justify-center"
           >
             <Plus className="w-5 h-5" />
-            Add Video
+            {t('admin.cms.videos.add')}
           </button>
         )}
       </div>
@@ -237,7 +239,7 @@ export default function AdminVideosPage() {
       {showForm && (
         <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold">{editing ? 'Edit Video' : 'Add New Video'}</h2>
+            <h2 className="text-lg sm:text-xl font-semibold">{editing ? t('admin.cms.videos.editTitle') : t('admin.cms.videos.addTitle')}</h2>
             <button onClick={resetForm} className="text-gray-500 hover:text-gray-700 p-2 -mr-2">
               <X className="w-5 h-5" />
             </button>
@@ -246,7 +248,7 @@ export default function AdminVideosPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Video file */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Video File *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('admin.cms.videos.videoFileLabel')}</label>
               {(videoFile || formData.video_url) && (
                 <div className="mb-2 flex items-center gap-2 text-sm text-gray-700">
                   <VideoIcon className="w-4 h-4 text-primary" />
@@ -259,7 +261,7 @@ export default function AdminVideosPage() {
                 className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary hover:bg-primary/5 text-gray-600 hover:text-primary transition-colors w-full justify-center"
               >
                 <Upload className="w-4 h-4" />
-                {videoFile || formData.video_url ? 'Replace video' : 'Upload video (MP4, WebM - max 500MB)'}
+                {videoFile || formData.video_url ? t('admin.cms.videos.replaceVideo') : t('admin.cms.videos.uploadVideo')}
               </button>
               <input
                 ref={videoInputRef}
@@ -284,7 +286,7 @@ export default function AdminVideosPage() {
 
             {/* Poster */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Poster Image (optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('admin.cms.videos.posterLabel')}</label>
               {(posterFile || formData.poster_url) && (
                 <div className="mb-2 flex items-center gap-2 text-sm text-gray-700">
                   <ImageIcon className="w-4 h-4 text-primary" />
@@ -297,7 +299,7 @@ export default function AdminVideosPage() {
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-600 text-sm transition-colors"
               >
                 <Upload className="w-4 h-4" />
-                {posterFile || formData.poster_url ? 'Replace poster' : 'Upload poster'}
+                {posterFile || formData.poster_url ? t('admin.cms.videos.replacePoster') : t('admin.cms.videos.uploadPoster')}
               </button>
               <input
                 ref={posterInputRef}
@@ -310,12 +312,12 @@ export default function AdminVideosPage() {
 
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Title (optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.cms.videos.titleLabel')}</label>
               <input
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Promo video"
+                placeholder={t('admin.cms.videos.titlePlaceholder')}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
@@ -323,7 +325,7 @@ export default function AdminVideosPage() {
             {/* Order + Active */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Display Order</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.cms.videos.displayOrder')}</label>
                 <input
                   type="number"
                   min={0}
@@ -341,7 +343,7 @@ export default function AdminVideosPage() {
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                  <span className="ml-3 text-sm font-medium text-gray-700">Active</span>
+                  <span className="ml-3 text-sm font-medium text-gray-700">{t('admin.common.active')}</span>
                 </label>
               </div>
             </div>
@@ -352,7 +354,7 @@ export default function AdminVideosPage() {
                 onClick={resetForm}
                 className="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg hover:bg-gray-200 transition-colors font-medium"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
@@ -360,7 +362,7 @@ export default function AdminVideosPage() {
                 className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
               >
                 {(submitting || uploading) && <Loader2 className="w-4 h-4 animate-spin" />}
-                {uploading ? 'Uploading…' : submitting ? 'Saving…' : 'Save Video'}
+                {uploading ? t('admin.cms.videos.uploading') : submitting ? t('admin.cms.videos.saving') : t('admin.cms.videos.saveVideo')}
               </button>
             </div>
           </form>
@@ -371,7 +373,7 @@ export default function AdminVideosPage() {
         {videos.length === 0 ? (
           <div className="px-4 py-12 text-center">
             <VideoIcon className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500">No videos yet. The image slideshow will be shown.</p>
+            <p className="text-gray-500">{t('admin.cms.videos.empty')}</p>
           </div>
         ) : (
           videos.map((v) => (
@@ -392,22 +394,22 @@ export default function AdminVideosPage() {
                       v.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                     }`}
                   >
-                    {v.active ? 'Active' : 'Inactive'}
+                    {v.active ? t('admin.common.active') : t('admin.common.inactive')}
                   </span>
                 </div>
-                <p className="text-sm text-gray-900 truncate">{v.title || 'Untitled video'}</p>
+                <p className="text-sm text-gray-900 truncate">{v.title || t('admin.cms.videos.untitled')}</p>
                 <div className="flex gap-4 mt-2">
                   <button
                     onClick={() => startEdit(v)}
                     className="text-sm text-primary hover:text-primary-dark font-medium transition-colors"
                   >
-                    Edit
+                    {t('common.edit')}
                   </button>
                   <button
                     onClick={() => handleDelete(v.id)}
                     className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
                   >
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </div>
               </div>

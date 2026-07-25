@@ -30,6 +30,7 @@ import VehicleSelector from '@/components/landing/VehicleSelector';
 import CameraCapture from '@/components/common/CameraCapture';
 import { supabase } from '@/lib/supabase';
 import { SERVICE_TYPES, getServiceType, type ServiceTypeKey } from '@/lib/serviceTypes';
+import { useT } from '@/lib/i18n';
 
 interface WizardProps {
   pickup: LocationState;
@@ -47,7 +48,12 @@ const SERVICE_ICONS: Record<string, any> = {
   ShoppingBag,
 };
 
-const STEPS = ['Purpose', 'Transport', 'Details', 'Time'];
+const STEP_KEYS = [
+  'components.rideWizard.stepPurpose',
+  'components.rideWizard.stepTransport',
+  'components.rideWizard.stepDetails',
+  'components.rideWizard.stepTime',
+];
 
 export default function RequestRideWizard({
   pickup,
@@ -58,6 +64,7 @@ export default function RequestRideWizard({
   isCheckingPhone,
 }: WizardProps) {
   const router = useRouter();
+  const t = useT();
 
   const [step, setStep] = useState(0);
   const [serviceType, setServiceType] = useState<ServiceTypeKey | null>(null);
@@ -157,7 +164,7 @@ export default function RequestRideWizard({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.size > 50 * 1024 * 1024) {
-        setError('Image size too large (max 50MB)');
+        setError(t('components.rideWizard.imageTooLarge'));
         return;
       }
       if (imagePreview) URL.revokeObjectURL(imagePreview);
@@ -188,7 +195,7 @@ export default function RequestRideWizard({
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from('order-attachments').upload(fileName, file);
-      if (uploadError) throw new Error('Failed to upload image');
+      if (uploadError) throw new Error(t('components.rideWizard.uploadFailed'));
       const { data } = supabase.storage.from('order-attachments').getPublicUrl(fileName);
       return data.publicUrl;
     } catch (err) {
@@ -239,22 +246,22 @@ export default function RequestRideWizard({
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Failed to submit request');
+      if (!response.ok) throw new Error(data.error || t('components.rideWizard.submitFailed'));
 
-      setSuccess('Request submitted! Redirecting…');
+      setSuccess(t('components.rideWizard.submitted'));
       setTimeout(() => {
         router.push('/dashboard/business/rides');
         router.refresh();
       }, 800);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit request');
+      setError(err instanceof Error ? err.message : t('components.rideWizard.submitFailed'));
       setLoading(false);
     }
   };
 
   const goNext = () => {
     setError('');
-    if (step < STEPS.length - 1) setStep((s) => s + 1);
+    if (step < STEP_KEYS.length - 1) setStep((s) => s + 1);
   };
   const goBack = () => {
     setError('');
@@ -270,11 +277,11 @@ export default function RequestRideWizard({
     <div>
       {/* Stepper */}
       <div className="flex items-center mb-6">
-        {STEPS.map((label, i) => {
+        {STEP_KEYS.map((labelKey, i) => {
           const active = i === step;
           const done = i < step;
           return (
-            <div key={label} className="flex items-center flex-1 last:flex-none">
+            <div key={labelKey} className="flex items-center flex-1 last:flex-none">
               <div className="flex items-center gap-2">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
@@ -292,10 +299,10 @@ export default function RequestRideWizard({
                     active ? 'text-gray-900' : 'text-gray-400'
                   }`}
                 >
-                  {label}
+                  {t(labelKey)}
                 </span>
               </div>
-              {i < STEPS.length - 1 && (
+              {i < STEP_KEYS.length - 1 && (
                 <div className={`flex-1 h-0.5 mx-2 ${done ? 'bg-primary' : 'bg-gray-200'}`} />
               )}
             </div>
@@ -306,8 +313,8 @@ export default function RequestRideWizard({
       {/* ===== STEP 1: PURPOSE ===== */}
       {step === 0 && (
         <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
-          <h3 className="text-base font-semibold text-gray-900 mb-1">What do you need?</h3>
-          <p className="text-xs text-gray-500 mb-4">Choose the kind of service you want.</p>
+          <h3 className="text-base font-semibold text-gray-900 mb-1">{t('components.rideWizard.whatNeed')}</h3>
+          <p className="text-xs text-gray-500 mb-4">{t('components.rideWizard.chooseService')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {SERVICE_TYPES.map((s) => {
               const Icon = SERVICE_ICONS[s.icon] || Package;
@@ -347,8 +354,8 @@ export default function RequestRideWizard({
           <header className="flex items-center gap-2.5 mb-4">
             <Truck className="w-5 h-5 text-gray-400 shrink-0" />
             <div>
-              <h3 className="text-base font-semibold text-gray-900 leading-tight">Means of transport</h3>
-              <p className="text-xs text-gray-500">Choose a vehicle - all options are available.</p>
+              <h3 className="text-base font-semibold text-gray-900 leading-tight">{t('components.rideWizard.meansOfTransport')}</h3>
+              <p className="text-xs text-gray-500">{t('components.rideWizard.chooseVehicle')}</p>
             </div>
           </header>
           <VehicleSelector value={vehicleTypeId} onChange={setVehicleTypeId} disabled={loading} />
@@ -365,12 +372,12 @@ export default function RequestRideWizard({
               <div>
                 <h3 className="text-base font-semibold text-gray-900 leading-tight">
                   {svc === 'delivery'
-                    ? 'Pickup & dropoff'
+                    ? t('components.rideWizard.pickupDropoff')
                     : svc === 'ride'
-                    ? 'Your trip'
+                    ? t('components.rideWizard.yourTrip')
                     : svc === 'hire'
-                    ? 'Where to start'
-                    : 'Where to deliver'}
+                    ? t('components.rideWizard.whereStart')
+                    : t('components.rideWizard.whereDeliver')}
                 </h3>
                 <p className="text-xs text-gray-500">{serviceDef?.label}</p>
               </div>
@@ -382,12 +389,12 @@ export default function RequestRideWizard({
                 loc={pickup}
                 label={
                   svc === 'hire'
-                    ? 'Start location'
+                    ? t('components.rideWizard.startLocation')
                     : svc === 'errand'
-                    ? 'Your location (deliver to)'
-                    : 'Pickup location'
+                    ? t('components.rideWizard.yourLocationDeliver')
+                    : t('components.rideWizard.pickupLocation')
                 }
-                placeholder="Type address or pick on map"
+                placeholder={t('components.rideWizard.typeOrPickMap')}
                 onChange={onPickupChange}
                 onMapClick={() => setMapPickerOpen('pickup')}
                 onCategoryClick={() => setCategoryPickerOpen('pickup')}
@@ -399,8 +406,8 @@ export default function RequestRideWizard({
                 <LocationField
                   which="dropoff"
                   loc={dropoff}
-                  label={svc === 'ride' ? 'Destination' : 'Dropoff location'}
-                  placeholder="Type address or pick on map"
+                  label={svc === 'ride' ? t('components.rideWizard.destination') : t('components.rideWizard.dropoffLocation')}
+                  placeholder={t('components.rideWizard.typeOrPickMap')}
                   onChange={onDropoffChange}
                   onMapClick={() => setMapPickerOpen('dropoff')}
                   onCategoryClick={() => setCategoryPickerOpen('dropoff')}
@@ -410,21 +417,21 @@ export default function RequestRideWizard({
               {needsRecipient && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Recipient name</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">{t('components.rideWizard.recipientName')}</label>
                     <div className="relative">
                       <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <input
                         type="text"
                         value={dropoff.name}
                         onChange={(e) => onDropoffChange('name', e.target.value)}
-                        placeholder="Recipient name"
+                        placeholder={t('components.rideWizard.recipientName')}
                         className={inputClass}
                         disabled={loading}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Recipient phone</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">{t('components.rideWizard.recipientPhone')}</label>
                     <div className="relative">
                       <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <input
@@ -449,8 +456,8 @@ export default function RequestRideWizard({
               <header className="flex items-center gap-2.5 mb-4">
                 <Package className="w-5 h-5 text-gray-400 shrink-0" />
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 leading-tight">Package details</h3>
-                  <p className="text-xs text-gray-500">Optional</p>
+                  <h3 className="text-base font-semibold text-gray-900 leading-tight">{t('components.rideWizard.packageDetails')}</h3>
+                  <p className="text-xs text-gray-500">{t('common.optional')}</p>
                 </div>
               </header>
               <div className="space-y-4">
@@ -460,7 +467,7 @@ export default function RequestRideWizard({
                     type="text"
                     value={packageDetails}
                     onChange={(e) => setPackageDetails(e.target.value)}
-                    placeholder="e.g. Documents, small electronics"
+                    placeholder={t('components.rideWizard.packagePlaceholder')}
                     className={inputClass}
                     disabled={loading}
                   />
@@ -483,7 +490,7 @@ export default function RequestRideWizard({
                       className="flex flex-col items-center justify-center gap-2 py-5 border-2 border-dashed border-gray-200 hover:border-primary hover:bg-primary/5 rounded-lg text-sm font-medium text-gray-600 hover:text-primary transition-all"
                     >
                       <Camera className="w-6 h-6 text-gray-400" />
-                      <span>Take photo</span>
+                      <span>{t('components.rideWizard.takePhoto')}</span>
                     </button>
                     <button
                       type="button"
@@ -492,7 +499,7 @@ export default function RequestRideWizard({
                       className="flex flex-col items-center justify-center gap-2 py-5 border-2 border-dashed border-gray-200 hover:border-secondary-dark hover:bg-secondary/5 rounded-lg text-sm font-medium text-gray-600 hover:text-secondary-dark transition-all"
                     >
                       <ImagePlus className="w-6 h-6 text-gray-400" />
-                      <span>From gallery</span>
+                      <span>{t('components.rideWizard.fromGallery')}</span>
                     </button>
                   </div>
                 ) : (
@@ -500,14 +507,14 @@ export default function RequestRideWizard({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={imagePreview} alt="Package preview" className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">Photo attached</p>
+                      <p className="text-sm font-semibold text-gray-900 truncate">{t('components.rideWizard.photoAttached')}</p>
                       <div className="mt-1.5 flex items-center gap-3">
                         <button
                           type="button"
                           onClick={() => setCameraOpen(true)}
                           className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-dark"
                         >
-                          <Camera className="w-3.5 h-3.5" /> Camera
+                          <Camera className="w-3.5 h-3.5" /> {t('components.rideWizard.camera')}
                         </button>
                         <span className="w-px h-3 bg-gray-300" aria-hidden />
                         <button
@@ -515,7 +522,7 @@ export default function RequestRideWizard({
                           onClick={() => fileInputRef.current?.click()}
                           className="inline-flex items-center gap-1 text-xs font-semibold text-secondary-dark hover:text-secondary"
                         >
-                          <ImagePlus className="w-3.5 h-3.5" /> Gallery
+                          <ImagePlus className="w-3.5 h-3.5" /> {t('components.rideWizard.gallery')}
                         </button>
                       </div>
                     </div>
@@ -523,7 +530,7 @@ export default function RequestRideWizard({
                       type="button"
                       onClick={handleRemoveImage}
                       className="self-start p-1.5 bg-white border border-gray-200 hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-gray-500 rounded-lg"
-                      aria-label="Remove photo"
+                      aria-label={t('components.rideWizard.removePhoto')}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -546,12 +553,12 @@ export default function RequestRideWizard({
                 <div>
                   <h3 className="text-base font-semibold text-gray-900 leading-tight">
                     {svc === 'errand'
-                      ? 'What do you need?'
+                      ? t('components.rideWizard.whatNeed')
                       : svc === 'hire'
-                      ? 'Duration & plan'
-                      : 'Trip notes'}
+                      ? t('components.rideWizard.durationPlan')
+                      : t('components.rideWizard.tripNotes')}
                   </h3>
-                  <p className="text-xs text-gray-500">{detailsRequired ? 'Required' : 'Optional'}</p>
+                  <p className="text-xs text-gray-500">{detailsRequired ? t('common.required') : t('common.optional')}</p>
                 </div>
               </header>
               <textarea
@@ -560,10 +567,10 @@ export default function RequestRideWizard({
                 rows={4}
                 placeholder={
                   svc === 'errand'
-                    ? 'e.g. Buy 2 bags of cement from the hardware store. Budget ~50,000 TZS.'
+                    ? t('components.rideWizard.errandPlaceholder')
                     : svc === 'hire'
-                    ? 'e.g. Need the vehicle for about 5 hours to run several errands around town.'
-                    : 'e.g. 2 passengers, some luggage.'
+                    ? t('components.rideWizard.hirePlaceholder')
+                    : t('components.rideWizard.tripPlaceholder')
                 }
                 className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50"
                 disabled={loading}
@@ -580,8 +587,8 @@ export default function RequestRideWizard({
             <header className="flex items-center gap-2.5 mb-4">
               <CalendarClock className="w-5 h-5 text-gray-400 shrink-0" />
               <div>
-                <h3 className="text-base font-semibold text-gray-900 leading-tight">When?</h3>
-                <p className="text-xs text-gray-500">Choose now or schedule for later.</p>
+                <h3 className="text-base font-semibold text-gray-900 leading-tight">{t('components.rideWizard.when')}</h3>
+                <p className="text-xs text-gray-500">{t('components.rideWizard.chooseWhen')}</p>
               </div>
             </header>
             <div className="grid grid-cols-2 gap-3">
@@ -592,8 +599,8 @@ export default function RequestRideWizard({
                   !scheduleLater ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-primary/50'
                 }`}
               >
-                <p className="text-sm font-semibold text-gray-900">As soon as possible</p>
-                <p className="text-xs text-gray-500 mt-0.5">A rider is assigned right away.</p>
+                <p className="text-sm font-semibold text-gray-900">{t('components.rideWizard.asap')}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('components.rideWizard.asapHint')}</p>
               </button>
               <button
                 type="button"
@@ -602,13 +609,13 @@ export default function RequestRideWizard({
                   scheduleLater ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-primary/50'
                 }`}
               >
-                <p className="text-sm font-semibold text-gray-900">Schedule for later</p>
-                <p className="text-xs text-gray-500 mt-0.5">Pick a date & time.</p>
+                <p className="text-sm font-semibold text-gray-900">{t('components.rideWizard.scheduleLater')}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('components.rideWizard.pickDateTime')}</p>
               </button>
             </div>
             {scheduleLater && (
               <div className="mt-4">
-                <label className="block text-xs font-medium text-gray-600 mb-1.5">Pickup date & time</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">{t('components.rideWizard.pickupDateTime')}</label>
                 <input
                   type="datetime-local"
                   value={scheduledAt}
@@ -622,22 +629,22 @@ export default function RequestRideWizard({
 
           {/* Review */}
           <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
-            <h3 className="text-base font-semibold text-gray-900 mb-3">Review</h3>
+            <h3 className="text-base font-semibold text-gray-900 mb-3">{t('components.rideWizard.review')}</h3>
             <dl className="space-y-2 text-sm">
-              <ReviewRow label="Service" value={serviceDef?.label || '-'} />
-              <ReviewRow label="Transport" value={vehicleName || '-'} />
+              <ReviewRow label={t('components.rideWizard.service')} value={serviceDef?.label || '-'} />
+              <ReviewRow label={t('components.rideWizard.transport')} value={vehicleName || '-'} />
               <ReviewRow
-                label={svc === 'hire' ? 'Start' : svc === 'errand' ? 'Deliver to' : 'Pickup'}
+                label={svc === 'hire' ? t('components.rideWizard.start') : svc === 'errand' ? t('components.rideWizard.deliverTo') : t('components.deliveries.pickup')}
                 value={pickup.address || '-'}
               />
-              {needsDropoff && <ReviewRow label="Destination" value={dropoff.address || '-'} />}
+              {needsDropoff && <ReviewRow label={t('components.rideWizard.destination')} value={dropoff.address || '-'} />}
               {needsRecipient && (
-                <ReviewRow label="Recipient" value={`${dropoff.name || '-'} · ${dropoff.phone || '-'}`} />
+                <ReviewRow label={t('components.rideWizard.recipient')} value={`${dropoff.name || '-'} · ${dropoff.phone || '-'}`} />
               )}
-              {serviceDetails && <ReviewRow label="Details" value={serviceDetails} />}
+              {serviceDetails && <ReviewRow label={t('components.rideWizard.details')} value={serviceDetails} />}
               <ReviewRow
-                label="When"
-                value={scheduleLater && scheduledAt ? new Date(scheduledAt).toLocaleString() : 'As soon as possible'}
+                label={t('components.rideWizard.when')}
+                value={scheduleLater && scheduledAt ? new Date(scheduledAt).toLocaleString() : t('components.rideWizard.asap')}
               />
             </dl>
           </section>
@@ -668,10 +675,10 @@ export default function RequestRideWizard({
             className="inline-flex items-center gap-2 h-12 px-5 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back
+            {t('common.back')}
           </button>
         )}
-        {step < STEPS.length - 1 ? (
+        {step < STEP_KEYS.length - 1 ? (
           <button
             type="button"
             onClick={goNext}
@@ -680,7 +687,7 @@ export default function RequestRideWizard({
               canAdvance() ? 'bg-primary hover:bg-primary-dark shadow-sm' : 'bg-gray-300 cursor-not-allowed'
             }`}
           >
-            <span>Continue</span>
+            <span>{t('components.quickOrder.continue')}</span>
             <ArrowRight className="w-5 h-5" />
           </button>
         ) : (
@@ -693,11 +700,11 @@ export default function RequestRideWizard({
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Submitting…</span>
+                <span>{t('components.rideWizard.submitting')}</span>
               </>
             ) : (
               <>
-                <span>Submit request</span>
+                <span>{t('components.rideWizard.submitRequest')}</span>
                 <ArrowRight className="w-5 h-5" />
               </>
             )}
@@ -707,7 +714,7 @@ export default function RequestRideWizard({
 
       <p className="text-center text-xs text-gray-500 flex items-center justify-center gap-1.5 mt-3">
         <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-        <span>Your request is sent to our team - your data is encrypted</span>
+        <span>{t('components.rideWizard.encryptedNote')}</span>
       </p>
 
       {/* Modals */}
@@ -723,13 +730,13 @@ export default function RequestRideWizard({
             ? { lat: dropoff.latitude, lng: dropoff.longitude }
             : null
         }
-        title={mapPickerOpen === 'pickup' ? 'Select location' : 'Select destination'}
+        title={mapPickerOpen === 'pickup' ? t('components.rideWizard.selectLocation') : t('components.rideWizard.selectDestination')}
       />
       <LocationCategoryPicker
         isOpen={categoryPickerOpen !== null}
         onClose={() => setCategoryPickerOpen(null)}
         onSelect={handleCategorySelect}
-        title={categoryPickerOpen === 'pickup' ? 'Suggested places' : 'Suggested destinations'}
+        title={categoryPickerOpen === 'pickup' ? t('components.rideWizard.suggestedPlaces') : t('components.rideWizard.suggestedDestinations')}
       />
     </div>
   );
@@ -746,9 +753,10 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 
 // Read-only contact pulled from the customer's profile (never re-captured).
 function YourContact({ name, phone }: { name: string; phone: string }) {
+  const t = useT();
   return (
     <div className="rounded-lg bg-gray-50 border border-gray-200 p-3">
-      <p className="text-xs font-medium text-gray-500 mb-1">Your contact (from your profile)</p>
+      <p className="text-xs font-medium text-gray-500 mb-1">{t('components.rideWizard.yourContact')}</p>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-900">
         <span className="inline-flex items-center gap-1.5">
           <User className="w-4 h-4 text-gray-400" />
@@ -781,6 +789,7 @@ function LocationField({
   onMapClick: () => void;
   onCategoryClick: () => void;
 }) {
+  const t = useT();
   const accent =
     which === 'pickup' ? 'text-primary hover:text-primary-dark' : 'text-secondary-dark hover:text-secondary';
   return (
@@ -803,7 +812,7 @@ function LocationField({
         className={`mt-1.5 inline-flex items-center gap-1.5 text-xs font-semibold ${accent}`}
       >
         <MapPin className="w-3.5 h-3.5" />
-        Suggestions (bus stand, airport, hospital…)
+        {t('components.rideWizard.suggestions')}
       </button>
     </div>
   );

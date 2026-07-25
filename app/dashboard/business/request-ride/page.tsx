@@ -6,6 +6,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import RequestRideWizard from '@/components/client/RequestRideWizard';
 import { LocationState } from '@/components/landing/types';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 const libraries: ('places' | 'geometry' | 'drawing' | 'visualization')[] = ['places'];
 
@@ -26,6 +27,7 @@ const initialDropoff: LocationState = {
 };
 
 export default function RequestRidePage() {
+  const t = useT();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: apiKey,
@@ -96,9 +98,9 @@ export default function RequestRidePage() {
   return (
     <div className="w-full">
       <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">New Request</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('business.requestRide.title')}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Choose a service and tell us the details - we&apos;ll handle the rest.
+          {t('business.requestRide.subtitle')}
         </p>
       </div>
 
@@ -107,7 +109,7 @@ export default function RequestRidePage() {
           <div className="flex items-start gap-3 text-amber-700">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <p className="text-sm">
-              Google Maps is not configured. Address selection requires it. Please contact support.
+              {t('business.requestRide.mapsNotConfigured')}
             </p>
           </div>
         </div>

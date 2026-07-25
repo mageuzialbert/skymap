@@ -11,6 +11,7 @@ import {
   DEFAULT_RIDER_PERMISSIONS,
   PermissionModule,
 } from '@/lib/permissions';
+import { useT } from '@/lib/i18n';
 
 interface PermissionSelectorProps {
   role: 'STAFF' | 'RIDER';
@@ -27,6 +28,7 @@ export default function PermissionSelector({
   onChange,
   disabled = false,
 }: PermissionSelectorProps) {
+  const t = useT();
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [preset, setPreset] = useState<PresetType>('custom');
 
@@ -186,9 +188,9 @@ export default function PermissionSelector({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-gray-600" />
-            <span className="font-medium text-gray-900">Access Permissions</span>
+            <span className="font-medium text-gray-900">{t('components.permissions.accessPermissions')}</span>
             <span className="text-sm text-gray-500">
-              ({selectedPermissions.length} selected)
+              {t('components.permissions.selectedCount', { count: selectedPermissions.length })}
             </span>
           </div>
           
@@ -200,10 +202,10 @@ export default function PermissionSelector({
               disabled={disabled}
               className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50"
             >
-              <option value="full">Full Access</option>
-              <option value="default">Default</option>
-              <option value="view_only">View Only</option>
-              <option value="custom">Custom</option>
+              <option value="full">{t('components.permissions.fullAccess')}</option>
+              <option value="default">{t('components.permissions.default')}</option>
+              <option value="view_only">{t('components.permissions.viewOnly')}</option>
+              <option value="custom">{t('components.permissions.custom')}</option>
             </select>
             
             {/* Action buttons */}
@@ -214,7 +216,7 @@ export default function PermissionSelector({
                 disabled={disabled}
                 className="text-xs px-2 py-1 text-primary hover:bg-primary/10 rounded disabled:opacity-50"
               >
-                Select All
+                {t('components.permissions.selectAll')}
               </button>
               <button
                 type="button"
@@ -222,14 +224,14 @@ export default function PermissionSelector({
                 disabled={disabled}
                 className="text-xs px-2 py-1 text-gray-600 hover:bg-gray-100 rounded disabled:opacity-50"
               >
-                Clear
+                {t('components.permissions.clear')}
               </button>
               <button
                 type="button"
                 onClick={expandedModules.size > 0 ? collapseAll : expandAll}
                 className="text-xs px-2 py-1 text-gray-600 hover:bg-gray-100 rounded"
               >
-                {expandedModules.size > 0 ? 'Collapse' : 'Expand'}
+                {expandedModules.size > 0 ? t('components.permissions.collapse') : t('components.permissions.expand')}
               </button>
             </div>
           </div>
@@ -346,7 +348,7 @@ export default function PermissionSelector({
       {/* Footer info */}
       {availableModules.length === 0 && (
         <div className="p-4 text-center text-gray-500">
-          No configurable permissions available for this role.
+          {t('components.permissions.noneAvailable')}
         </div>
       )}
     </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useLoadScript } from '@react-google-maps/api';
 import { Loader2, MapPin, User, Phone, Package, ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
 import LocationPicker from '@/components/common/LocationPicker';
+import { useT } from '@/lib/i18n';
 
 interface Region {
   id: number;
@@ -42,13 +43,14 @@ export interface DeliveryFormData {
 
 type FormStep = 'pickup' | 'dropoff' | 'review';
 
-const STEPS: { key: FormStep; label: string; icon: React.ReactNode }[] = [
-  { key: 'pickup', label: 'Pickup', icon: <MapPin className="w-4 h-4" /> },
-  { key: 'dropoff', label: 'Drop-off', icon: <MapPin className="w-4 h-4" /> },
-  { key: 'review', label: 'Review', icon: <Check className="w-4 h-4" /> },
+const STEPS: { key: FormStep; labelKey: string; icon: React.ReactNode }[] = [
+  { key: 'pickup', labelKey: 'components.deliveries.pickup', icon: <MapPin className="w-4 h-4" /> },
+  { key: 'dropoff', labelKey: 'components.deliveries.dropoff', icon: <MapPin className="w-4 h-4" /> },
+  { key: 'review', labelKey: 'components.quickOrder.review', icon: <Check className="w-4 h-4" /> },
 ];
 
 export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormProps) {
+  const t = useT();
   const [currentStep, setCurrentStep] = useState<FormStep>('pickup');
   const [regions, setRegions] = useState<Region[]>([]);
   const [pickupDistricts, setPickupDistricts] = useState<District[]>([]);
@@ -143,13 +145,13 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
     const errors: Record<string, string> = {};
     
     if (!formData.pickup_name.trim()) {
-      errors.pickup_name = 'Contact name is required';
+      errors.pickup_name = t('components.quickOrder.contactNameRequired');
     }
     if (!formData.pickup_phone.trim()) {
-      errors.pickup_phone = 'Phone number is required';
+      errors.pickup_phone = t('components.quickOrder.phoneRequired');
     }
     if (!formData.pickup_address.trim()) {
-      errors.pickup_address = 'Address is required';
+      errors.pickup_address = t('components.deliveryForm.addressRequired');
     }
     
     setStepErrors(errors);
@@ -160,13 +162,13 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
     const errors: Record<string, string> = {};
     
     if (!formData.dropoff_name.trim()) {
-      errors.dropoff_name = 'Recipient name is required';
+      errors.dropoff_name = t('components.quickOrder.recipientNameRequired');
     }
     if (!formData.dropoff_phone.trim()) {
-      errors.dropoff_phone = 'Phone number is required';
+      errors.dropoff_phone = t('components.quickOrder.phoneRequired');
     }
     if (!formData.dropoff_address.trim()) {
-      errors.dropoff_address = 'Address is required';
+      errors.dropoff_address = t('components.deliveryForm.addressRequired');
     }
     
     setStepErrors(errors);
@@ -233,7 +235,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                     isActive || isComplete ? 'text-primary' : 'text-gray-400'
                   }`}
                 >
-                  {step.label}
+                  {t(step.labelKey)}
                 </span>
               </div>
               {index < STEPS.length - 1 && (
@@ -260,14 +262,14 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
       {loadError && (
         <div className="p-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl text-sm flex items-start gap-3">
           <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <span>Map features unavailable. You can still enter addresses manually.</span>
+          <span>{t('components.quickOrder.mapUnavailable')}</span>
         </div>
       )}
 
       {!isLoaded && !loadError && (
         <div className="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
           <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
-          <span className="text-gray-500 text-sm">Loading map...</span>
+          <span className="text-gray-500 text-sm">{t('components.quickOrder.loadingMap')}</span>
         </div>
       )}
 
@@ -280,8 +282,8 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                 <MapPin className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Pickup Details</h3>
-                <p className="text-sm text-gray-500">Where should we pick up?</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t('components.deliveryDetails.pickupDetails')}</h3>
+                <p className="text-sm text-gray-500">{t('components.quickOrder.wherePickup')}</p>
               </div>
             </div>
 
@@ -289,14 +291,14 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
               <label className={labelClass}>
                 <span className="flex items-center gap-2">
                   <User className="w-4 h-4 text-gray-400" />
-                  Contact Name <span className="text-red-500">*</span>
+                  {t('components.deliveryForm.contactName')} <span className="text-red-500">*</span>
                 </span>
               </label>
               <input
                 type="text"
                 value={formData.pickup_name}
                 onChange={(e) => setFormData({ ...formData, pickup_name: e.target.value })}
-                placeholder="Who to pick up from"
+                placeholder={t('components.deliveryForm.whoToPickup')}
                 className={`${inputClass} ${stepErrors.pickup_name ? 'border-red-300 focus:ring-red-200' : ''}`}
               />
               {stepErrors.pickup_name && (
@@ -308,7 +310,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
               <label className={labelClass}>
                 <span className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-gray-400" />
-                  Phone Number <span className="text-red-500">*</span>
+                  {t('common.phone')} <span className="text-red-500">*</span>
                 </span>
               </label>
               <input
@@ -326,7 +328,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
             <div>
               {isLoaded ? (
                 <LocationPicker
-                  label="Pickup Address *"
+                  label={t('components.deliveryForm.pickupAddress')}
                   value={formData.pickup_address}
                   onChange={(address, lat, lng) =>
                     setFormData({
@@ -343,14 +345,14 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                   <label className={labelClass}>
                     <span className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-gray-400" />
-                      Address <span className="text-red-500">*</span>
+                      {t('components.deliveryDetails.address')} <span className="text-red-500">*</span>
                     </span>
                   </label>
                   <input
                     type="text"
                     value={formData.pickup_address}
                     onChange={(e) => setFormData({ ...formData, pickup_address: e.target.value })}
-                    placeholder="Street address, building, landmark..."
+                    placeholder={t('components.quickOrder.streetLandmark')}
                     className={`${inputClass} ${stepErrors.pickup_address ? 'border-red-300 focus:ring-red-200' : ''}`}
                   />
                   {stepErrors.pickup_address && (
@@ -362,7 +364,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelClass}>Region</label>
+                <label className={labelClass}>{t('components.deliveryForm.region')}</label>
                 <select
                   value={formData.pickup_region_id || ''}
                   onChange={(e) =>
@@ -375,7 +377,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                   disabled={loadingRegions}
                   className={inputClass}
                 >
-                  <option value="">Select Region</option>
+                  <option value="">{t('components.deliveryForm.selectRegion')}</option>
                   {regions.map((region) => (
                     <option key={region.id} value={region.id}>
                       {region.name}
@@ -384,7 +386,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                 </select>
               </div>
               <div>
-                <label className={labelClass}>District</label>
+                <label className={labelClass}>{t('components.deliveryForm.district')}</label>
                 <select
                   value={formData.pickup_district_id || ''}
                   onChange={(e) =>
@@ -396,7 +398,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                   disabled={!formData.pickup_region_id}
                   className={inputClass}
                 >
-                  <option value="">Select District</option>
+                  <option value="">{t('components.deliveryForm.selectDistrict')}</option>
                   {pickupDistricts.map((district) => (
                     <option key={district.id} value={district.id}>
                       {district.name}
@@ -416,8 +418,8 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                 <MapPin className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Drop-off Details</h3>
-                <p className="text-sm text-gray-500">Where should we deliver?</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t('components.deliveryDetails.dropoffDetails')}</h3>
+                <p className="text-sm text-gray-500">{t('components.quickOrder.whereDeliver')}</p>
               </div>
             </div>
 
@@ -425,14 +427,14 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
               <label className={labelClass}>
                 <span className="flex items-center gap-2">
                   <User className="w-4 h-4 text-gray-400" />
-                  Recipient Name <span className="text-red-500">*</span>
+                  {t('components.deliveryForm.recipientName')} <span className="text-red-500">*</span>
                 </span>
               </label>
               <input
                 type="text"
                 value={formData.dropoff_name}
                 onChange={(e) => setFormData({ ...formData, dropoff_name: e.target.value })}
-                placeholder="Who to deliver to"
+                placeholder={t('components.deliveryForm.whoToDeliver')}
                 className={`${inputClass} ${stepErrors.dropoff_name ? 'border-red-300 focus:ring-red-200' : ''}`}
               />
               {stepErrors.dropoff_name && (
@@ -444,7 +446,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
               <label className={labelClass}>
                 <span className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-gray-400" />
-                  Phone Number <span className="text-red-500">*</span>
+                  {t('common.phone')} <span className="text-red-500">*</span>
                 </span>
               </label>
               <input
@@ -462,7 +464,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
             <div>
               {isLoaded ? (
                 <LocationPicker
-                  label="Drop-off Address *"
+                  label={t('components.deliveryForm.dropoffAddress')}
                   value={formData.dropoff_address}
                   onChange={(address, lat, lng) =>
                     setFormData({
@@ -479,14 +481,14 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                   <label className={labelClass}>
                     <span className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-gray-400" />
-                      Address <span className="text-red-500">*</span>
+                      {t('components.deliveryDetails.address')} <span className="text-red-500">*</span>
                     </span>
                   </label>
                   <input
                     type="text"
                     value={formData.dropoff_address}
                     onChange={(e) => setFormData({ ...formData, dropoff_address: e.target.value })}
-                    placeholder="Street address, building, landmark..."
+                    placeholder={t('components.quickOrder.streetLandmark')}
                     className={`${inputClass} ${stepErrors.dropoff_address ? 'border-red-300 focus:ring-red-200' : ''}`}
                   />
                   {stepErrors.dropoff_address && (
@@ -498,7 +500,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelClass}>Region</label>
+                <label className={labelClass}>{t('components.deliveryForm.region')}</label>
                 <select
                   value={formData.dropoff_region_id || ''}
                   onChange={(e) =>
@@ -511,7 +513,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                   disabled={loadingRegions}
                   className={inputClass}
                 >
-                  <option value="">Select Region</option>
+                  <option value="">{t('components.deliveryForm.selectRegion')}</option>
                   {regions.map((region) => (
                     <option key={region.id} value={region.id}>
                       {region.name}
@@ -520,7 +522,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                 </select>
               </div>
               <div>
-                <label className={labelClass}>District</label>
+                <label className={labelClass}>{t('components.deliveryForm.district')}</label>
                 <select
                   value={formData.dropoff_district_id || ''}
                   onChange={(e) =>
@@ -532,7 +534,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                   disabled={!formData.dropoff_region_id}
                   className={inputClass}
                 >
-                  <option value="">Select District</option>
+                  <option value="">{t('components.deliveryForm.selectDistrict')}</option>
                   {dropoffDistricts.map((district) => (
                     <option key={district.id} value={district.id}>
                       {district.name}
@@ -552,8 +554,8 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                 <Package className="w-5 h-5 text-amber-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Review & Submit</h3>
-                <p className="text-sm text-gray-500">Confirm your delivery details</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t('components.quickOrder.reviewSubmit')}</h3>
+                <p className="text-sm text-gray-500">{t('components.quickOrder.confirmDetails')}</p>
               </div>
             </div>
 
@@ -563,7 +565,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
               <div className="bg-green-50 rounded-xl p-4 border border-green-100">
                 <div className="flex items-center gap-2 text-green-700 font-medium mb-3">
                   <div className="w-6 h-6 bg-green-200 rounded-full flex items-center justify-center text-xs font-bold">A</div>
-                  Pickup
+                  {t('components.deliveries.pickup')}
                 </div>
                 <div className="space-y-1.5 text-sm">
                   <p className="text-gray-900 font-medium">{formData.pickup_name}</p>
@@ -571,7 +573,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                   <p className="text-gray-600">{formData.pickup_address}</p>
                   {formData.pickup_latitude && formData.pickup_longitude && (
                     <p className="text-xs text-green-600">
-                      Location pinned on map
+                      {t('components.quickOrder.locationPinned')}
                     </p>
                   )}
                 </div>
@@ -581,7 +583,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
               <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                 <div className="flex items-center gap-2 text-blue-700 font-medium mb-3">
                   <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold">B</div>
-                  Drop-off
+                  {t('components.deliveries.dropoff')}
                 </div>
                 <div className="space-y-1.5 text-sm">
                   <p className="text-gray-900 font-medium">{formData.dropoff_name}</p>
@@ -589,7 +591,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                   <p className="text-gray-600">{formData.dropoff_address}</p>
                   {formData.dropoff_latitude && formData.dropoff_longitude && (
                     <p className="text-xs text-blue-600">
-                      Location pinned on map
+                      {t('components.quickOrder.locationPinned')}
                     </p>
                   )}
                 </div>
@@ -601,14 +603,14 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
               <label className={labelClass}>
                 <span className="flex items-center gap-2">
                   <Package className="w-4 h-4 text-gray-400" />
-                  Package Description (Optional)
+                  {t('components.quickOrder.packageDescription')}
                 </span>
               </label>
               <textarea
                 value={formData.package_description}
                 onChange={(e) => setFormData({ ...formData, package_description: e.target.value })}
                 rows={3}
-                placeholder="Describe your package (e.g., documents, food, electronics...)"
+                placeholder={t('components.quickOrder.describePackage')}
                 className={`${inputClass} resize-none`}
               />
             </div>
@@ -625,7 +627,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                 className="flex-1 sm:flex-none px-6 py-3.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium flex items-center justify-center gap-2"
               >
                 <ChevronLeft className="w-5 h-5" />
-                <span className="hidden sm:inline">Back</span>
+                <span className="hidden sm:inline">{t('common.back')}</span>
               </button>
             )}
 
@@ -635,7 +637,7 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                 onClick={handleNext}
                 className="flex-1 bg-primary text-white px-6 py-3.5 rounded-xl hover:bg-primary-dark transition-colors font-medium flex items-center justify-center gap-2"
               >
-                <span>Continue</span>
+                <span>{t('components.quickOrder.continue')}</span>
                 <ChevronRight className="w-5 h-5" />
               </button>
             ) : (
@@ -647,12 +649,12 @@ export default function DeliveryForm({ onSubmit, loading, error }: DeliveryFormP
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Creating...</span>
+                    <span>{t('components.quickOrder.creating')}</span>
                   </>
                 ) : (
                   <>
                     <Check className="w-5 h-5" />
-                    <span>Create Delivery</span>
+                    <span>{t('components.deliveryForm.create')}</span>
                   </>
                 )}
               </button>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUserRole } from '@/lib/roles';
 import { Loader2, Plus, Edit, Trash2, Filter } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface Expense {
   id: string;
@@ -40,6 +41,7 @@ interface ExpenseFormData {
 
 export default function AdminExpensesPage() {
   const router = useRouter();
+  const t = useT();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -148,12 +150,12 @@ export default function AdminExpensesPage() {
 
     try {
       if (!formData.category_id) {
-        throw new Error('Category is required');
+        throw new Error(t('admin.expenses.categoryRequired'));
       }
 
       const amount = parseFloat(formData.amount);
       if (isNaN(amount) || amount <= 0) {
-        throw new Error('Amount must be a positive number');
+        throw new Error(t('admin.expenses.amountError'));
       }
 
       const url = editingExpense
@@ -175,21 +177,21 @@ export default function AdminExpensesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save expense');
+        throw new Error(errorData.error || t('admin.expenses.errSave'));
       }
 
       setShowForm(false);
       setEditingExpense(null);
       loadExpenses();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save expense');
+      setError(err instanceof Error ? err.message : t('admin.expenses.errSave'));
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleDelete(expense: Expense) {
-    if (!confirm('Are you sure you want to delete this expense?')) {
+    if (!confirm(t('admin.expenses.confirmDelete'))) {
       return;
     }
 
@@ -200,12 +202,12 @@ export default function AdminExpensesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete expense');
+        throw new Error(errorData.error || t('admin.expenses.errDelete'));
       }
 
       loadExpenses();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete expense');
+      alert(err instanceof Error ? err.message : t('admin.expenses.errDelete'));
     }
   }
 
@@ -239,15 +241,15 @@ export default function AdminExpensesPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
-          <p className="text-gray-600 mt-1">Track and manage platform expenses</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('admin.expenses.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('admin.expenses.subtitle')}</p>
         </div>
         <button
           onClick={handleNewExpense}
           className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
-          New Expense
+          {t('admin.expenses.new')}
         </button>
       </div>
 
@@ -255,13 +257,15 @@ export default function AdminExpensesPage() {
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-600">Total Expenses</p>
+            <p className="text-sm text-gray-600">{t('admin.expenses.total')}</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">
               {formatCurrency(totalExpenses)}
             </p>
           </div>
           <div className="text-sm text-gray-500">
-            {expenses.length} expense{expenses.length !== 1 ? 's' : ''}
+            {expenses.length === 1
+              ? t('admin.expenses.countOne', { count: expenses.length })
+              : t('admin.expenses.countMany', { count: expenses.length })}
           </div>
         </div>
       </div>
@@ -271,14 +275,14 @@ export default function AdminExpensesPage() {
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">Filters:</span>
+            <span className="text-sm font-medium text-gray-700">{t('admin.expenses.filters')}</span>
           </div>
           <select
             value={filters.category_id}
             onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
             className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
           >
-            <option value="">All Categories</option>
+            <option value="">{t('admin.expenses.allCategories')}</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
@@ -289,14 +293,14 @@ export default function AdminExpensesPage() {
             type="date"
             value={filters.start_date}
             onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
-            placeholder="Start Date"
+            placeholder={t('admin.expenses.startDate')}
             className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           <input
             type="date"
             value={filters.end_date}
             onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
-            placeholder="End Date"
+            placeholder={t('admin.expenses.endDate')}
             className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           {(filters.category_id || filters.start_date || filters.end_date) && (
@@ -304,7 +308,7 @@ export default function AdminExpensesPage() {
               onClick={() => setFilters({ category_id: '', start_date: '', end_date: '' })}
               className="text-sm text-gray-600 hover:text-gray-800"
             >
-              Clear Filters
+              {t('admin.expenses.clearFilters')}
             </button>
           )}
         </div>
@@ -322,25 +326,25 @@ export default function AdminExpensesPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
+                {t('admin.expenses.colDate')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Category
+                {t('admin.expenses.colCategory')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Description
+                {t('admin.common.description')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Supplier
+                {t('admin.expenses.colSupplier')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Amount
+                {t('admin.expenses.colAmount')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Created By
+                {t('admin.expenses.colCreatedBy')}
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
+                {t('common.actions')}
               </th>
             </tr>
           </thead>
@@ -348,7 +352,7 @@ export default function AdminExpensesPage() {
             {expenses.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                  No expenses found
+                  {t('admin.expenses.empty')}
                 </td>
               </tr>
             ) : (
@@ -359,7 +363,7 @@ export default function AdminExpensesPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {expense.expense_categories?.name || 'Unknown'}
+                      {expense.expense_categories?.name || t('admin.common.unknown')}
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -375,7 +379,7 @@ export default function AdminExpensesPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500">
-                      {expense.users?.name || 'Unknown'}
+                      {expense.users?.name || t('admin.common.unknown')}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -383,7 +387,7 @@ export default function AdminExpensesPage() {
                       <button
                         onClick={() => handleEdit(expense)}
                         className="text-blue-600 hover:text-blue-800"
-                        title="Edit"
+                        title={t('common.edit')}
                       >
                         <Edit className="w-4 h-4" />
                       </button>
@@ -391,7 +395,7 @@ export default function AdminExpensesPage() {
                         <button
                           onClick={() => handleDelete(expense)}
                           className="text-red-600 hover:text-red-800"
-                          title="Delete"
+                          title={t('common.delete')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -410,13 +414,13 @@ export default function AdminExpensesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {editingExpense ? 'Edit Expense' : 'New Expense'}
+              {editingExpense ? t('admin.expenses.editTitle') : t('admin.expenses.newTitle')}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category *
+                  {t('admin.expenses.categoryLabel')}
                 </label>
                 <select
                   value={formData.category_id}
@@ -424,7 +428,7 @@ export default function AdminExpensesPage() {
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
-                  <option value="">Select Category</option>
+                  <option value="">{t('admin.expenses.selectCategory')}</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
@@ -435,7 +439,7 @@ export default function AdminExpensesPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount (TZS) *
+                  {t('admin.expenses.amountLabel')}
                 </label>
                 <input
                   type="number"
@@ -451,33 +455,33 @@ export default function AdminExpensesPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+                  {t('admin.common.description')}
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Optional description"
+                  placeholder={t('admin.expenses.descriptionPlaceholder')}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Supplier
+                  {t('admin.expenses.supplierLabel')}
                 </label>
                 <input
                   type="text"
                   value={formData.supplier}
                   onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Where was this purchased? (e.g., Shell Station, Office Depot)"
+                  placeholder={t('admin.expenses.supplierPlaceholder')}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Expense Date *
+                  {t('admin.expenses.expenseDate')}
                 </label>
                 <input
                   type="date"
@@ -499,7 +503,7 @@ export default function AdminExpensesPage() {
                   disabled={submitting}
                   className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -507,7 +511,7 @@ export default function AdminExpensesPage() {
                   className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {submitting ? 'Saving...' : editingExpense ? 'Update Expense' : 'Create Expense'}
+                  {submitting ? t('common.saving') : editingExpense ? t('admin.expenses.update') : t('admin.expenses.create')}
                 </button>
               </div>
             </form>

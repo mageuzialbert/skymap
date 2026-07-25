@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Loader2, Save } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface PaymentInstructions {
   id: string;
@@ -18,6 +19,7 @@ interface PaymentInstructions {
 }
 
 export default function AdminPaymentInstructionsPage() {
+  const t = useT();
   const [instructions, setInstructions] = useState<PaymentInstructions | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -42,7 +44,7 @@ export default function AdminPaymentInstructionsPage() {
   async function loadInstructions() {
     try {
       const response = await fetch('/api/admin/payment-instructions');
-      if (!response.ok) throw new Error('Failed to load instructions');
+      if (!response.ok) throw new Error(t('admin.paymentInstructions.errLoad'));
       const data = await response.json();
       
       if (data) {
@@ -59,7 +61,7 @@ export default function AdminPaymentInstructionsPage() {
         });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load instructions');
+      setError(err instanceof Error ? err.message : t('admin.paymentInstructions.errLoad'));
     } finally {
       setLoading(false);
     }
@@ -80,15 +82,15 @@ export default function AdminPaymentInstructionsPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to save instructions');
+        throw new Error(data.error || t('admin.paymentInstructions.errSave'));
       }
 
       const data = await response.json();
       setInstructions(data);
-      setSuccess('Payment instructions saved successfully!');
+      setSuccess(t('admin.paymentInstructions.success'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save instructions');
+      setError(err instanceof Error ? err.message : t('admin.paymentInstructions.errSave'));
     } finally {
       setSaving(false);
     }
@@ -104,9 +106,9 @@ export default function AdminPaymentInstructionsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Payment Instructions</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">{t('admin.paymentInstructions.title')}</h1>
       <p className="text-gray-600 mb-6">
-        Configure payment instructions that will appear at the bottom of all invoices.
+        {t('admin.paymentInstructions.subtitle')}
       </p>
 
       {error && (
@@ -123,11 +125,11 @@ export default function AdminPaymentInstructionsPage() {
 
       <form onSubmit={handleSave} className="space-y-6">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Payment Instructions Details</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('admin.paymentInstructions.detailsHeading')}</h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Title *
+                {t('admin.paymentInstructions.titleLabel')}
               </label>
               <input
                 type="text"
@@ -135,12 +137,12 @@ export default function AdminPaymentInstructionsPage() {
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Payment Instructions"
+                placeholder={t('admin.paymentInstructions.titlePlaceholder')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Instructions *
+                {t('admin.paymentInstructions.instructionsLabel')}
               </label>
               <textarea
                 value={formData.instructions}
@@ -148,76 +150,76 @@ export default function AdminPaymentInstructionsPage() {
                 required
                 rows={6}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Please make payment using the details below..."
+                placeholder={t('admin.paymentInstructions.instructionsPlaceholder')}
               />
               <p className="text-xs text-gray-500 mt-1">
-                This text will appear on all invoices. Include payment methods, deadlines, and any special instructions.
+                {t('admin.paymentInstructions.instructionsHelp')}
               </p>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Bank Account Details</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('admin.paymentInstructions.bankHeading')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bank Name
+                {t('admin.paymentInstructions.bankName')}
               </label>
               <input
                 type="text"
                 value={formData.bank_name}
                 onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Bank Name"
+                placeholder={t('admin.paymentInstructions.bankName')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Account Name
+                {t('admin.paymentInstructions.accountName')}
               </label>
               <input
                 type="text"
                 value={formData.account_name}
                 onChange={(e) => setFormData({ ...formData, account_name: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Account Holder Name"
+                placeholder={t('admin.paymentInstructions.accountNamePlaceholder')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Account Number
+                {t('admin.paymentInstructions.accountNumber')}
               </label>
               <input
                 type="text"
                 value={formData.account_number}
                 onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Account Number"
+                placeholder={t('admin.paymentInstructions.accountNumber')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                SWIFT Code
+                {t('admin.paymentInstructions.swiftCode')}
               </label>
               <input
                 type="text"
                 value={formData.swift_code}
                 onChange={(e) => setFormData({ ...formData, swift_code: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="SWIFT/BIC Code"
+                placeholder={t('admin.paymentInstructions.swiftPlaceholder')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Branch
+                {t('admin.paymentInstructions.branch')}
               </label>
               <input
                 type="text"
                 value={formData.branch}
                 onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Branch Name/Location"
+                placeholder={t('admin.paymentInstructions.branchPlaceholder')}
               />
             </div>
           </div>
@@ -233,25 +235,25 @@ export default function AdminPaymentInstructionsPage() {
               className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
             />
             <label htmlFor="active" className="text-sm font-medium text-gray-700">
-              Active (instructions will appear on invoices)
+              {t('admin.paymentInstructions.activeCheckbox')}
             </label>
           </div>
         </div>
 
         {/* Preview */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('admin.paymentInstructions.preview')}</h2>
           <div className="border-2 border-gray-200 rounded-lg p-6 bg-gray-50">
             <h3 className="font-semibold text-gray-900 mb-2">{formData.title}</h3>
             <p className="text-sm text-gray-700 whitespace-pre-wrap mb-4">{formData.instructions}</p>
             {(formData.bank_name || formData.account_name || formData.account_number) && (
               <div className="mt-4 pt-4 border-t border-gray-300">
-                <p className="text-sm font-medium text-gray-900 mb-2">Bank Details:</p>
-                {formData.bank_name && <p className="text-sm text-gray-700">Bank: {formData.bank_name}</p>}
-                {formData.account_name && <p className="text-sm text-gray-700">Account Name: {formData.account_name}</p>}
-                {formData.account_number && <p className="text-sm text-gray-700">Account Number: {formData.account_number}</p>}
-                {formData.swift_code && <p className="text-sm text-gray-700">SWIFT Code: {formData.swift_code}</p>}
-                {formData.branch && <p className="text-sm text-gray-700">Branch: {formData.branch}</p>}
+                <p className="text-sm font-medium text-gray-900 mb-2">{t('admin.paymentInstructions.bankDetails')}</p>
+                {formData.bank_name && <p className="text-sm text-gray-700">{t('admin.paymentInstructions.previewBank')} {formData.bank_name}</p>}
+                {formData.account_name && <p className="text-sm text-gray-700">{t('admin.paymentInstructions.previewAccountName')} {formData.account_name}</p>}
+                {formData.account_number && <p className="text-sm text-gray-700">{t('admin.paymentInstructions.previewAccountNumber')} {formData.account_number}</p>}
+                {formData.swift_code && <p className="text-sm text-gray-700">{t('admin.paymentInstructions.previewSwift')} {formData.swift_code}</p>}
+                {formData.branch && <p className="text-sm text-gray-700">{t('admin.paymentInstructions.previewBranch')} {formData.branch}</p>}
               </div>
             )}
           </div>
@@ -266,12 +268,12 @@ export default function AdminPaymentInstructionsPage() {
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving...</span>
+                <span>{t('common.saving')}</span>
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span>Save Instructions</span>
+                <span>{t('admin.paymentInstructions.save')}</span>
               </>
             )}
           </button>

@@ -9,6 +9,7 @@ import BusinessForm, {
   BusinessFormData,
 } from "@/components/businesses/BusinessForm";
 import BusinessDetailsModal from "@/components/businesses/BusinessDetailsModal";
+import { useT } from "@/lib/i18n";
 
 interface Business {
   id: string;
@@ -31,6 +32,7 @@ interface Business {
 
 export default function AdminBusinessesPage() {
   const router = useRouter();
+  const t = useT();
   const {
     role,
     hasPermission,
@@ -134,7 +136,7 @@ export default function AdminBusinessesPage() {
         if (data.delivery_fee.trim()) {
           const fee = parseFloat(data.delivery_fee);
           if (isNaN(fee) || fee < 0) {
-            throw new Error("Delivery fee must be a positive number");
+            throw new Error(t("admin.businesses.feeError"));
           }
           updateData.delivery_fee = fee;
         } else {
@@ -152,7 +154,7 @@ export default function AdminBusinessesPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to update business");
+          throw new Error(errorData.error || t("admin.businesses.errUpdate"));
         }
       } else {
         // Create new business
@@ -170,7 +172,7 @@ export default function AdminBusinessesPage() {
         if (data.delivery_fee.trim()) {
           const fee = parseFloat(data.delivery_fee);
           if (isNaN(fee) || fee < 0) {
-            throw new Error("Delivery fee must be a positive number");
+            throw new Error(t("admin.businesses.feeError"));
           }
           createData.delivery_fee = fee;
         }
@@ -183,7 +185,7 @@ export default function AdminBusinessesPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to create business");
+          throw new Error(errorData.error || t("admin.businesses.errCreate"));
         }
       }
 
@@ -191,15 +193,20 @@ export default function AdminBusinessesPage() {
       setEditingBusiness(null);
       loadBusinesses();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save business");
+      setError(err instanceof Error ? err.message : t("admin.businesses.errSave"));
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleToggleActive(business: Business) {
-    const action = business.active ? "disable" : "enable";
-    if (!confirm(`Are you sure you want to ${action} this client?`)) return;
+    const confirmMsg = business.active
+      ? t("admin.businesses.confirmDisable")
+      : t("admin.businesses.confirmEnable");
+    const failMsg = business.active
+      ? t("admin.businesses.failDisable")
+      : t("admin.businesses.failEnable");
+    if (!confirm(confirmMsg)) return;
 
     try {
       const response = await fetch(`/api/admin/businesses/${business.id}`, {
@@ -210,12 +217,12 @@ export default function AdminBusinessesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to ${action} client`);
+        throw new Error(errorData.error || failMsg);
       }
 
       loadBusinesses();
     } catch (err) {
-      alert(err instanceof Error ? err.message : `Failed to ${action} client`);
+      alert(err instanceof Error ? err.message : failMsg);
     }
   }
 
@@ -257,14 +264,14 @@ export default function AdminBusinessesPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Client Management</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t("admin.businesses.title")}</h1>
         {!showForm && canCreate && (
           <button
             onClick={handleCreate}
             className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
           >
             <Plus className="w-5 h-5" />
-            Register Client
+            {t("admin.businesses.register")}
           </button>
         )}
       </div>
@@ -281,7 +288,7 @@ export default function AdminBusinessesPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by name or phone..."
+                  placeholder={t("admin.businesses.searchPlaceholder")}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
@@ -295,9 +302,9 @@ export default function AdminBusinessesPage() {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
               >
-                <option value="ALL">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
+                <option value="ALL">{t("admin.businesses.allStatuses")}</option>
+                <option value="ACTIVE">{t("admin.common.active")}</option>
+                <option value="INACTIVE">{t("admin.common.inactive")}</option>
               </select>
             </div>
 
@@ -308,15 +315,16 @@ export default function AdminBusinessesPage() {
                 className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
               >
                 <X className="w-4 h-4" />
-                Clear
+                {t("admin.businesses.clear")}
               </button>
             )}
           </div>
 
           {/* Results Count */}
           <div className="mt-4 text-sm text-gray-600">
-            Showing {businesses.length} client
-            {businesses.length !== 1 ? "s" : ""}
+            {businesses.length === 1
+              ? t("admin.businesses.showingOne", { count: businesses.length })
+              : t("admin.businesses.showingMany", { count: businesses.length })}
           </div>
         </div>
       )}
@@ -326,7 +334,7 @@ export default function AdminBusinessesPage() {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
-              {editingBusiness ? "Edit Business" : "Register New Business"}
+              {editingBusiness ? t("admin.businesses.editBusiness") : t("admin.businesses.registerBusiness")}
             </h2>
             <button
               onClick={handleCancel}

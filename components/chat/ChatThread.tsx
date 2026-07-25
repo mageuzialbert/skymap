@@ -868,6 +868,7 @@ function MessageMenu({
   onEdit: () => void;
   onDelete: (id: string, scope: 'me' | 'everyone') => void;
 }) {
+  const t = useT();
   const canEdit = mine && !m.deleted_at && !!m.body;
   const canDeleteEveryone = mine && !m.deleted_at;
   return (
@@ -876,7 +877,7 @@ function MessageMenu({
         type="button"
         onClick={onToggle}
         className="p-1 text-gray-400 hover:text-gray-700 opacity-60 hover:opacity-100 transition-opacity"
-        aria-label="Message actions"
+        aria-label={t('components.chat.thread.messageActions')}
       >
         <MoreVertical className="w-4 h-4" />
       </button>
@@ -888,21 +889,21 @@ function MessageMenu({
           >
             {canEdit && (
               <button onClick={onEdit} className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-50">
-                <Pencil className="w-4 h-4" /> Edit
+                <Pencil className="w-4 h-4" /> {t('common.edit')}
               </button>
             )}
             <button
               onClick={() => onDelete(m.id, 'me')}
               className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-50"
             >
-              <Trash2 className="w-4 h-4" /> Delete for me
+              <Trash2 className="w-4 h-4" /> {t('components.chat.thread.deleteForMe')}
             </button>
             {canDeleteEveryone && (
               <button
                 onClick={() => onDelete(m.id, 'everyone')}
                 className="w-full flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50"
               >
-                <Trash2 className="w-4 h-4" /> Delete for everyone
+                <Trash2 className="w-4 h-4" /> {t('components.chat.thread.deleteForEveryone')}
               </button>
             )}
           </div>

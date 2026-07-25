@@ -8,6 +8,7 @@ import UsersTable from '@/components/users/UsersTable';
 import UserForm, { UserFormData } from '@/components/users/UserForm';
 import UserDetailsModal, { RiderUser } from '@/components/users/UserDetailsModal';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
+import { useT } from '@/lib/i18n';
 
 interface User {
   id: string;
@@ -30,6 +31,7 @@ type ConfirmAction =
 
 export default function AdminUsersPage() {
   const router = useRouter();
+  const t = useT();
   const { role: currentRole, hasPermission, hasModuleAccess, loading: permissionsLoading } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
@@ -105,7 +107,7 @@ export default function AdminUsersPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to update user');
+          throw new Error(errorData.error || t('admin.users.errUpdate'));
         }
       } else {
         const response = await fetch('/api/admin/users', {
@@ -116,7 +118,7 @@ export default function AdminUsersPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to create user');
+          throw new Error(errorData.error || t('admin.users.errCreate'));
         }
       }
 
@@ -125,7 +127,7 @@ export default function AdminUsersPage() {
       setEditingPermissions([]);
       loadUsers();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save user');
+      setError(err instanceof Error ? err.message : t('admin.users.errSave'));
     } finally {
       setSubmitting(false);
     }
@@ -169,7 +171,7 @@ export default function AdminUsersPage() {
         });
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to update status');
+          throw new Error(errorData.error || t('admin.users.errStatus'));
         }
       } else if (confirm.kind === 'softDelete') {
         const response = await fetch(`/api/admin/users/${confirm.userId}`, {
@@ -177,7 +179,7 @@ export default function AdminUsersPage() {
         });
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to deactivate user');
+          throw new Error(errorData.error || t('admin.users.errDeactivate'));
         }
       } else if (confirm.kind === 'hardDelete') {
         const response = await fetch(`/api/admin/users/${confirm.user.id}?hard=true`, {
@@ -185,13 +187,13 @@ export default function AdminUsersPage() {
         });
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to delete user');
+          throw new Error(errorData.error || t('admin.users.errDelete'));
         }
       }
       setConfirm(null);
       loadUsers();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Action failed');
+      alert(err instanceof Error ? err.message : t('admin.users.errAction'));
     } finally {
       setConfirmLoading(false);
     }
@@ -214,27 +216,26 @@ export default function AdminUsersPage() {
     if (confirm.kind === 'toggleActive') {
       const u = confirm.user;
       return {
-        title: u.active ? 'Deactivate user?' : 'Activate user?',
+        title: u.active ? t('admin.users.deactivateTitle') : t('admin.users.activateTitle'),
         message: u.active
-          ? `${u.name} will no longer be able to sign in or appear in active lists. You can re-activate them at any time.`
-          : `${u.name} will be able to sign in again and appear in active lists.`,
-        confirmLabel: u.active ? 'Deactivate' : 'Activate',
+          ? t('admin.users.deactivateMsg', { name: u.name })
+          : t('admin.users.activateMsg', { name: u.name }),
+        confirmLabel: u.active ? t('admin.users.deactivateLabel') : t('admin.users.activateLabel'),
         tone: u.active ? ('warning' as const) : ('info' as const),
       };
     }
     if (confirm.kind === 'softDelete') {
       return {
-        title: 'Deactivate user?',
-        message: 'This user will be marked inactive. They can be reactivated later from this page.',
-        confirmLabel: 'Deactivate',
+        title: t('admin.users.deactivateTitle'),
+        message: t('admin.users.softDeleteMsg'),
+        confirmLabel: t('admin.users.deactivateLabel'),
         tone: 'warning' as const,
       };
     }
     return {
-      title: `Permanently delete ${confirm.user.name}?`,
-      message:
-        "This will permanently remove this rider's account, login credentials and profile data. This action cannot be undone.",
-      confirmLabel: 'Delete permanently',
+      title: t('admin.users.hardDeleteTitle', { name: confirm.user.name }),
+      message: t('admin.users.hardDeleteMsg'),
+      confirmLabel: t('admin.users.deleteLabel'),
       tone: 'danger' as const,
     };
   };
@@ -245,9 +246,9 @@ export default function AdminUsersPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Riders & Staff</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('admin.users.title')}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Manage rider accounts, profile photos and license numbers.
+            {t('admin.users.subtitle')}
           </p>
         </div>
         {!showForm && canCreate && (
@@ -260,7 +261,7 @@ export default function AdminUsersPage() {
             className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors cursor-pointer"
           >
             <Plus className="w-5 h-5" />
-            Add Rider / Staff
+            {t('admin.users.add')}
           </button>
         )}
       </div>
@@ -269,7 +270,7 @@ export default function AdminUsersPage() {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
-              {editingUser ? 'Edit User' : 'Create New User'}
+              {editingUser ? t('admin.users.editUser') : t('admin.users.createUser')}
             </h2>
             <button
               onClick={() => {
@@ -286,7 +287,7 @@ export default function AdminUsersPage() {
           {loadingPermissions ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <span className="ml-2 text-gray-600">Loading permissions...</span>
+              <span className="ml-2 text-gray-600">{t('admin.users.loadingPermissions')}</span>
             </div>
           ) : (
             <UserForm

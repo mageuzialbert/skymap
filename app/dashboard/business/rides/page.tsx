@@ -149,19 +149,19 @@ export default function RidesHistoryPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
         <div className="flex items-center gap-2 mb-3">
           <Filter className="w-4 h-4 text-gray-500" />
-          <span className="text-sm font-semibold text-gray-700">Filters</span>
+          <span className="text-sm font-semibold text-gray-700">{t('business.rides.filters')}</span>
           {hasFilters && (
             <button
               onClick={clearFilters}
               className="ml-auto inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
             >
-              <X className="w-3.5 h-3.5" /> Clear
+              <X className="w-3.5 h-3.5" /> {t('business.rides.clear')}
             </button>
           )}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Date from</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.dateFrom')}</label>
             <input
               type="date"
               value={dateFrom}
@@ -170,7 +170,7 @@ export default function RidesHistoryPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Date to</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.dateTo')}</label>
             <input
               type="date"
               value={dateTo}
@@ -179,7 +179,7 @@ export default function RidesHistoryPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Time from</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.timeFrom')}</label>
             <input
               type="time"
               value={timeFrom}
@@ -188,7 +188,7 @@ export default function RidesHistoryPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Time to</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.timeTo')}</label>
             <input
               type="time"
               value={timeTo}
@@ -197,25 +197,25 @@ export default function RidesHistoryPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.statusLabel')}</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
             >
-              <option value="ALL">All</option>
-              <option value="CREATED">Created</option>
-              <option value="ASSIGNED">Assigned</option>
-              <option value="PICKED_UP">Picked up</option>
-              <option value="IN_TRANSIT">In transit</option>
-              <option value="DELIVERED">Delivered</option>
-              <option value="FAILED">Failed</option>
-              <option value="REJECTED">Rejected</option>
+              <option value="ALL">{t('business.rides.status.all')}</option>
+              <option value="CREATED">{t('business.rides.status.created')}</option>
+              <option value="ASSIGNED">{t('business.rides.status.assigned')}</option>
+              <option value="PICKED_UP">{t('business.rides.status.pickedUp')}</option>
+              <option value="IN_TRANSIT">{t('business.rides.status.inTransit')}</option>
+              <option value="DELIVERED">{t('business.rides.status.delivered')}</option>
+              <option value="FAILED">{t('business.rides.status.failed')}</option>
+              <option value="REJECTED">{t('business.rides.status.rejected')}</option>
             </select>
           </div>
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          Showing {filtered.length} of {rides.length} rides
+          {t('business.rides.showingCount', { shown: filtered.length, total: rides.length })}
         </p>
       </div>
 
@@ -225,20 +225,20 @@ export default function RidesHistoryPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Service</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Route</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cost</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.service')}</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.route')}</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.vehicle')}</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.date')}</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.time')}</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.status')}</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.cost')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
-                    No requests found.
+                    {t('business.rides.noRequests')}
                   </td>
                 </tr>
               ) : (
@@ -295,7 +295,7 @@ export default function RidesHistoryPage() {
       {/* Mobile cards */}
       <div className="md:hidden space-y-3">
         {filtered.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">No rides found.</div>
+          <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">{t('business.rides.noRides')}</div>
         ) : (
           filtered.map((r) => (
             <Link

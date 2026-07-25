@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, Loader2, AlertCircle } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface StatusUpdateModalProps {
   isOpen: boolean;
@@ -11,12 +12,7 @@ interface StatusUpdateModalProps {
   loading?: boolean;
 }
 
-const statusOptions = [
-  { value: 'PICKED_UP', label: 'Picked Up', description: 'Package has been collected from pickup location' },
-  { value: 'IN_TRANSIT', label: 'In Transit', description: 'Package is on the way to destination' },
-  { value: 'DELIVERED', label: 'Delivered', description: 'Package has been successfully delivered' },
-  { value: 'FAILED', label: 'Failed', description: 'Delivery could not be completed' },
-];
+const statusOptionValues = ['PICKED_UP', 'IN_TRANSIT', 'DELIVERED', 'FAILED'];
 
 const validTransitions: Record<string, string[]> = {
   ASSIGNED: ['PICKED_UP', 'FAILED'],
@@ -31,6 +27,7 @@ export default function StatusUpdateModal({
   currentStatus,
   loading = false,
 }: StatusUpdateModalProps) {
+  const t = useT();
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [note, setNote] = useState<string>('');
   const [error, setError] = useState('');
@@ -41,12 +38,12 @@ export default function StatusUpdateModal({
 
   async function handleSubmit() {
     if (!selectedStatus) {
-      setError('Please select a status');
+      setError(t('rider.statusModal.selectStatus'));
       return;
     }
 
     if (!availableStatuses.includes(selectedStatus)) {
-      setError(`Cannot transition from ${currentStatus} to ${selectedStatus}`);
+      setError(t('rider.statusModal.cannotTransition', { from: currentStatus, to: selectedStatus }));
       return;
     }
 
@@ -57,7 +54,7 @@ export default function StatusUpdateModal({
       setSelectedStatus('');
       setNote('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update status');
+      setError(err instanceof Error ? err.message : t('rider.statusModal.failedUpdate'));
     }
   }
 
@@ -65,7 +62,7 @@ export default function StatusUpdateModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end md:items-center justify-center z-50 p-4">
       <div className="bg-white rounded-t-lg md:rounded-lg shadow-xl max-w-md w-full max-h-[90dvh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Update Delivery Status</h2>
+          <h2 className="text-xl font-semibold">{t('rider.statusModal.title')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -85,25 +82,25 @@ export default function StatusUpdateModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Current Status
+              {t('rider.statusModal.currentStatus')}
             </label>
             <div className="px-4 py-2 bg-gray-50 rounded-md text-sm text-gray-700">
-              {currentStatus.replace('_', ' ')}
+              {t(`rider.status.${currentStatus}`)}
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              New Status *
+              {t('rider.statusModal.newStatus')}
             </label>
             <div className="space-y-2">
-              {statusOptions
-                .filter((option) => availableStatuses.includes(option.value))
-                .map((option) => (
+              {statusOptionValues
+                .filter((value) => availableStatuses.includes(value))
+                .map((value) => (
                   <label
-                    key={option.value}
+                    key={value}
                     className={`flex items-start p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                      selectedStatus === option.value
+                      selectedStatus === value
                         ? 'border-primary bg-primary/5'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
@@ -111,14 +108,14 @@ export default function StatusUpdateModal({
                     <input
                       type="radio"
                       name="status"
-                      value={option.value}
-                      checked={selectedStatus === option.value}
+                      value={value}
+                      checked={selectedStatus === value}
                       onChange={(e) => setSelectedStatus(e.target.value)}
                       className="mt-1 mr-3"
                     />
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">{option.label}</div>
-                      <div className="text-xs text-gray-500 mt-1">{option.description}</div>
+                      <div className="font-medium text-gray-900">{t(`rider.statusModal.options.${value}.label`)}</div>
+                      <div className="text-xs text-gray-500 mt-1">{t(`rider.statusModal.options.${value}.description`)}</div>
                     </div>
                   </label>
                 ))}
@@ -127,14 +124,14 @@ export default function StatusUpdateModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Note (Optional)
+              {t('rider.statusModal.note')}
             </label>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Add any additional notes..."
+              placeholder={t('rider.statusModal.notePlaceholder')}
             />
           </div>
 
@@ -145,14 +142,14 @@ export default function StatusUpdateModal({
               className="flex-1 bg-primary text-white px-4 py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {loading ? 'Updating...' : 'Update Status'}
+              {loading ? t('rider.statusModal.updating') : t('rider.statusModal.updateStatus')}
             </button>
             <button
               onClick={onClose}
               disabled={loading}
               className="px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 font-medium"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { useLoadScript } from '@react-google-maps/api';
 import { supabase } from '@/lib/supabase';
 import { resetPassword } from '@/lib/auth';
 import { Save, Loader2, Upload, X, Lock, AlertCircle } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 import LocationPicker from '@/components/common/LocationPicker';
 
 interface BusinessProfile {
@@ -32,6 +33,7 @@ interface District {
 }
 
 export default function BusinessProfilePage() {
+  const t = useT();
   const [profile, setProfile] = useState<BusinessProfile>({
     name: '',
     phone: '',
@@ -85,14 +87,14 @@ export default function BusinessProfilePage() {
       
       if (sessionError) {
         console.error('Session error:', sessionError);
-        setError('Session error. Please try logging in again.');
+        setError(t('business.profile.msg.sessionError'));
         setLoading(false);
         return;
       }
       
       if (!session) {
         console.error('No active session');
-        setError('No active session. Please log in.');
+        setError(t('business.profile.msg.noSession'));
         setLoading(false);
         return;
       }
@@ -101,14 +103,14 @@ export default function BusinessProfilePage() {
       
       if (authError) {
         console.error('Auth error:', authError);
-        setError('Authentication error. Please try logging in again.');
+        setError(t('business.profile.msg.authError'));
         setLoading(false);
         return;
       }
       
       if (!user) {
         console.error('No user found');
-        setError('User not found. Please log in.');
+        setError(t('business.profile.msg.userNotFound'));
         setLoading(false);
         return;
       }
@@ -230,7 +232,7 @@ export default function BusinessProfilePage() {
             longitude: null,
           });
         } else {
-          setError('Failed to load profile. Please try refreshing the page.');
+          setError(t('business.profile.msg.loadFailed'));
         }
       } catch (authErr) {
         console.error('Error getting auth user in catch:', authErr);
@@ -269,7 +271,7 @@ export default function BusinessProfilePage() {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error(t('business.profile.msg.notAuthenticated'));
 
       // Use stored business ID, or query if not available
       let businessIdToUse = businessId;
@@ -286,13 +288,13 @@ export default function BusinessProfilePage() {
           console.error('Error querying business:', businessQueryError);
           // Check if it's a "not found" error (PGRST116)
           if (businessQueryError.code === 'PGRST116' || businessQueryError.message?.includes('No rows')) {
-            throw new Error('Business not found. Please contact support.');
+            throw new Error(t('business.profile.msg.businessNotFound'));
           }
           throw new Error(`Failed to find business: ${businessQueryError.message}`);
         }
 
         if (!business) {
-          throw new Error('Business not found. Please contact support.');
+          throw new Error(t('business.profile.msg.businessNotFound'));
         }
 
         businessIdToUse = business.id;
@@ -325,9 +327,9 @@ export default function BusinessProfilePage() {
 
       if (userError) throw userError;
 
-      setSuccess('Profile updated successfully!');
+      setSuccess(t('business.profile.msg.profileUpdated'));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update profile');
+      setError(err instanceof Error ? err.message : t('business.profile.msg.updateFailed'));
     } finally {
       setSaving(false);
     }
@@ -352,15 +354,15 @@ export default function BusinessProfilePage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to upload logo');
+        throw new Error(data.error || t('business.profile.msg.uploadFailed'));
       }
 
       const data = await response.json();
       setProfile({ ...profile, logo_url: data.url });
-      setSuccess('Logo uploaded successfully!');
+      setSuccess(t('business.profile.msg.logoUploaded'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload logo');
+      setError(err instanceof Error ? err.message : t('business.profile.msg.uploadFailed'));
     } finally {
       setUploadingLogo(false);
       e.target.value = ''; // Reset input
@@ -383,10 +385,10 @@ export default function BusinessProfilePage() {
       if (error) throw error;
       
       setProfile({ ...profile, logo_url: null });
-      setSuccess('Logo removed successfully!');
+      setSuccess(t('business.profile.msg.logoRemoved'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove logo');
+      setError(err instanceof Error ? err.message : t('business.profile.msg.removeFailed'));
     } finally {
       setSaving(false);
     }
@@ -400,12 +402,12 @@ export default function BusinessProfilePage() {
 
     try {
       await resetPassword(newPassword, confirmPassword);
-      setPasswordSuccess('Password updated successfully!');
+      setPasswordSuccess(t('business.profile.msg.passwordUpdated'));
       setNewPassword('');
       setConfirmPassword('');
       setTimeout(() => setPasswordSuccess(''), 3000);
     } catch (err) {
-      setPasswordError(err instanceof Error ? err.message : 'Failed to reset password');
+      setPasswordError(err instanceof Error ? err.message : t('business.profile.msg.resetFailed'));
     } finally {
       setResettingPassword(false);
     }
@@ -422,9 +424,9 @@ export default function BusinessProfilePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('business.profile.title')}</h1>
         <p className="text-gray-600 mt-2">
-          Update your business information and address
+          {t('business.profile.subtitle')}
         </p>
       </div>
 
@@ -443,16 +445,16 @@ export default function BusinessProfilePage() {
       <form onSubmit={handleSave} className="bg-white rounded-lg shadow-md p-6 space-y-6">
         {/* Business Logo */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Business Logo</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('business.profile.businessLogo')}</h2>
           <div className="flex items-start gap-6">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Logo Image
+                {t('business.profile.logoImage')}
               </label>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
                   <Upload className="w-4 h-4" />
-                  <span>{uploadingLogo ? 'Uploading...' : 'Upload Logo'}</span>
+                  <span>{uploadingLogo ? t('business.profile.uploading') : t('business.profile.uploadLogo')}</span>
                   <input
                     type="file"
                     accept="image/jpeg,image/jpg,image/png,image/svg+xml,image/webp"
@@ -468,12 +470,12 @@ export default function BusinessProfilePage() {
                     disabled={saving}
                     className="text-red-600 hover:text-red-800 text-sm disabled:opacity-50"
                   >
-                    Remove
+                    {t('business.profile.remove')}
                   </button>
                 )}
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Recommended: PNG or SVG, max 5MB. Your logo will appear on your business profile.
+                {t('business.profile.logoHint')}
               </p>
             </div>
             {profile.logo_url && (
@@ -481,7 +483,7 @@ export default function BusinessProfilePage() {
                 <div className="w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
                   <img
                     src={profile.logo_url}
-                    alt="Business Logo"
+                    alt={t('business.profile.logoAlt')}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
@@ -491,11 +493,11 @@ export default function BusinessProfilePage() {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Business Information</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('business.profile.businessInfo')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Business Name *
+                {t('business.profile.businessName')}
               </label>
               <input
                 type="text"
@@ -508,7 +510,7 @@ export default function BusinessProfilePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
+                {t('business.profile.phoneNumber')}
               </label>
               <input
                 type="tel"
@@ -517,13 +519,13 @@ export default function BusinessProfilePage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Phone number cannot be changed. Verify it in the Verification page.
+                {t('business.profile.phoneHint')}
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+                {t('business.profile.emailAddress')}
               </label>
               <input
                 type="email"
@@ -532,19 +534,19 @@ export default function BusinessProfilePage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Email cannot be changed. Verify it in the Verification page.
+                {t('business.profile.emailHint')}
               </p>
             </div>
           </div>
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Address Information</h2>
-          
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('business.profile.addressInfo')}</h2>
+
           {loadError && (
             <div className="mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-700 rounded-md text-sm flex items-center gap-2">
               <AlertCircle className="w-4 h-4" />
-              <span>Google Maps failed to load. You can still enter addresses manually.</span>
+              <span>{t('business.profile.mapsLoadError')}</span>
             </div>
           )}
 
@@ -552,7 +554,7 @@ export default function BusinessProfilePage() {
             <div className="md:col-span-2">
               {isLoaded ? (
                 <LocationPicker
-                  label="Business Address"
+                  label={t('business.profile.businessAddress')}
                   value={profile.address || ''}
                   onChange={(address, lat, lng) => setProfile({ 
                     ...profile, 
@@ -565,53 +567,53 @@ export default function BusinessProfilePage() {
               ) : loadError ? (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Business Address
+                    {t('business.profile.businessAddress')}
                   </label>
                   <input
                     type="text"
                     value={profile.address || ''}
                     onChange={(e) => setProfile({ ...profile, address: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Street address"
+                    placeholder={t('business.profile.streetAddress')}
                   />
                 </div>
               ) : (
                 <div className="flex items-center justify-center p-4">
                   <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                  <span className="ml-2 text-gray-500 text-sm">Loading maps...</span>
+                  <span className="ml-2 text-gray-500 text-sm">{t('business.profile.loadingMaps')}</span>
                 </div>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                City
+                {t('business.profile.city')}
               </label>
               <input
                 type="text"
                 value={profile.city || ''}
                 onChange={(e) => setProfile({ ...profile, city: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="City"
+                placeholder={t('business.profile.city')}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Postal Code
+                {t('business.profile.postalCode')}
               </label>
               <input
                 type="text"
                 value={profile.postal_code || ''}
                 onChange={(e) => setProfile({ ...profile, postal_code: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Postal code"
+                placeholder={t('business.profile.postalCode')}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Region
+                {t('business.profile.region')}
               </label>
               <select
                 value={selectedRegionId || ''}
@@ -628,7 +630,7 @@ export default function BusinessProfilePage() {
                 }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
               >
-                <option value="">Select Region</option>
+                <option value="">{t('business.profile.selectRegion')}</option>
                 {regions.map(region => (
                   <option key={region.id} value={region.id}>
                     {region.name}
@@ -639,7 +641,7 @@ export default function BusinessProfilePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                District
+                {t('business.profile.district')}
               </label>
               <select
                 value={profile.district_id || ''}
@@ -647,7 +649,7 @@ export default function BusinessProfilePage() {
                 disabled={!selectedRegionId || districts.length === 0}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
-                <option value="">Select District</option>
+                <option value="">{t('business.profile.selectDistrict')}</option>
                 {districts.map(district => (
                   <option key={district.id} value={district.id}>
                     {district.name}
@@ -656,7 +658,7 @@ export default function BusinessProfilePage() {
               </select>
               {!selectedRegionId && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Please select a region first
+                  {t('business.profile.selectRegionFirst')}
                 </p>
               )}
             </div>
@@ -672,12 +674,12 @@ export default function BusinessProfilePage() {
             {saving ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Saving...</span>
+                <span>{t('common.saving')}</span>
               </>
             ) : (
               <>
                 <Save className="w-5 h-5" />
-                <span>Save Changes</span>
+                <span>{t('business.profile.saveChanges')}</span>
               </>
             )}
           </button>
@@ -689,10 +691,10 @@ export default function BusinessProfilePage() {
         <div className="mb-4">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
             <Lock className="w-5 h-5" />
-            Password Settings
+            {t('business.profile.passwordSettings')}
           </h2>
           <p className="text-gray-600 mt-1 text-sm">
-            Set a new password for your account. This is especially useful if you logged in via SMS code.
+            {t('business.profile.passwordDesc')}
           </p>
         </div>
 
@@ -712,7 +714,7 @@ export default function BusinessProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                New Password *
+                {t('business.profile.newPassword')}
               </label>
               <input
                 type="password"
@@ -721,16 +723,16 @@ export default function BusinessProfilePage() {
                 required
                 minLength={8}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Enter new password"
+                placeholder={t('business.profile.enterNewPassword')}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Must be at least 8 characters long
+                {t('business.profile.passwordHint')}
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm Password *
+                {t('business.profile.confirmPasswordLabel')}
               </label>
               <input
                 type="password"
@@ -739,7 +741,7 @@ export default function BusinessProfilePage() {
                 required
                 minLength={8}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Confirm new password"
+                placeholder={t('business.profile.confirmNewPassword')}
               />
             </div>
           </div>
@@ -753,12 +755,12 @@ export default function BusinessProfilePage() {
               {resettingPassword ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Updating...</span>
+                  <span>{t('business.profile.updating')}</span>
                 </>
               ) : (
                 <>
                   <Lock className="w-5 h-5" />
-                  <span>Update Password</span>
+                  <span>{t('business.profile.updatePassword')}</span>
                 </>
               )}
             </button>

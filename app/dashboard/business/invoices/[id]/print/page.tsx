@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Loader2, Printer, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 import InvoiceDocument from '@/components/invoices/InvoiceDocument';
 
 interface CompanyProfile {
@@ -67,6 +68,7 @@ interface PaymentInstructions {
 }
 
 export default function InvoicePrintPage() {
+  const t = useT();
   const params = useParams();
   const router = useRouter();
   const invoiceId = params.id as string;
@@ -170,12 +172,12 @@ export default function InvoicePrintPage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Invoice not found</p>
+          <p className="text-gray-600 mb-4">{t('business.invoicePrint.notFound')}</p>
           <button
             onClick={() => router.back()}
             className="text-primary hover:underline"
           >
-            Go back
+            {t('business.invoicePrint.goBack')}
           </button>
         </div>
       </div>
@@ -192,14 +194,14 @@ export default function InvoicePrintPage() {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back
+            {t('business.invoicePrint.back')}
           </button>
           <button
             onClick={handlePrint}
             className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors"
           >
             <Printer className="w-5 h-5" />
-            Print / Save as PDF
+            {t('business.invoicePrint.printSave')}
           </button>
         </div>
       </div>

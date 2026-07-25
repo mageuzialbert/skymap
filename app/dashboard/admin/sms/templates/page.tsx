@@ -18,6 +18,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useT } from '@/lib/i18n';
 
 interface SmsTemplate {
   id: string;
@@ -57,6 +58,7 @@ const audienceConfig = {
 
 export default function SmsTemplatesPage() {
   const router = useRouter();
+  const t = useT();
   const [templates, setTemplates] = useState<SmsTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -80,11 +82,11 @@ export default function SmsTemplatesPage() {
   async function loadTemplates() {
     try {
       const res = await fetch('/api/admin/sms/templates');
-      if (!res.ok) throw new Error('Failed to load templates');
+      if (!res.ok) throw new Error(t('admin.sms.templates.errLoad'));
       const data = await res.json();
       setTemplates(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load');
+      setError(err instanceof Error ? err.message : t('admin.sms.templates.errLoadShort'));
     } finally {
       setLoading(false);
     }
@@ -98,12 +100,12 @@ export default function SmsTemplatesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active: !template.active }),
       });
-      if (!res.ok) throw new Error('Failed to update');
+      if (!res.ok) throw new Error(t('admin.sms.templates.errUpdate'));
       setTemplates((prev) =>
-        prev.map((t) => (t.id === template.id ? { ...t, active: !t.active } : t))
+        prev.map((tpl) => (tpl.id === template.id ? { ...tpl, active: !tpl.active } : tpl))
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to toggle');
+      setError(err instanceof Error ? err.message : t('admin.sms.templates.errToggle'));
     } finally {
       setTogglingId(null);
     }
@@ -118,14 +120,14 @@ export default function SmsTemplatesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ body: editBody }),
       });
-      if (!res.ok) throw new Error('Failed to save');
+      if (!res.ok) throw new Error(t('admin.sms.templates.errSave'));
       const updated = await res.json();
       setTemplates((prev) =>
-        prev.map((t) => (t.id === editingTemplate.id ? { ...t, body: updated.body } : t))
+        prev.map((tpl) => (tpl.id === editingTemplate.id ? { ...tpl, body: updated.body } : tpl))
       );
       setEditingTemplate(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
+      setError(err instanceof Error ? err.message : t('admin.sms.templates.errSave'));
     } finally {
       setSaving(false);
     }
@@ -159,11 +161,11 @@ export default function SmsTemplatesPage() {
             className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Admin
+            {t('admin.sms.templates.backToAdmin')}
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">SMS Templates</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('admin.sms.templates.title')}</h1>
           <p className="text-gray-600 mt-1">
-            Manage predefined SMS templates. Toggle auto-sending for each event.
+            {t('admin.sms.templates.subtitle')}
           </p>
         </div>
         <Link
@@ -171,7 +173,7 @@ export default function SmsTemplatesPage() {
           className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 text-sm font-medium"
         >
           <MessageSquare className="w-4 h-4" />
-          Send Custom SMS
+          {t('admin.sms.templates.sendCustom')}
         </Link>
       </div>
 
@@ -197,7 +199,7 @@ export default function SmsTemplatesPage() {
             >
               <Icon className={`w-5 h-5 ${config.iconColor}`} />
               <h2 className="text-lg font-semibold text-gray-900">
-                {config.label} Templates
+                {t(`admin.sms.templates.audienceTemplates.${audience}`)}
               </h2>
               <span className="text-sm text-gray-500">({items.length})</span>
             </div>
@@ -205,7 +207,7 @@ export default function SmsTemplatesPage() {
             <div className="border border-t-0 border-gray-200 rounded-b-lg divide-y divide-gray-100">
               {items.length === 0 ? (
                 <div className="p-6 text-center text-gray-500">
-                  No templates for this audience.
+                  {t('admin.sms.templates.emptyAudience')}
                 </div>
               ) : (
                 items.map((template) => (
@@ -247,7 +249,7 @@ export default function SmsTemplatesPage() {
                         <button
                           onClick={() => openEdit(template)}
                           className="p-2 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
-                          title="Edit template"
+                          title={t('admin.sms.templates.editTemplateTitle')}
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
@@ -259,7 +261,7 @@ export default function SmsTemplatesPage() {
                               ? 'bg-green-100 text-green-700 hover:bg-green-200'
                               : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                           }`}
-                          title={template.active ? 'Click to deactivate' : 'Click to activate'}
+                          title={template.active ? t('admin.sms.templates.clickDeactivate') : t('admin.sms.templates.clickActivate')}
                         >
                           {togglingId === template.id ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -268,7 +270,7 @@ export default function SmsTemplatesPage() {
                           ) : (
                             <ToggleLeft className="w-4 h-4" />
                           )}
-                          {template.active ? 'Active' : 'Inactive'}
+                          {template.active ? t('admin.common.active') : t('admin.common.inactive')}
                         </button>
                       </div>
                     </div>
@@ -286,7 +288,7 @@ export default function SmsTemplatesPage() {
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">
-                Edit Template: {editingTemplate.name}
+                {t('admin.sms.templates.editModalTitle', { name: editingTemplate.name })}
               </h3>
               <button
                 onClick={() => setEditingTemplate(null)}
@@ -299,7 +301,7 @@ export default function SmsTemplatesPage() {
             <div className="p-4 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Template Body
+                  {t('admin.sms.templates.templateBody')}
                 </label>
                 <textarea
                   value={editBody}
@@ -312,7 +314,7 @@ export default function SmsTemplatesPage() {
               {editingTemplate.tags.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Available Tags (click to insert)
+                    {t('admin.sms.templates.availableTags')}
                   </label>
                   <div className="flex gap-2 flex-wrap">
                     {editingTemplate.tags.map((tag) => (
@@ -334,7 +336,7 @@ export default function SmsTemplatesPage() {
                 onClick={() => setEditingTemplate(null)}
                 className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={saveTemplate}
@@ -346,7 +348,7 @@ export default function SmsTemplatesPage() {
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
-                Save Changes
+                {t('admin.sms.templates.saveChanges')}
               </button>
             </div>
           </div>

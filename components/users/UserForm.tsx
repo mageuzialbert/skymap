@@ -5,6 +5,7 @@ import { Loader2, ImagePlus, X, User as UserIcon, IdCard, Bike } from 'lucide-re
 import PermissionSelector from './PermissionSelector';
 import { getDefaultPermissions } from '@/lib/permissions';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 interface User {
   id: string;
@@ -54,6 +55,7 @@ export default function UserForm({
   loading,
   error,
 }: UserFormProps) {
+  const t = useT();
   const initialRole = (user?.role as 'STAFF' | 'RIDER') || 'STAFF';
 
   const [formData, setFormData] = useState<UserFormData>({
@@ -98,11 +100,11 @@ export default function UserForm({
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setUploadError('Image must be smaller than 5MB');
+      setUploadError(t('components.userForm.imageTooLarge'));
       return;
     }
     if (!file.type.startsWith('image/')) {
-      setUploadError('Please choose an image file');
+      setUploadError(t('components.userForm.chooseImage'));
       return;
     }
 
@@ -121,7 +123,7 @@ export default function UserForm({
       const { data } = supabase.storage.from('user-profiles').getPublicUrl(fileName);
       setFormData((prev) => ({ ...prev, profile_picture_url: data.publicUrl }));
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : 'Failed to upload image');
+      setUploadError(err instanceof Error ? err.message : t('components.userForm.uploadFailed'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -149,7 +151,7 @@ export default function UserForm({
 
       {/* Profile picture */}
       <div>
-        <h3 className="text-sm font-medium text-gray-900 mb-3">Profile Picture</h3>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">{t('components.userForm.profilePicture')}</h3>
         <div className="flex items-center gap-4">
           <div className="w-20 h-20 rounded-2xl border border-gray-200 bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
             {formData.profile_picture_url ? (
@@ -181,12 +183,12 @@ export default function UserForm({
                 {uploading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Uploading...
+                    {t('components.userForm.uploading')}
                   </>
                 ) : (
                   <>
                     <ImagePlus className="w-4 h-4" />
-                    {formData.profile_picture_url ? 'Change photo' : 'Upload photo'}
+                    {formData.profile_picture_url ? t('components.userForm.changePhoto') : t('components.userForm.uploadPhoto')}
                   </>
                 )}
               </button>
@@ -198,11 +200,11 @@ export default function UserForm({
                   className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
-                  Remove
+                  {t('components.userForm.remove')}
                 </button>
               )}
             </div>
-            <p className="mt-1.5 text-xs text-gray-500">PNG, JPG or WEBP. Max 5MB.</p>
+            <p className="mt-1.5 text-xs text-gray-500">{t('components.userForm.imageHint')}</p>
             {uploadError && (
               <p className="mt-1 text-xs text-red-600">{uploadError}</p>
             )}
@@ -212,10 +214,10 @@ export default function UserForm({
 
       {/* Basic Information Section */}
       <div>
-        <h3 className="text-sm font-medium text-gray-900 mb-3">Basic Information</h3>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">{t('components.userForm.basicInfo')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.name')} *</label>
             <input
               type="text"
               value={formData.name}
@@ -226,7 +228,7 @@ export default function UserForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('components.userForm.phone')} *</label>
             <input
               type="tel"
               value={formData.phone}
@@ -238,7 +240,7 @@ export default function UserForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.email')} *</label>
             <input
               type="email"
               value={formData.email}
@@ -250,7 +252,7 @@ export default function UserForm({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password {!user ? '*' : ''}
+              {t('components.userForm.password')} {!user ? '*' : ''}
             </label>
             <input
               type="password"
@@ -258,24 +260,24 @@ export default function UserForm({
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required={!user}
               minLength={6}
-              placeholder={user ? 'Leave empty to keep current password' : 'Minimum 6 characters'}
+              placeholder={user ? t('components.userForm.leaveEmptyPassword') : t('components.userForm.minChars')}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
             />
             {user && (
-              <p className="mt-1 text-xs text-gray-500">Leave empty to keep current password</p>
+              <p className="mt-1 text-xs text-gray-500">{t('components.userForm.leaveEmptyPassword')}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('components.userForm.role')} *</label>
             <select
               value={formData.role}
               onChange={(e) => handleRoleChange(e.target.value as 'STAFF' | 'RIDER')}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
             >
-              <option value="STAFF">Staff</option>
-              <option value="RIDER">Rider</option>
+              <option value="STAFF">{t('components.userForm.staff')}</option>
+              <option value="RIDER">{t('components.userForm.rider')}</option>
             </select>
           </div>
 
@@ -288,7 +290,7 @@ export default function UserForm({
               className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
             />
             <label htmlFor="active" className="text-sm font-medium text-gray-700">
-              Active
+              {t('components.users.active')}
             </label>
           </div>
 
@@ -296,7 +298,7 @@ export default function UserForm({
           {isRider && (
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Rider License Number
+                {t('components.userForm.licenseNumber')}
               </label>
               <div className="relative">
                 <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -317,7 +319,7 @@ export default function UserForm({
           {isRider && (
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Means of Transport
+                {t('components.userForm.meansOfTransport')}
               </label>
               <div className="relative">
                 <Bike className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -328,7 +330,7 @@ export default function UserForm({
                   }
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
-                  <option value="">Select vehicle type…</option>
+                  <option value="">{t('components.userForm.selectVehicleType')}</option>
                   {vehicleTypes
                     .filter((vt) => vt.active || vt.id === formData.vehicle_type_id)
                     .map((vt) => (
@@ -339,7 +341,7 @@ export default function UserForm({
                 </select>
               </div>
               <p className="mt-1 text-xs text-gray-500">
-                Determines which ride requests this rider can be assigned to.
+                {t('components.userForm.vehicleHint')}
               </p>
             </div>
           )}
@@ -349,9 +351,9 @@ export default function UserForm({
       {/* Permissions Section */}
       <div>
         <h3 className="text-sm font-medium text-gray-900 mb-3">
-          Access Permissions
+          {t('components.permissions.accessPermissions')}
           <span className="text-gray-500 font-normal ml-2">
-            (Configure what this user can see and do)
+            {t('components.userForm.permissionsHint')}
           </span>
         </h3>
         <PermissionSelector
@@ -370,7 +372,7 @@ export default function UserForm({
           className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-          {loading ? 'Saving...' : user ? 'Update User' : 'Create User'}
+          {loading ? t('common.saving') : user ? t('components.userForm.updateUser') : t('components.userForm.createUser')}
         </button>
         <button
           type="button"
@@ -378,7 +380,7 @@ export default function UserForm({
           disabled={loading}
           className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
         >
-          Cancel
+          {t('common.cancel')}
         </button>
       </div>
     </form>

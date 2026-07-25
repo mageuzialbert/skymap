@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Save, Calendar, FileText } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useT } from "@/lib/i18n";
 
 interface Business {
   id: string;
@@ -31,6 +32,7 @@ interface BillableItem {
 
 export default function CreateInvoicePage() {
   const router = useRouter();
+  const t = useT();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -81,7 +83,7 @@ export default function CreateInvoicePage() {
       setBusinesses(data || []);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to load businesses",
+        err instanceof Error ? err.message : t("admin.invoiceCreate.errLoad"),
       );
     } finally {
       setLoading(false);
@@ -143,7 +145,7 @@ export default function CreateInvoicePage() {
           id: `delivery-${delivery.id}`,
           delivery_id: delivery.id,
           amount: delivery.delivery_fee,
-          description: `Delivery fee - ${delivery.dropoff_name}`,
+          description: t("admin.invoiceCreate.deliveryFeeItem", { name: delivery.dropoff_name }),
           created_at: delivery.created_at,
           source: "delivery" as const,
         }));
@@ -189,12 +191,12 @@ export default function CreateInvoicePage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to create invoice");
+        throw new Error(data.error || t("admin.invoiceCreate.errCreate"));
       }
 
       router.push("/dashboard/admin/invoices");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create invoice");
+      setError(err instanceof Error ? err.message : t("admin.invoiceCreate.errCreate"));
     } finally {
       setSubmitting(false);
     }
@@ -216,9 +218,9 @@ export default function CreateInvoicePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Create Invoice</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t("admin.invoiceCreate.title")}</h1>
         <p className="text-gray-600 mt-2">
-          Create a new invoice or proforma invoice for a business
+          {t("admin.invoiceCreate.subtitle")}
         </p>
       </div>
 
@@ -230,11 +232,11 @@ export default function CreateInvoicePage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Invoice Details</h2>
+          <h2 className="text-xl font-semibold mb-4">{t("admin.invoiceCreate.detailsHeading")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Business *
+                {t("admin.invoiceCreate.businessLabel")}
               </label>
               <select
                 value={formData.business_id}
@@ -244,7 +246,7 @@ export default function CreateInvoicePage() {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
-                <option value="">Select Business</option>
+                <option value="">{t("admin.invoiceCreate.selectBusiness")}</option>
                 {businesses.map((business) => (
                   <option key={business.id} value={business.id}>
                     {business.name} ({business.phone})
@@ -255,7 +257,7 @@ export default function CreateInvoicePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Invoice Type *
+                {t("admin.invoiceCreate.invoiceTypeLabel")}
               </label>
               <select
                 value={formData.invoice_type}
@@ -265,14 +267,14 @@ export default function CreateInvoicePage() {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
-                <option value="INVOICE">Invoice</option>
-                <option value="PROFORMA">Proforma Invoice</option>
+                <option value="INVOICE">{t("admin.invoiceCreate.optInvoice")}</option>
+                <option value="PROFORMA">{t("admin.invoiceCreate.optProforma")}</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Date *
+                {t("admin.invoiceCreate.startDate")}
               </label>
               <input
                 type="date"
@@ -287,7 +289,7 @@ export default function CreateInvoicePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                End Date *
+                {t("admin.invoiceCreate.endDate")}
               </label>
               <input
                 type="date"
@@ -302,7 +304,7 @@ export default function CreateInvoicePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Due Date
+                {t("admin.invoiceCreate.dueDate")}
               </label>
               <input
                 type="date"
@@ -317,7 +319,7 @@ export default function CreateInvoicePage() {
 
           <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notes / Terms
+              {t("admin.invoiceCreate.notesLabel")}
             </label>
             <textarea
               value={formData.notes}
@@ -326,7 +328,7 @@ export default function CreateInvoicePage() {
               }
               rows={3}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Additional notes or terms for this invoice..."
+              placeholder={t("admin.invoiceCreate.notesPlaceholder")}
             />
           </div>
         </div>
@@ -334,7 +336,7 @@ export default function CreateInvoicePage() {
         {/* Charges Preview */}
         {formData.business_id && formData.start_date && formData.end_date && (
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4">Charges Preview</h2>
+            <h2 className="text-xl font-semibold mb-4">{t("admin.invoiceCreate.chargesPreview")}</h2>
             {loadingCharges ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -342,7 +344,7 @@ export default function CreateInvoicePage() {
             ) : billableItems.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                <p>No billable items found in the selected date range</p>
+                <p>{t("admin.invoiceCreate.noBillable")}</p>
               </div>
             ) : (
               <div>
@@ -351,16 +353,16 @@ export default function CreateInvoicePage() {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Date
+                          {t("admin.invoiceCreate.colDate")}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Description
+                          {t("admin.invoiceCreate.colDescription")}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Source
+                          {t("admin.invoiceCreate.colSource")}
                         </th>
                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                          Amount
+                          {t("admin.invoiceCreate.colAmount")}
                         </th>
                       </tr>
                     </thead>
@@ -371,7 +373,7 @@ export default function CreateInvoicePage() {
                             {new Date(item.created_at).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900">
-                            {item.description || "Delivery charge"}
+                            {item.description || t("admin.invoiceCreate.deliveryCharge")}
                           </td>
                           <td className="px-4 py-3 text-sm">
                             <span
@@ -381,7 +383,7 @@ export default function CreateInvoicePage() {
                                   : "bg-yellow-100 text-yellow-800"
                               }`}
                             >
-                              {item.source === "charge" ? "Charge" : "Unbilled"}
+                              {item.source === "charge" ? t("admin.invoiceCreate.sourceCharge") : t("admin.invoiceCreate.sourceUnbilled")}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900 text-right">
@@ -396,7 +398,7 @@ export default function CreateInvoicePage() {
                           colSpan={3}
                           className="px-4 py-3 text-sm font-bold text-gray-900"
                         >
-                          Total
+                          {t("admin.invoiceCreate.total")}
                         </td>
                         <td className="px-4 py-3 text-sm font-bold text-gray-900 text-right">
                           TZS {totalAmount.toLocaleString()}
@@ -406,9 +408,9 @@ export default function CreateInvoicePage() {
                   </table>
                 </div>
                 <p className="text-sm text-gray-600">
-                  {billableItems.length} item
-                  {billableItems.length !== 1 ? "s" : ""} will be included in
-                  this invoice
+                  {billableItems.length === 1
+                    ? t("admin.invoiceCreate.itemsIncludedOne", { count: billableItems.length })
+                    : t("admin.invoiceCreate.itemsIncludedMany", { count: billableItems.length })}
                 </p>
               </div>
             )}
@@ -421,7 +423,7 @@ export default function CreateInvoicePage() {
             onClick={() => router.back()}
             className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
           <button
             type="submit"
@@ -431,15 +433,15 @@ export default function CreateInvoicePage() {
             {submitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Creating...</span>
+                <span>{t("admin.invoiceCreate.creating")}</span>
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
                 <span>
-                  Create{" "}
-                  {formData.invoice_type === "PROFORMA" ? "Proforma " : ""}
-                  Invoice
+                  {formData.invoice_type === "PROFORMA"
+                    ? t("admin.invoiceCreate.createProforma")
+                    : t("admin.invoiceCreate.createInvoice")}
                 </span>
               </>
             )}

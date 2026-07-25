@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Plus, Search, Filter, Eye, Edit, Trash2, FileText, Loader2 } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 interface Invoice {
   id: string;
@@ -33,6 +34,7 @@ const statusColors: Record<string, string> = {
 
 export default function AdminInvoicesPage() {
   const router = useRouter();
+  const t = useT();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -97,14 +99,14 @@ export default function AdminInvoicesPage() {
 
       setInvoices(filtered);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load invoices');
+      setError(err instanceof Error ? err.message : t('admin.invoices.errLoad'));
     } finally {
       setLoading(false);
     }
   }
 
   async function handleDelete(id: string, invoiceNumber: string) {
-    if (!confirm(`Are you sure you want to delete invoice ${invoiceNumber}?`)) return;
+    if (!confirm(t('admin.invoices.confirmDelete', { number: invoiceNumber }))) return;
 
     try {
       const response = await fetch(`/api/admin/invoices/${id}`, {
@@ -113,12 +115,12 @@ export default function AdminInvoicesPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to delete invoice');
+        throw new Error(data.error || t('admin.invoices.errDelete'));
       }
 
       loadInvoices();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete invoice');
+      setError(err instanceof Error ? err.message : t('admin.invoices.errDelete'));
     }
   }
 
@@ -132,12 +134,12 @@ export default function AdminInvoicesPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to convert proforma');
+        throw new Error(data.error || t('admin.invoices.errConvert'));
       }
 
       loadInvoices();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to convert proforma');
+      setError(err instanceof Error ? err.message : t('admin.invoices.errConvert'));
     }
   }
 
@@ -153,9 +155,9 @@ export default function AdminInvoicesPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Invoice Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('admin.invoices.title')}</h1>
           <p className="text-gray-600 mt-2">
-            View and manage all invoices and proforma invoices
+            {t('admin.invoices.subtitle')}
           </p>
         </div>
         <Link
@@ -163,7 +165,7 @@ export default function AdminInvoicesPage() {
           className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
         >
           <Plus className="w-5 h-5" />
-          Create Invoice
+          {t('admin.invoices.create')}
         </Link>
       </div>
 
@@ -181,7 +183,7 @@ export default function AdminInvoicesPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search by invoice number or business name..."
+                placeholder={t('admin.invoices.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -194,12 +196,12 @@ export default function AdminInvoicesPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             >
-              <option value="ALL">All Statuses</option>
-              <option value="DRAFT">Draft</option>
-              <option value="PROFORMA">Proforma</option>
-              <option value="SENT">Sent</option>
-              <option value="PAID">Paid</option>
-              <option value="CANCELLED">Cancelled</option>
+              <option value="ALL">{t('admin.invoices.allStatuses')}</option>
+              <option value="DRAFT">{t('admin.invoices.statusDraft')}</option>
+              <option value="PROFORMA">{t('admin.invoices.statusProforma')}</option>
+              <option value="SENT">{t('admin.invoices.statusSent')}</option>
+              <option value="PAID">{t('admin.invoices.statusPaid')}</option>
+              <option value="CANCELLED">{t('admin.invoices.statusCancelled')}</option>
             </select>
           </div>
           <div>
@@ -208,9 +210,9 @@ export default function AdminInvoicesPage() {
               onChange={(e) => setTypeFilter(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             >
-              <option value="ALL">All Types</option>
-              <option value="INVOICE">Invoice</option>
-              <option value="PROFORMA">Proforma</option>
+              <option value="ALL">{t('admin.invoices.allTypes')}</option>
+              <option value="INVOICE">{t('admin.invoices.typeInvoice')}</option>
+              <option value="PROFORMA">{t('admin.invoices.typeProforma')}</option>
             </select>
           </div>
         </div>
@@ -223,28 +225,28 @@ export default function AdminInvoicesPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Invoice Number
+                  {t('admin.invoices.colNumber')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Business
+                  {t('admin.invoices.colBusiness')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Period
+                  {t('admin.invoices.colPeriod')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
+                  {t('admin.invoices.colAmount')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
+                  {t('admin.invoices.colType')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  {t('common.status')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Generated
+                  {t('admin.invoices.colGenerated')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t('common.actions')}
                 </th>
               </tr>
             </thead>
@@ -252,7 +254,7 @@ export default function AdminInvoicesPage() {
               {invoices.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
-                    {loading ? 'Loading...' : 'No invoices found'}
+                    {loading ? t('common.loading') : t('admin.invoices.empty')}
                   </td>
                 </tr>
               ) : (
@@ -262,7 +264,7 @@ export default function AdminInvoicesPage() {
                       {invoice.invoice_number}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
-                      {invoice.businesses?.name || 'Unknown'}
+                      {invoice.businesses?.name || t('admin.common.unknown')}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
                       {new Date(invoice.week_start).toLocaleDateString()} -{' '}
@@ -299,7 +301,7 @@ export default function AdminInvoicesPage() {
                         <Link
                           href={`/dashboard/admin/invoices/${invoice.id}/view`}
                           className="text-primary hover:text-primary-dark"
-                          title="View Invoice"
+                          title={t('admin.invoices.viewInvoice')}
                         >
                           <Eye className="w-4 h-4" />
                         </Link>
@@ -307,7 +309,7 @@ export default function AdminInvoicesPage() {
                           <button
                             onClick={() => handleConvertToInvoice(invoice.id)}
                             className="text-green-600 hover:text-green-800"
-                            title="Convert to Invoice"
+                            title={t('admin.invoices.convertToInvoice')}
                           >
                             <FileText className="w-4 h-4" />
                           </button>
@@ -316,7 +318,7 @@ export default function AdminInvoicesPage() {
                           <button
                             onClick={() => handleDelete(invoice.id, invoice.invoice_number)}
                             className="text-red-600 hover:text-red-800"
-                            title="Delete Invoice"
+                            title={t('admin.invoices.deleteInvoice')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

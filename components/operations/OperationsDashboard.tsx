@@ -1,6 +1,7 @@
 'use client';
 
 import { Package, Clock, CheckCircle, TrendingUp } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface OperationsData {
   metrics: {
@@ -41,6 +42,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function OperationsDashboard({ data }: OperationsDashboardProps) {
+  const t = useT();
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -57,7 +59,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Deliveries</p>
+              <p className="text-sm text-gray-600">{t('components.operations.totalDeliveries')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
                 {data.metrics.totalDeliveries}
               </p>
@@ -69,7 +71,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Active Deliveries</p>
+              <p className="text-sm text-gray-600">{t('components.operations.activeDeliveries')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
                 {data.metrics.activeDeliveries}
               </p>
@@ -81,7 +83,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Completed Today</p>
+              <p className="text-sm text-gray-600">{t('components.operations.completedToday')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
                 {data.metrics.completedToday}
               </p>
@@ -93,7 +95,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Avg Delivery Time</p>
+              <p className="text-sm text-gray-600">{t('components.operations.avgDeliveryTime')}</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
                 {data.metrics.avgDeliveryTimeHours.toFixed(1)}h
               </p>
@@ -105,7 +107,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
 
       {/* Status Distribution */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Deliveries by Status</h3>
+        <h3 className="text-lg font-semibold mb-4">{t('components.operations.byStatus')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(data.statusCounts).map(([status, count]) => (
             <div key={status} className="text-center">
@@ -114,7 +116,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
                   statusColors[status] || statusColors.CREATED
                 }`}
               >
-                {status.replace('_', ' ')}
+                {t('components.deliveryStatus.' + status)}
               </div>
               <p className="text-2xl font-bold text-gray-900">{count}</p>
             </div>
@@ -124,25 +126,25 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
 
       {/* Recent Deliveries */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Recent Deliveries</h3>
+        <h3 className="text-lg font-semibold mb-4">{t('components.operations.recentDeliveries')}</h3>
         {data.recentDeliveries.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No recent deliveries</p>
+          <p className="text-gray-500 text-center py-4">{t('components.operations.noRecent')}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Business
+                    {t('components.operations.business')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Status
+                    {t('common.status')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Rider
+                    {t('components.deliveries.rider')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Created
+                    {t('components.deliveries.created')}
                   </th>
                 </tr>
               </thead>
@@ -150,7 +152,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
                 {data.recentDeliveries.map((delivery) => (
                   <tr key={delivery.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {delivery.businesses?.name || 'Unknown'}
+                      {delivery.businesses?.name || t('components.deliveries.unknown')}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -158,11 +160,11 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
                           statusColors[delivery.status] || statusColors.CREATED
                         }`}
                       >
-                        {delivery.status.replace('_', ' ')}
+                        {t('components.deliveryStatus.' + delivery.status)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
-                      {delivery.assigned_rider?.name || 'Not assigned'}
+                      {delivery.assigned_rider?.name || t('components.deliveries.notAssigned')}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {formatDate(delivery.created_at)}

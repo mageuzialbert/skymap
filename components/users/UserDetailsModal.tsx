@@ -14,6 +14,7 @@ import {
   PowerOff,
   User as UserIcon,
 } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 export interface RiderUser {
   id: string;
@@ -55,6 +56,7 @@ export default function UserDetailsModal({
   onToggleActive,
   onDelete,
 }: UserDetailsModalProps) {
+  const t = useT();
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e: KeyboardEvent) => {
@@ -90,7 +92,7 @@ export default function UserDetailsModal({
             type="button"
             onClick={onClose}
             className="absolute top-3 right-3 p-2 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white transition-colors cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -115,7 +117,7 @@ export default function UserDetailsModal({
 
           <div className="mt-3 flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <h2 className="text-xl font-bold text-gray-900 truncate">{user.name || 'Unnamed user'}</h2>
+              <h2 className="text-xl font-bold text-gray-900 truncate">{user.name || t('components.userDetails.unnamed')}</h2>
               <div className="mt-1 flex items-center gap-2 flex-wrap">
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${roleColors[user.role] || roleColors.STAFF}`}
@@ -130,7 +132,7 @@ export default function UserDetailsModal({
                       : 'bg-gray-100 text-gray-700'
                   }`}
                 >
-                  {user.active ? 'Active' : 'Inactive'}
+                  {user.active ? t('components.users.active') : t('components.users.inactive')}
                 </span>
               </div>
             </div>
@@ -139,16 +141,16 @@ export default function UserDetailsModal({
 
         {/* Detail rows */}
         <div className="px-6 mt-5 space-y-3">
-          <DetailRow icon={Mail} label="Email" value={user.email || '-'} />
-          <DetailRow icon={Phone} label="Phone" value={user.phone || '-'} />
+          <DetailRow icon={Mail} label={t('common.email')} value={user.email || '-'} />
+          <DetailRow icon={Phone} label={t('components.userDetails.phone')} value={user.phone || '-'} />
           {user.role === 'RIDER' && (
             <DetailRow
               icon={IdCard}
-              label="License number"
-              value={user.license_number || <span className="text-gray-400 italic">Not provided</span>}
+              label={t('components.userDetails.licenseNumber')}
+              value={user.license_number || <span className="text-gray-400 italic">{t('components.userDetails.notProvided')}</span>}
             />
           )}
-          <DetailRow icon={Calendar} label="Joined" value={formatDate(user.created_at)} />
+          <DetailRow icon={Calendar} label={t('components.userDetails.joined')} value={formatDate(user.created_at)} />
         </div>
 
         {/* Action buttons */}
@@ -160,7 +162,7 @@ export default function UserDetailsModal({
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-primary bg-primary/10 hover:bg-primary/15 rounded-lg transition-colors cursor-pointer"
             >
               <Edit className="w-4 h-4" />
-              Edit
+              {t('common.edit')}
             </button>
           )}
           {canEdit && onToggleActive && (
@@ -174,7 +176,7 @@ export default function UserDetailsModal({
               }`}
             >
               {user.active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
-              {user.active ? 'Deactivate' : 'Activate'}
+              {user.active ? t('components.users.deactivate') : t('components.users.activate')}
             </button>
           )}
           {canDelete && onDelete && (
@@ -184,7 +186,7 @@ export default function UserDetailsModal({
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"
             >
               <Trash2 className="w-4 h-4" />
-              Delete
+              {t('common.delete')}
             </button>
           )}
         </div>

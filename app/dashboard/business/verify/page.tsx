@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { CheckCircle, XCircle, Loader2, Send, Mail, Phone, Pencil } from 'lucide-react';
 import Link from 'next/link';
+import { useT } from '@/lib/i18n';
 
 export default function BusinessVerifyPage() {
+  const t = useT();
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [phoneVerified, setPhoneVerified] = useState(false);
@@ -135,7 +137,7 @@ export default function BusinessVerifyPage() {
     setPhoneSending(true);
 
     if (!phone) {
-      setPhoneError('Phone number is required');
+      setPhoneError(t('business.verify.msg.phoneRequired'));
       setPhoneSending(false);
       return;
     }
@@ -150,18 +152,18 @@ export default function BusinessVerifyPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send OTP');
+        throw new Error(data.error || t('business.verify.msg.sendOtpFailed'));
       }
 
       setPhoneOtpSent(true);
-      setPhoneSuccess('Verification code sent successfully! Please check your phone.');
-      
+      setPhoneSuccess(t('business.verify.msg.codeSentSuccess'));
+
       // In development, show the OTP code for testing
       if (data.debugOtp) {
-        setPhoneSuccess(`Verification code sent! (Dev mode - Code: ${data.debugOtp})`);
+        setPhoneSuccess(t('business.verify.msg.codeSentDev', { code: data.debugOtp }));
       }
     } catch (err) {
-      setPhoneError(err instanceof Error ? err.message : 'Failed to send OTP');
+      setPhoneError(err instanceof Error ? err.message : t('business.verify.msg.sendOtpFailed'));
     } finally {
       setPhoneSending(false);
     }
@@ -180,7 +182,7 @@ export default function BusinessVerifyPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Invalid OTP');
+        throw new Error(error.error || t('business.verify.msg.invalidOtp'));
       }
 
       // Reload verification status
@@ -188,7 +190,7 @@ export default function BusinessVerifyPage() {
       setPhoneOtpSent(false);
       setPhoneOtp('');
     } catch (err) {
-      setPhoneError(err instanceof Error ? err.message : 'Invalid OTP');
+      setPhoneError(err instanceof Error ? err.message : t('business.verify.msg.invalidOtp'));
     } finally {
       setPhoneVerifying(false);
     }
@@ -203,7 +205,7 @@ export default function BusinessVerifyPage() {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        throw new Error('Not authenticated');
+        throw new Error(t('business.verify.msg.notAuthenticated'));
       }
 
       // If email was changed, update it first via API
@@ -217,7 +219,7 @@ export default function BusinessVerifyPage() {
 
         if (!updateResponse.ok) {
           const errorData = await updateResponse.json();
-          throw new Error(errorData.error || 'Failed to update email');
+          throw new Error(errorData.error || t('business.verify.msg.updateEmailFailed'));
         }
       }
 
@@ -229,9 +231,9 @@ export default function BusinessVerifyPage() {
 
       if (error) throw error;
 
-      setEmailSuccess('Verification email sent! Please check your inbox and click the verification link.');
+      setEmailSuccess(t('business.verify.msg.emailSentSuccess'));
     } catch (err) {
-      setEmailError(err instanceof Error ? err.message : 'Failed to send verification email');
+      setEmailError(err instanceof Error ? err.message : t('business.verify.msg.sendEmailFailed'));
     } finally {
       setEmailSending(false);
     }
@@ -278,9 +280,9 @@ export default function BusinessVerifyPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Verify Account</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('business.verify.title')}</h1>
         <p className="text-gray-600 mt-2">
-          Verify your phone number and email address to secure your account
+          {t('business.verify.subtitle')}
         </p>
       </div>
 
@@ -290,17 +292,17 @@ export default function BusinessVerifyPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <Phone className="w-6 h-6 text-gray-700" />
-              <h2 className="text-xl font-semibold text-gray-900">Phone Number Verification</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('business.verify.phoneVerification')}</h2>
             </div>
             {phoneVerified ? (
               <div className="flex items-center space-x-2 text-green-600">
                 <CheckCircle className="w-5 h-5" />
-                <span className="font-medium">Verified</span>
+                <span className="font-medium">{t('business.verify.verified')}</span>
               </div>
             ) : (
               <div className="flex items-center space-x-2 text-red-600">
                 <XCircle className="w-5 h-5" />
-                <span className="font-medium">Not Verified</span>
+                <span className="font-medium">{t('business.verify.notVerified')}</span>
               </div>
             )}
           </div>
@@ -308,7 +310,7 @@ export default function BusinessVerifyPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
+                {t('business.verify.phoneNumber')}
               </label>
               <input
                 type="tel"
@@ -329,12 +331,12 @@ export default function BusinessVerifyPage() {
                     {phoneSending ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Sending...</span>
+                        <span>{t('common.sending')}</span>
                       </>
                     ) : (
                       <>
                         <Send className="w-5 h-5" />
-                        <span>Send Verification Code</span>
+                        <span>{t('business.verify.sendCode')}</span>
                       </>
                     )}
                   </button>
@@ -342,7 +344,7 @@ export default function BusinessVerifyPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Enter Verification Code
+                        {t('business.verify.enterCode')}
                       </label>
                       <input
                         type="text"
@@ -362,12 +364,12 @@ export default function BusinessVerifyPage() {
                         {phoneVerifying ? (
                           <>
                             <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>Verifying...</span>
+                            <span>{t('business.verify.verifying')}</span>
                           </>
                         ) : (
                           <>
                             <CheckCircle className="w-5 h-5" />
-                            <span>Verify Phone</span>
+                            <span>{t('business.verify.verifyPhone')}</span>
                           </>
                         )}
                       </button>
@@ -379,7 +381,7 @@ export default function BusinessVerifyPage() {
                         }}
                         className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium"
                       >
-                        Cancel
+                        {t('common.cancel')}
                       </button>
                     </div>
                   </div>
@@ -405,17 +407,17 @@ export default function BusinessVerifyPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <Mail className="w-6 h-6 text-gray-700" />
-              <h2 className="text-xl font-semibold text-gray-900">Email Verification</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('business.verify.emailVerification')}</h2>
             </div>
             {emailVerified && !emailEditing ? (
               <div className="flex items-center space-x-2 text-green-600">
                 <CheckCircle className="w-5 h-5" />
-                <span className="font-medium">Verified</span>
+                <span className="font-medium">{t('business.verify.verified')}</span>
               </div>
             ) : (
               <div className="flex items-center space-x-2 text-red-600">
                 <XCircle className="w-5 h-5" />
-                <span className="font-medium">Not Verified</span>
+                <span className="font-medium">{t('business.verify.notVerified')}</span>
               </div>
             )}
           </div>
@@ -423,16 +425,16 @@ export default function BusinessVerifyPage() {
           <div className="space-y-4">
             {((!emailVerified && email.endsWith('@kasicourier.local')) || emailEditing) && (
               <div className="p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md text-sm">
-                {emailEditing 
-                  ? 'Changing your email will require re-verification.'
-                  : "You're using a placeholder email. Please enter your real email address to receive important updates."
+                {emailEditing
+                  ? t('business.verify.emailChangeWarning')
+                  : t('business.verify.placeholderEmailWarning')
                 }
               </div>
             )}
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+                {t('business.verify.emailAddress')}
               </label>
               <div className="flex gap-2">
                 {emailVerified && !emailEditing ? (
@@ -453,7 +455,7 @@ export default function BusinessVerifyPage() {
                       className="flex items-center space-x-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium"
                     >
                       <Pencil className="w-4 h-4" />
-                      <span>Edit</span>
+                      <span>{t('common.edit')}</span>
                     </button>
                   </>
                 ) : (
@@ -462,7 +464,7 @@ export default function BusinessVerifyPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
+                      placeholder={t('business.verify.enterEmail')}
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                     {emailEditing && (
@@ -475,7 +477,7 @@ export default function BusinessVerifyPage() {
                         }}
                         className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium"
                       >
-                        Cancel
+                        {t('common.cancel')}
                       </button>
                     )}
                   </>
@@ -499,12 +501,12 @@ export default function BusinessVerifyPage() {
                   {emailSending ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Sending...</span>
+                      <span>{t('common.sending')}</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-5 h-5" />
-                      <span>{emailEditing ? 'Update & Verify Email' : 'Send Verification Email'}</span>
+                      <span>{emailEditing ? t('business.verify.updateVerifyEmail') : t('business.verify.sendVerificationEmail')}</span>
                     </>
                   )}
                 </button>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUserRole } from '@/lib/roles';
 import { Loader2, Plus, Edit, Trash2, Star, StarOff } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface DeliveryPackage {
   id: string;
@@ -26,6 +27,7 @@ interface PackageFormData {
 
 export default function AdminDeliveryPackagesPage() {
   const router = useRouter();
+  const t = useT();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [packages, setPackages] = useState<DeliveryPackage[]>([]);
@@ -103,7 +105,7 @@ export default function AdminDeliveryPackagesPage() {
     try {
       const fee = parseFloat(formData.fee_per_delivery);
       if (isNaN(fee) || fee < 0) {
-        throw new Error('Fee must be a positive number');
+        throw new Error(t('admin.deliveryPackages.feeError'));
       }
 
       const url = editingPackage
@@ -125,21 +127,21 @@ export default function AdminDeliveryPackagesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save package');
+        throw new Error(errorData.error || t('admin.deliveryPackages.errSave'));
       }
 
       setShowForm(false);
       setEditingPackage(null);
       loadPackages();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save package');
+      setError(err instanceof Error ? err.message : t('admin.deliveryPackages.errSave'));
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleDelete(pkg: DeliveryPackage) {
-    if (!confirm(`Are you sure you want to ${pkg.active ? 'deactivate' : 'delete'} this package?`)) {
+    if (!confirm(pkg.active ? t('admin.deliveryPackages.confirmDeactivate') : t('admin.deliveryPackages.confirmDelete'))) {
       return;
     }
 
@@ -150,12 +152,12 @@ export default function AdminDeliveryPackagesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete package');
+        throw new Error(errorData.error || t('admin.deliveryPackages.errDelete'));
       }
 
       loadPackages();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete package');
+      alert(err instanceof Error ? err.message : t('admin.deliveryPackages.errDelete'));
     }
   }
 
@@ -168,12 +170,12 @@ export default function AdminDeliveryPackagesPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to set default package');
+        throw new Error(t('admin.deliveryPackages.errSetDefault'));
       }
 
       loadPackages();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to set default package');
+      alert(err instanceof Error ? err.message : t('admin.deliveryPackages.errSetDefault'));
     }
   }
 
@@ -197,8 +199,8 @@ export default function AdminDeliveryPackagesPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Delivery Fee Packages</h1>
-          <p className="text-gray-600 mt-1">Manage delivery fee packages for businesses</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('admin.deliveryPackages.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('admin.deliveryPackages.subtitle')}</p>
         </div>
         {role === 'ADMIN' && (
           <button
@@ -206,7 +208,7 @@ export default function AdminDeliveryPackagesPage() {
             className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
-            New Package
+            {t('admin.deliveryPackages.new')}
           </button>
         )}
       </div>
@@ -223,23 +225,23 @@ export default function AdminDeliveryPackagesPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
+                {t('common.name')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Description
+                {t('admin.common.description')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Fee per Delivery
+                {t('admin.deliveryPackages.feePerDelivery')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                {t('common.status')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Default
+                {t('admin.deliveryPackages.default')}
               </th>
               {role === 'ADMIN' && (
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t('common.actions')}
                 </th>
               )}
             </tr>
@@ -248,7 +250,7 @@ export default function AdminDeliveryPackagesPage() {
             {packages.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  No packages found
+                  {t('admin.deliveryPackages.empty')}
                 </td>
               </tr>
             ) : (
@@ -273,14 +275,14 @@ export default function AdminDeliveryPackagesPage() {
                           : 'bg-gray-100 text-gray-800'
                       }`}
                     >
-                      {pkg.active ? 'Active' : 'Inactive'}
+                      {pkg.active ? t('admin.common.active') : t('admin.common.inactive')}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {pkg.is_default ? (
                       <span className="inline-flex items-center gap-1 text-yellow-600">
                         <Star className="w-4 h-4 fill-current" />
-                        <span className="text-sm font-medium">Default</span>
+                        <span className="text-sm font-medium">{t('admin.deliveryPackages.default')}</span>
                       </span>
                     ) : (
                       <span className="text-sm text-gray-400">-</span>
@@ -293,7 +295,7 @@ export default function AdminDeliveryPackagesPage() {
                           <button
                             onClick={() => handleSetDefault(pkg)}
                             className="text-yellow-600 hover:text-yellow-800"
-                            title="Set as default"
+                            title={t('admin.deliveryPackages.setAsDefault')}
                           >
                             <StarOff className="w-4 h-4" />
                           </button>
@@ -301,14 +303,14 @@ export default function AdminDeliveryPackagesPage() {
                         <button
                           onClick={() => handleEdit(pkg)}
                           className="text-blue-600 hover:text-blue-800"
-                          title="Edit"
+                          title={t('common.edit')}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(pkg)}
                           className="text-red-600 hover:text-red-800"
-                          title="Delete"
+                          title={t('common.delete')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -327,13 +329,13 @@ export default function AdminDeliveryPackagesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {editingPackage ? 'Edit Package' : 'New Package'}
+              {editingPackage ? t('admin.deliveryPackages.editTitle') : t('admin.deliveryPackages.newTitle')}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Package Name *
+                  {t('admin.deliveryPackages.nameLabel')}
                 </label>
                 <input
                   type="text"
@@ -341,26 +343,26 @@ export default function AdminDeliveryPackagesPage() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="e.g., Starter, Growth, Enterprise"
+                  placeholder={t('admin.deliveryPackages.namePlaceholder')}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+                  {t('admin.common.description')}
                 </label>
                 <input
                   type="text"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="e.g., <10 parcels per week"
+                  placeholder={t('admin.deliveryPackages.descriptionPlaceholder')}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fee per Delivery (TZS) *
+                  {t('admin.deliveryPackages.feeLabel')}
                 </label>
                 <input
                   type="number"
@@ -370,7 +372,7 @@ export default function AdminDeliveryPackagesPage() {
                   step="0.01"
                   min="0"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="5000.00"
+                  placeholder={t('admin.deliveryPackages.feePlaceholder')}
                 />
               </div>
 
@@ -383,7 +385,7 @@ export default function AdminDeliveryPackagesPage() {
                   className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                 />
                 <label htmlFor="is_default" className="text-sm font-medium text-gray-700">
-                  Set as default package
+                  {t('admin.deliveryPackages.setDefaultCheckbox')}
                 </label>
               </div>
 
@@ -396,7 +398,7 @@ export default function AdminDeliveryPackagesPage() {
                   className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                 />
                 <label htmlFor="active" className="text-sm font-medium text-gray-700">
-                  Active
+                  {t('admin.deliveryPackages.activeLabel')}
                 </label>
               </div>
 
@@ -411,7 +413,7 @@ export default function AdminDeliveryPackagesPage() {
                   disabled={submitting}
                   className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -419,7 +421,7 @@ export default function AdminDeliveryPackagesPage() {
                   className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {submitting ? 'Saving...' : editingPackage ? 'Update Package' : 'Create Package'}
+                  {submitting ? t('common.saving') : editingPackage ? t('admin.deliveryPackages.update') : t('admin.deliveryPackages.create')}
                 </button>
               </div>
             </form>

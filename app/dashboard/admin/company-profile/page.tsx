@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Loader2, Save, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface CompanyProfile {
   id: string;
@@ -21,6 +22,7 @@ interface CompanyProfile {
 }
 
 export default function AdminCompanyProfilePage() {
+  const t = useT();
   const [profile, setProfile] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,7 +50,7 @@ export default function AdminCompanyProfilePage() {
   async function loadProfile() {
     try {
       const response = await fetch('/api/admin/company-profile');
-      if (!response.ok) throw new Error('Failed to load profile');
+      if (!response.ok) throw new Error(t('admin.companyProfile.errLoad'));
       const data = await response.json();
       
       if (data) {
@@ -66,7 +68,7 @@ export default function AdminCompanyProfilePage() {
         });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load profile');
+      setError(err instanceof Error ? err.message : t('admin.companyProfile.errLoad'));
     } finally {
       setLoading(false);
     }
@@ -91,15 +93,15 @@ export default function AdminCompanyProfilePage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to save profile');
+        throw new Error(data.error || t('admin.companyProfile.errSave'));
       }
 
       const data = await response.json();
       setProfile(data);
-      setSuccess('Company profile saved successfully!');
+      setSuccess(t('admin.companyProfile.success'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save profile');
+      setError(err instanceof Error ? err.message : t('admin.companyProfile.errSave'));
     } finally {
       setSaving(false);
     }
@@ -124,15 +126,15 @@ export default function AdminCompanyProfilePage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to upload logo');
+        throw new Error(data.error || t('admin.companyProfile.errUploadLogo'));
       }
 
       const data = await response.json();
       setProfile(data.profile);
-      setSuccess('Logo uploaded successfully!');
+      setSuccess(t('admin.companyProfile.logoSuccess'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload logo');
+      setError(err instanceof Error ? err.message : t('admin.companyProfile.errUploadLogo'));
     } finally {
       setUploadingLogo(false);
       e.target.value = ''; // Reset input
@@ -158,15 +160,15 @@ export default function AdminCompanyProfilePage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to upload favicon');
+        throw new Error(data.error || t('admin.companyProfile.errUploadFavicon'));
       }
 
       const data = await response.json();
       setProfile(data.profile);
-      setSuccess('Favicon uploaded successfully!');
+      setSuccess(t('admin.companyProfile.faviconSuccess'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload favicon');
+      setError(err instanceof Error ? err.message : t('admin.companyProfile.errUploadFavicon'));
     } finally {
       setUploadingFavicon(false);
       e.target.value = ''; // Reset input
@@ -195,9 +197,9 @@ export default function AdminCompanyProfilePage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Company Profile</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">{t('admin.companyProfile.title')}</h1>
       <p className="text-gray-600 mb-6">
-        Manage your company information that appears on invoices and the landing page.
+        {t('admin.companyProfile.subtitle')}
       </p>
 
       {error && (
@@ -215,16 +217,16 @@ export default function AdminCompanyProfilePage() {
       <form onSubmit={handleSave} className="space-y-6">
         {/* Company Logo */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Company Logo</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('admin.companyProfile.logoHeading')}</h2>
           <div className="flex items-start gap-6">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Logo Image
+                {t('admin.companyProfile.logoImageLabel')}
               </label>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
                   <Upload className="w-4 h-4" />
-                  <span>{uploadingLogo ? 'Uploading...' : 'Upload Logo'}</span>
+                  <span>{uploadingLogo ? t('admin.common.uploading') : t('admin.companyProfile.uploadLogo')}</span>
                   <input
                     type="file"
                     accept="image/jpeg,image/jpg,image/png,image/svg+xml,image/webp"
@@ -239,12 +241,12 @@ export default function AdminCompanyProfilePage() {
                     onClick={removeLogo}
                     className="text-red-600 hover:text-red-800 text-sm"
                   >
-                    Remove
+                    {t('admin.common.remove')}
                   </button>
                 )}
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Recommended: PNG or SVG, max 5MB. Will appear on invoices and landing page.
+                {t('admin.companyProfile.logoHelp')}
               </p>
             </div>
             {profile?.logo_url && (
@@ -252,7 +254,7 @@ export default function AdminCompanyProfilePage() {
                 <div className="w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
                   <img
                     src={profile.logo_url}
-                    alt="Company Logo"
+                    alt={t('admin.companyProfile.logoAlt')}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
@@ -263,16 +265,16 @@ export default function AdminCompanyProfilePage() {
 
         {/* Favicon */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Favicon</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('admin.companyProfile.faviconHeading')}</h2>
           <div className="flex items-start gap-6">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Favicon File
+                {t('admin.companyProfile.faviconFileLabel')}
               </label>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
                   <Upload className="w-4 h-4" />
-                  <span>{uploadingFavicon ? 'Uploading...' : 'Upload Favicon'}</span>
+                  <span>{uploadingFavicon ? t('admin.common.uploading') : t('admin.companyProfile.uploadFavicon')}</span>
                   <input
                     type="file"
                     accept=".ico,.png,.svg"
@@ -287,12 +289,12 @@ export default function AdminCompanyProfilePage() {
                     onClick={removeFavicon}
                     className="text-red-600 hover:text-red-800 text-sm"
                   >
-                    Remove
+                    {t('admin.common.remove')}
                   </button>
                 )}
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Recommended: ICO, PNG, or SVG format, max 1MB. Appears in browser tab.
+                {t('admin.companyProfile.faviconHelp')}
               </p>
             </div>
             {profile?.favicon_url && (
@@ -300,7 +302,7 @@ export default function AdminCompanyProfilePage() {
                 <div className="w-16 h-16 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
                   <img
                     src={profile.favicon_url}
-                    alt="Favicon"
+                    alt={t('admin.companyProfile.faviconAlt')}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
@@ -311,11 +313,11 @@ export default function AdminCompanyProfilePage() {
 
         {/* Company Information */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Company Information</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('admin.companyProfile.infoHeading')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Company Name *
+                {t('admin.companyProfile.companyName')}
               </label>
               <input
                 type="text"
@@ -327,7 +329,7 @@ export default function AdminCompanyProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
+                {t('common.phone')}
               </label>
               <input
                 type="tel"
@@ -338,7 +340,7 @@ export default function AdminCompanyProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                {t('common.email')}
               </label>
               <input
                 type="email"
@@ -349,7 +351,7 @@ export default function AdminCompanyProfilePage() {
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address
+                {t('admin.companyProfile.addressLabel')}
               </label>
               <input
                 type="text"
@@ -360,7 +362,7 @@ export default function AdminCompanyProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                City
+                {t('admin.companyProfile.cityLabel')}
               </label>
               <input
                 type="text"
@@ -371,7 +373,7 @@ export default function AdminCompanyProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Region
+                {t('admin.companyProfile.regionLabel')}
               </label>
               <input
                 type="text"
@@ -382,7 +384,7 @@ export default function AdminCompanyProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Postal Code
+                {t('admin.companyProfile.postalCode')}
               </label>
               <input
                 type="text"
@@ -393,7 +395,7 @@ export default function AdminCompanyProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Website
+                {t('admin.companyProfile.websiteLabel')}
               </label>
               <input
                 type="url"
@@ -405,14 +407,14 @@ export default function AdminCompanyProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tax ID
+                {t('admin.companyProfile.taxId')}
               </label>
               <input
                 type="text"
                 value={formData.tax_id}
                 onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="For invoice display"
+                placeholder={t('admin.companyProfile.taxIdPlaceholder')}
               />
             </div>
           </div>
@@ -427,12 +429,12 @@ export default function AdminCompanyProfilePage() {
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving...</span>
+                <span>{t('common.saving')}</span>
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span>Save Profile</span>
+                <span>{t('admin.companyProfile.save')}</span>
               </>
             )}
           </button>

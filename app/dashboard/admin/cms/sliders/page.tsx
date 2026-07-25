@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Plus, X, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 interface Slider {
   id: string;
@@ -36,6 +37,7 @@ async function readError(response: Response): Promise<string> {
 }
 
 export default function AdminSlidersPage() {
+  const t = useT();
   const [sliders, setSliders] = useState<Slider[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -82,7 +84,7 @@ export default function AdminSlidersPage() {
       const data = await response.json();
       setSliders(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load sliders');
+      setError(err instanceof Error ? err.message : t('admin.cms.sliders.errLoad'));
     } finally {
       setLoading(false);
     }
@@ -101,11 +103,11 @@ export default function AdminSlidersPage() {
 
       for (const file of files) {
         if (!ALLOWED_TYPES.includes(file.type)) {
-          errors.push(`${file.name}: unsupported type (use JPEG, PNG, or WebP)`);
+          errors.push(t('admin.cms.sliders.unsupportedType', { name: file.name }));
           continue;
         }
         if (file.size > MAX_FILE_SIZE) {
-          errors.push(`${file.name}: exceeds 50MB`);
+          errors.push(t('admin.cms.sliders.exceedsSize', { name: file.name }));
           continue;
         }
         valid.push({ file, previewUrl: URL.createObjectURL(file) });
@@ -126,7 +128,7 @@ export default function AdminSlidersPage() {
           next.slice(limit).forEach((pf) => {
             if (pf.previewUrl.startsWith('blob:')) URL.revokeObjectURL(pf.previewUrl);
           });
-          errors.push(`Only the first ${limit} images were added (max ${limit} per upload).`);
+          errors.push(t('admin.cms.sliders.limitReached', { limit }));
           return next.slice(0, limit);
         }
         return next;
@@ -134,7 +136,7 @@ export default function AdminSlidersPage() {
 
       if (errors.length) setError(errors.join(' • '));
     },
-    [isEditMode]
+    [isEditMode, t]
   );
 
   const removeFile = (index: number) => {
@@ -209,7 +211,7 @@ export default function AdminSlidersPage() {
           setUploadProgress({ current: 1, total: 1 });
           setUploading(false);
         }
-        if (!imageUrl) throw new Error('Please upload an image');
+        if (!imageUrl) throw new Error(t('admin.cms.sliders.errNoImage'));
 
         const response = await fetch(`/api/admin/cms/sliders/${editingSlider.id}`, {
           method: 'PUT',
@@ -219,7 +221,7 @@ export default function AdminSlidersPage() {
         if (!response.ok) throw new Error(await readError(response));
       } else {
         // CREATE MODE - one or many sliders
-        if (pendingFiles.length === 0) throw new Error('Please select at least one image');
+        if (pendingFiles.length === 0) throw new Error(t('admin.cms.sliders.errNoImages'));
 
         setUploading(true);
         setUploadProgress({ current: 0, total: pendingFiles.length });
@@ -262,7 +264,7 @@ export default function AdminSlidersPage() {
       clearPendingFiles();
       loadSliders();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save slider');
+      setError(err instanceof Error ? err.message : t('admin.cms.sliders.errSave'));
     } finally {
       setSubmitting(false);
       setUploading(false);
@@ -271,13 +273,13 @@ export default function AdminSlidersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Are you sure you want to delete this slider?')) return;
+    if (!confirm(t('admin.cms.sliders.deleteConfirm'))) return;
     try {
       const response = await fetch(`/api/admin/cms/sliders/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error(await readError(response));
       loadSliders();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete slider');
+      setError(err instanceof Error ? err.message : t('admin.cms.sliders.errDelete'));
     }
   }
 
@@ -325,7 +327,7 @@ export default function AdminSlidersPage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Manage Sliders</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('admin.cms.sliders.title')}</h1>
         {!showForm && (
           <button
             onClick={() => {
@@ -335,7 +337,7 @@ export default function AdminSlidersPage() {
             className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto justify-center"
           >
             <Plus className="w-5 h-5" />
-            Add Slider
+            {t('admin.cms.sliders.add')}
           </button>
         )}
       </div>
@@ -350,7 +352,7 @@ export default function AdminSlidersPage() {
         <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg sm:text-xl font-semibold">
-              {editingSlider ? 'Edit Slider' : 'Add New Slider'}
+              {editingSlider ? t('admin.cms.sliders.editTitle') : t('admin.cms.sliders.addTitle')}
             </h2>
             <button
               onClick={resetForm}
@@ -363,7 +365,7 @@ export default function AdminSlidersPage() {
             {/* Image Upload Section */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Slider Image{isEditMode ? '' : 's'} *
+                {isEditMode ? t('admin.cms.sliders.imageLabelOne') : t('admin.cms.sliders.imageLabelMany')}
               </label>
 
               {/* Existing image in edit mode (no new file picked) */}
@@ -382,7 +384,7 @@ export default function AdminSlidersPage() {
                       className="bg-white text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center gap-2"
                     >
                       <Upload className="w-4 h-4" />
-                      Replace
+                      {t('admin.cms.sliders.replace')}
                     </button>
                   </div>
                 </div>
@@ -424,8 +426,8 @@ export default function AdminSlidersPage() {
                       className="aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-1 text-gray-500 hover:text-primary"
                     >
                       <Plus className="w-6 h-6" />
-                      <span className="text-xs font-medium">Add more</span>
-                      <span className="text-[10px]">{remainingSlots} left</span>
+                      <span className="text-xs font-medium">{t('admin.cms.sliders.addMore')}</span>
+                      <span className="text-[10px]">{t('admin.cms.sliders.slotsLeft', { count: remainingSlots })}</span>
                     </button>
                   )}
                 </div>
@@ -463,12 +465,12 @@ export default function AdminSlidersPage() {
                     <div>
                       <p className="text-sm font-medium text-gray-700">
                         {isDragging
-                          ? 'Drop image here'
+                          ? t('admin.cms.sliders.dropHere')
                           : isEditMode
-                          ? 'Click to upload or drag and drop'
-                          : `Click to upload or drag and drop (up to ${MAX_FILES})`}
+                          ? t('admin.cms.sliders.clickUploadSingle')
+                          : t('admin.cms.sliders.clickUploadMulti', { max: MAX_FILES })}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">JPEG, PNG or WebP (max 50MB each)</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('admin.cms.sliders.imageTypes')}</p>
                     </div>
                   </div>
                 </div>
@@ -489,7 +491,7 @@ export default function AdminSlidersPage() {
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-sm mb-1">
                     <span className="text-gray-600">
-                      Uploading {uploadProgress.current} of {uploadProgress.total}…
+                      {t('admin.cms.sliders.uploadingProgress', { current: uploadProgress.current, total: uploadProgress.total })}
                     </span>
                     <span className="text-primary font-medium">
                       {uploadProgress.total > 0
@@ -515,9 +517,7 @@ export default function AdminSlidersPage() {
               {/* Batch-mode notice */}
               {isBatchMode && (
                 <div className="mt-3 p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-xs">
-                  Batch mode: {pendingFiles.length} sliders will be created starting at order{' '}
-                  #{formData.order_index}. Captions and CTAs are skipped - you can add them by
-                  editing each slider individually after upload.
+                  {t('admin.cms.sliders.batchNotice', { count: pendingFiles.length, order: formData.order_index })}
                 </div>
               )}
             </div>
@@ -525,12 +525,12 @@ export default function AdminSlidersPage() {
             {/* Caption - single-image only */}
             {!isBatchMode && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Caption</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.cms.sliders.caption')}</label>
                 <input
                   type="text"
                   value={formData.caption}
                   onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
-                  placeholder="Enter slider caption"
+                  placeholder={t('admin.cms.sliders.captionPlaceholder')}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
                 />
               </div>
@@ -541,19 +541,19 @@ export default function AdminSlidersPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CTA Button Text
+                    {t('admin.cms.sliders.ctaText')}
                   </label>
                   <input
                     type="text"
                     value={formData.cta_text}
                     onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
-                    placeholder="e.g., Learn More"
+                    placeholder={t('admin.cms.sliders.ctaTextPlaceholder')}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CTA Link URL
+                    {t('admin.cms.sliders.ctaLink')}
                   </label>
                   <input
                     type="url"
@@ -570,7 +570,7 @@ export default function AdminSlidersPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {isBatchMode ? 'Starting Display Order' : 'Display Order'}
+                  {isBatchMode ? t('admin.cms.sliders.startingOrder') : t('admin.cms.sliders.displayOrder')}
                 </label>
                 <input
                   type="number"
@@ -592,7 +592,7 @@ export default function AdminSlidersPage() {
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                  <span className="ml-3 text-sm font-medium text-gray-700">Active</span>
+                  <span className="ml-3 text-sm font-medium text-gray-700">{t('admin.common.active')}</span>
                 </label>
               </div>
             </div>
@@ -604,7 +604,7 @@ export default function AdminSlidersPage() {
                 onClick={resetForm}
                 className="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg hover:bg-gray-200 transition-colors font-medium"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
@@ -618,12 +618,12 @@ export default function AdminSlidersPage() {
               >
                 {(submitting || uploading) && <Loader2 className="w-4 h-4 animate-spin" />}
                 {uploading
-                  ? `Uploading ${uploadProgress.current}/${uploadProgress.total}…`
+                  ? t('admin.cms.sliders.uploadingBtn', { current: uploadProgress.current, total: uploadProgress.total })
                   : submitting
-                  ? 'Saving...'
+                  ? t('common.saving')
                   : isBatchMode
-                  ? `Save ${pendingFiles.length} Sliders`
-                  : 'Save Slider'}
+                  ? t('admin.cms.sliders.saveBatch', { count: pendingFiles.length })
+                  : t('admin.cms.sliders.saveSlider')}
               </button>
             </div>
           </form>
@@ -637,11 +637,11 @@ export default function AdminSlidersPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Caption</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin.cms.sliders.colOrder')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin.cms.sliders.colImage')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin.cms.sliders.colCaption')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('common.status')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -649,7 +649,7 @@ export default function AdminSlidersPage() {
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center">
                     <ImageIcon className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                    <p className="text-gray-500">No sliders found. Add your first slider!</p>
+                    <p className="text-gray-500">{t('admin.cms.sliders.empty')}</p>
                   </td>
                 </tr>
               ) : (
@@ -677,7 +677,7 @@ export default function AdminSlidersPage() {
                             : 'bg-gray-100 text-gray-800'
                         }`}
                       >
-                        {slider.active ? 'Active' : 'Inactive'}
+                        {slider.active ? t('admin.common.active') : t('admin.common.inactive')}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -685,13 +685,13 @@ export default function AdminSlidersPage() {
                         onClick={() => startEdit(slider)}
                         className="text-primary hover:text-primary-dark mr-4 transition-colors"
                       >
-                        Edit
+                        {t('common.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(slider.id)}
                         className="text-red-600 hover:text-red-800 transition-colors"
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                     </td>
                   </tr>
@@ -728,24 +728,24 @@ export default function AdminSlidersPage() {
                             : 'bg-gray-100 text-gray-800'
                         }`}
                       >
-                        {slider.active ? 'Active' : 'Inactive'}
+                        {slider.active ? t('admin.common.active') : t('admin.common.inactive')}
                       </span>
                     </div>
                     <p className="text-sm text-gray-900 truncate">
-                      {slider.caption || 'No caption'}
+                      {slider.caption || t('admin.cms.sliders.noCaption')}
                     </p>
                     <div className="flex gap-4 mt-2">
                       <button
                         onClick={() => startEdit(slider)}
                         className="text-sm text-primary hover:text-primary-dark font-medium transition-colors"
                       >
-                        Edit
+                        {t('common.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(slider.id)}
                         className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                     </div>
                   </div>

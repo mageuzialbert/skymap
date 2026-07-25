@@ -15,6 +15,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useT } from '@/lib/i18n';
 
 interface Business {
   id: string;
@@ -24,6 +25,7 @@ interface Business {
 
 export default function SmsSendPage() {
   const router = useRouter();
+  const t = useT();
   const [loading, setLoading] = useState(true);
 
   // Compose state
@@ -111,7 +113,7 @@ export default function SmsSendPage() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || 'Failed to send');
+      if (!res.ok) throw new Error(data.error || t('admin.sms.send.failToSend'));
 
       const sent = data.total_sent ?? 0;
       const failed = data.total_failed ?? 0;
@@ -121,8 +123,8 @@ export default function SmsSendPage() {
       setSendResult({
         success: failed === 0,
         message: allFailed
-          ? `None sent (${failed} failed)${reason}`
-          : `Sent: ${sent} | Failed: ${failed} | Total: ${data.total_recipients}${failed ? reason : ''}`,
+          ? t('admin.sms.send.noneSent', { failed, reason })
+          : t('admin.sms.send.sentSummary', { sent, failed, total: data.total_recipients, reason: failed ? reason : '' }),
       });
 
       // Keep the message in the box if everything failed so it can be retried.
@@ -134,7 +136,7 @@ export default function SmsSendPage() {
     } catch (err) {
       setSendResult({
         success: false,
-        message: err instanceof Error ? err.message : 'Failed to send SMS',
+        message: err instanceof Error ? err.message : t('admin.sms.send.failToSend'),
       });
     } finally {
       setSending(false);
@@ -162,11 +164,11 @@ export default function SmsSendPage() {
             className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Templates
+            {t('admin.sms.send.backToTemplates')}
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Send SMS</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('admin.sms.send.title')}</h1>
           <p className="text-gray-600 mt-1">
-            Compose and send custom SMS messages to clients.
+            {t('admin.sms.send.subtitle')}
           </p>
         </div>
       </div>
@@ -197,13 +199,13 @@ export default function SmsSendPage() {
         {/* Subject (optional) */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Subject (optional, for your records)
+            {t('admin.sms.send.subjectLabel')}
           </label>
           <input
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            placeholder="e.g. Holiday greeting, Service announcement..."
+            placeholder={t('admin.sms.send.subjectPlaceholder')}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
           />
         </div>
@@ -211,24 +213,24 @@ export default function SmsSendPage() {
         {/* Message */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Message <span className="text-red-500">*</span>
+            {t('admin.sms.send.messageLabel')} <span className="text-red-500">*</span>
           </label>
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={5}
-            placeholder="Type your SMS message here..."
+            placeholder={t('admin.sms.send.messagePlaceholder')}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
           />
           <p className="text-xs text-gray-400 mt-1">
-            {message.length} characters{message.length > 160 ? ` (${Math.ceil(message.length / 160)} SMS parts)` : ''}
+            {t('admin.sms.send.chars', { count: message.length })}{message.length > 160 ? t('admin.sms.send.parts', { parts: Math.ceil(message.length / 160) }) : ''}
           </p>
         </div>
 
         {/* Recipient Type */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <label className="block text-sm font-medium text-gray-700 mb-3">
-            Recipients
+            {t('admin.sms.send.recipients')}
           </label>
           <div className="flex gap-3 mb-4">
             <button
@@ -240,7 +242,7 @@ export default function SmsSendPage() {
               }`}
             >
               <Users className="w-5 h-5 mx-auto mb-1" />
-              Select Clients
+              {t('admin.sms.send.selectClients')}
             </button>
             <button
               onClick={() => setRecipientType('all_clients')}
@@ -251,7 +253,7 @@ export default function SmsSendPage() {
               }`}
             >
               <Users className="w-5 h-5 mx-auto mb-1" />
-              All Clients
+              {t('admin.sms.send.allClients')}
             </button>
           </div>
 
@@ -264,7 +266,7 @@ export default function SmsSendPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search businesses by name or phone..."
+                  placeholder={t('admin.sms.send.searchPlaceholder')}
                   className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
                 />
                 {searching && (
@@ -316,7 +318,7 @@ export default function SmsSendPage() {
 
               {selectedRecipients.length === 0 && !searchQuery && (
                 <p className="text-sm text-gray-400 text-center py-2">
-                  Search and select recipients above
+                  {t('admin.sms.send.selectHint')}
                 </p>
               )}
             </div>
@@ -324,7 +326,7 @@ export default function SmsSendPage() {
 
           {recipientType === 'all_clients' && (
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700">
-              ⚠️ This will send the SMS to <strong>all active clients</strong> in the system.
+              ⚠️ {t('admin.sms.send.warnPre')} <strong>{t('admin.sms.send.warnStrong')}</strong> {t('admin.sms.send.warnPost')}
             </div>
           )}
         </div>
@@ -338,12 +340,12 @@ export default function SmsSendPage() {
           {sending ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              Sending...
+              {t('common.sending')}
             </>
           ) : (
             <>
               <Send className="w-5 h-5" />
-              Send SMS
+              {t('admin.sms.send.send')}
             </>
           )}
         </button>

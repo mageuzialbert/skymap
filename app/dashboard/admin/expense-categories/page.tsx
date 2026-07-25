@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUserRole } from '@/lib/roles';
 import { Loader2, Plus, Edit, Trash2 } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface ExpenseCategory {
   id: string;
@@ -22,6 +23,7 @@ interface CategoryFormData {
 
 export default function AdminExpenseCategoriesPage() {
   const router = useRouter();
+  const t = useT();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
@@ -92,7 +94,7 @@ export default function AdminExpenseCategoriesPage() {
 
     try {
       if (!formData.name.trim()) {
-        throw new Error('Category name is required');
+        throw new Error(t('admin.expenseCategories.nameRequired'));
       }
 
       const url = editingCategory
@@ -112,21 +114,21 @@ export default function AdminExpenseCategoriesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save category');
+        throw new Error(errorData.error || t('admin.expenseCategories.errSave'));
       }
 
       setShowForm(false);
       setEditingCategory(null);
       loadCategories();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save category');
+      setError(err instanceof Error ? err.message : t('admin.expenseCategories.errSave'));
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleDelete(category: ExpenseCategory) {
-    if (!confirm(`Are you sure you want to ${category.active ? 'deactivate' : 'delete'} this category?`)) {
+    if (!confirm(category.active ? t('admin.expenseCategories.confirmDeactivate') : t('admin.expenseCategories.confirmDelete'))) {
       return;
     }
 
@@ -137,12 +139,12 @@ export default function AdminExpenseCategoriesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete category');
+        throw new Error(errorData.error || t('admin.expenseCategories.errDelete'));
       }
 
       loadCategories();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete category');
+      alert(err instanceof Error ? err.message : t('admin.expenseCategories.errDelete'));
     }
   }
 
@@ -158,8 +160,8 @@ export default function AdminExpenseCategoriesPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Expense Categories</h1>
-          <p className="text-gray-600 mt-1">Manage expense categories for tracking</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('admin.expenseCategories.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('admin.expenseCategories.subtitle')}</p>
         </div>
         {role === 'ADMIN' && (
           <button
@@ -167,7 +169,7 @@ export default function AdminExpenseCategoriesPage() {
             className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
-            New Category
+            {t('admin.expenseCategories.new')}
           </button>
         )}
       </div>
@@ -184,17 +186,17 @@ export default function AdminExpenseCategoriesPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
+                {t('common.name')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Description
+                {t('admin.common.description')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                {t('common.status')}
               </th>
               {role === 'ADMIN' && (
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t('common.actions')}
                 </th>
               )}
             </tr>
@@ -203,7 +205,7 @@ export default function AdminExpenseCategoriesPage() {
             {categories.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                  No categories found
+                  {t('admin.expenseCategories.empty')}
                 </td>
               </tr>
             ) : (
@@ -223,7 +225,7 @@ export default function AdminExpenseCategoriesPage() {
                           : 'bg-gray-100 text-gray-800'
                       }`}
                     >
-                      {category.active ? 'Active' : 'Inactive'}
+                      {category.active ? t('admin.common.active') : t('admin.common.inactive')}
                     </span>
                   </td>
                   {role === 'ADMIN' && (
@@ -232,14 +234,14 @@ export default function AdminExpenseCategoriesPage() {
                         <button
                           onClick={() => handleEdit(category)}
                           className="text-blue-600 hover:text-blue-800"
-                          title="Edit"
+                          title={t('common.edit')}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(category)}
                           className="text-red-600 hover:text-red-800"
-                          title="Delete"
+                          title={t('common.delete')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -258,13 +260,13 @@ export default function AdminExpenseCategoriesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {editingCategory ? 'Edit Category' : 'New Category'}
+              {editingCategory ? t('admin.expenseCategories.editTitle') : t('admin.expenseCategories.newTitle')}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category Name *
+                  {t('admin.expenseCategories.nameLabel')}
                 </label>
                 <input
                   type="text"
@@ -272,20 +274,20 @@ export default function AdminExpenseCategoriesPage() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="e.g., Fuel, Maintenance"
+                  placeholder={t('admin.expenseCategories.namePlaceholder')}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+                  {t('admin.common.description')}
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Optional description"
+                  placeholder={t('admin.expenseCategories.descriptionPlaceholder')}
                 />
               </div>
 
@@ -298,7 +300,7 @@ export default function AdminExpenseCategoriesPage() {
                   className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                 />
                 <label htmlFor="active" className="text-sm font-medium text-gray-700">
-                  Active
+                  {t('admin.expenseCategories.activeLabel')}
                 </label>
               </div>
 
@@ -313,7 +315,7 @@ export default function AdminExpenseCategoriesPage() {
                   disabled={submitting}
                   className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -321,7 +323,7 @@ export default function AdminExpenseCategoriesPage() {
                   className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {submitting ? 'Saving...' : editingCategory ? 'Update Category' : 'Create Category'}
+                  {submitting ? t('common.saving') : editingCategory ? t('admin.expenseCategories.update') : t('admin.expenseCategories.create')}
                 </button>
               </div>
             </form>

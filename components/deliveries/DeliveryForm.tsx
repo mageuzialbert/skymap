@@ -17,6 +17,7 @@ import {
   Calendar,
 } from "lucide-react";
 import LocationPicker from "@/components/common/LocationPicker";
+import { useT } from "@/lib/i18n";
 
 interface Region {
   id: number;
@@ -85,6 +86,7 @@ export default function DeliveryForm({
   showBusinessSelector = false,
   showDeliveryFee = false,
 }: DeliveryFormProps) {
+  const t = useT();
   const [regions, setRegions] = useState<Region[]>([]);
   const [pickupDistricts, setPickupDistricts] = useState<District[]>([]);
   const [dropoffDistricts, setDropoffDistricts] = useState<District[]>([]);
@@ -355,17 +357,14 @@ export default function DeliveryForm({
       {loadError && (
         <div className="p-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4" />
-          <span>
-            Google Maps failed to load. Address search and map features are
-            unavailable. You can still enter addresses manually.
-          </span>
+          <span>{t("components.deliveryForm.mapsFailed")}</span>
         </div>
       )}
 
       {!isLoaded && !loadError && (
         <div className="flex items-center justify-center p-4">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
-          <span className="ml-2 text-gray-500">Loading maps...</span>
+          <span className="ml-2 text-gray-500">{t("components.deliveryForm.loadingMaps")}</span>
         </div>
       )}
 
@@ -375,7 +374,7 @@ export default function DeliveryForm({
           <label className={labelClass}>
             <span className="flex items-center gap-1.5">
               <Building2 className="w-4 h-4 text-gray-400" />
-              Business <span className="text-red-500">*</span>
+              {t("components.deliveryForm.business")} <span className="text-red-500">*</span>
             </span>
           </label>
           <select
@@ -385,7 +384,7 @@ export default function DeliveryForm({
             disabled={loadingBusinesses}
             className={inputClass}
           >
-            <option value="">Select a business</option>
+            <option value="">{t("components.deliveryForm.selectBusiness")}</option>
             {businesses.map((business) => (
               <option key={business.id} value={business.id}>
                 {business.name}
@@ -395,7 +394,7 @@ export default function DeliveryForm({
           {pickupPreFilled && (
             <p className="mt-2 text-sm text-green-600 flex items-center gap-1">
               <Check className="w-4 h-4" />
-              Pickup details auto-filled from business
+              {t("components.deliveryForm.pickupAutoFilled")}
             </p>
           )}
         </div>
@@ -413,11 +412,11 @@ export default function DeliveryForm({
             <div className="p-2 bg-green-100 rounded-lg">
               <MapPin className="w-5 h-5 text-green-600" />
             </div>
-            <span className="flex-1 text-left">Pickup Details</span>
+            <span className="flex-1 text-left">{t("components.deliveryDetails.pickupDetails")}</span>
             {pickupPreFilled && (
               <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center gap-1">
                 <Check className="w-3 h-3" />
-                Pre-filled
+                {t("components.deliveryForm.preFilled")}
               </span>
             )}
             <span className="lg:hidden">
@@ -437,14 +436,14 @@ export default function DeliveryForm({
               </p>
               <p className="text-green-700">{formData.pickup_phone}</p>
               <p className="text-green-600 truncate">
-                {formData.pickup_address || "No address"}
+                {formData.pickup_address || t("components.deliveryForm.noAddress")}
               </p>
               <button
                 type="button"
                 onClick={() => setPickupCollapsed(false)}
                 className="text-green-700 underline text-xs mt-1"
               >
-                Edit pickup details
+                {t("components.deliveryForm.editPickup")}
               </button>
             </div>
           )}
@@ -456,7 +455,7 @@ export default function DeliveryForm({
               <label className={labelClass}>
                 <span className="flex items-center gap-1.5">
                   <User className="w-4 h-4 text-gray-400" />
-                  Contact Name <span className="text-red-500">*</span>
+                  {t("components.deliveryForm.contactName")} <span className="text-red-500">*</span>
                 </span>
               </label>
               <input
@@ -466,7 +465,7 @@ export default function DeliveryForm({
                   setFormData({ ...formData, pickup_name: e.target.value })
                 }
                 required
-                placeholder="Who to pick up from"
+                placeholder={t("components.deliveryForm.whoToPickup")}
                 className={inputClass}
               />
             </div>
@@ -475,7 +474,7 @@ export default function DeliveryForm({
               <label className={labelClass}>
                 <span className="flex items-center gap-1.5">
                   <Phone className="w-4 h-4 text-gray-400" />
-                  Phone Number <span className="text-red-500">*</span>
+                  {t("common.phone")} <span className="text-red-500">*</span>
                 </span>
               </label>
               <input
@@ -493,7 +492,7 @@ export default function DeliveryForm({
             <div>
               {isLoaded ? (
                 <LocationPicker
-                  label="Pickup Address *"
+                  label={t("components.deliveryForm.pickupAddress")}
                   value={formData.pickup_address}
                   onChange={(address, lat, lng) =>
                     setFormData({
@@ -512,7 +511,7 @@ export default function DeliveryForm({
                       : undefined
                   }
                   error={
-                    formData.pickup_address ? undefined : "Address is required"
+                    formData.pickup_address ? undefined : t("components.deliveryForm.addressRequired")
                   }
                 />
               ) : (
@@ -520,7 +519,7 @@ export default function DeliveryForm({
                   <label className={labelClass}>
                     <span className="flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-gray-400" />
-                      Address <span className="text-red-500">*</span>
+                      {t("components.deliveryDetails.address")} <span className="text-red-500">*</span>
                     </span>
                   </label>
                   <input
@@ -533,7 +532,7 @@ export default function DeliveryForm({
                       })
                     }
                     required
-                    placeholder="Street address, building, etc."
+                    placeholder={t("components.deliveryForm.streetAddress")}
                     className={inputClass}
                   />
                 </>
@@ -542,7 +541,7 @@ export default function DeliveryForm({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelClass}>Region</label>
+                <label className={labelClass}>{t("components.deliveryForm.region")}</label>
                 <select
                   value={formData.pickup_region_id || ""}
                   onChange={(e) =>
@@ -556,7 +555,7 @@ export default function DeliveryForm({
                   disabled={loadingRegions}
                   className={inputClass}
                 >
-                  <option value="">Select region</option>
+                  <option value="">{t("components.deliveryForm.selectRegion")}</option>
                   {regions.map((region) => (
                     <option key={region.id} value={region.id}>
                       {region.name}
@@ -565,7 +564,7 @@ export default function DeliveryForm({
                 </select>
               </div>
               <div>
-                <label className={labelClass}>District</label>
+                <label className={labelClass}>{t("components.deliveryForm.district")}</label>
                 <select
                   value={formData.pickup_district_id || ""}
                   onChange={(e) =>
@@ -581,7 +580,7 @@ export default function DeliveryForm({
                   }
                   className={inputClass}
                 >
-                  <option value="">Select district</option>
+                  <option value="">{t("components.deliveryForm.selectDistrict")}</option>
                   {pickupDistricts.map((district) => (
                     <option key={district.id} value={district.id}>
                       {district.name}
@@ -607,7 +606,7 @@ export default function DeliveryForm({
               <label className={labelClass}>
                 <span className="flex items-center gap-1.5">
                   <User className="w-4 h-4 text-gray-400" />
-                  Recipient Name <span className="text-red-500">*</span>
+                  {t("components.deliveryForm.recipientName")} <span className="text-red-500">*</span>
                 </span>
               </label>
               <input
@@ -617,7 +616,7 @@ export default function DeliveryForm({
                   setFormData({ ...formData, dropoff_name: e.target.value })
                 }
                 required
-                placeholder="Who to deliver to"
+                placeholder={t("components.deliveryForm.whoToDeliver")}
                 className={inputClass}
               />
             </div>
@@ -626,7 +625,7 @@ export default function DeliveryForm({
               <label className={labelClass}>
                 <span className="flex items-center gap-1.5">
                   <Phone className="w-4 h-4 text-gray-400" />
-                  Phone Number <span className="text-red-500">*</span>
+                  {t("common.phone")} <span className="text-red-500">*</span>
                 </span>
               </label>
               <input
@@ -644,7 +643,7 @@ export default function DeliveryForm({
             <div>
               {isLoaded ? (
                 <LocationPicker
-                  label="Drop-off Address *"
+                  label={t("components.deliveryForm.dropoffAddress")}
                   value={formData.dropoff_address}
                   onChange={(address, lat, lng) =>
                     setFormData({
@@ -655,7 +654,7 @@ export default function DeliveryForm({
                     })
                   }
                   error={
-                    formData.dropoff_address ? undefined : "Address is required"
+                    formData.dropoff_address ? undefined : t("components.deliveryForm.addressRequired")
                   }
                 />
               ) : (
@@ -663,7 +662,7 @@ export default function DeliveryForm({
                   <label className={labelClass}>
                     <span className="flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-gray-400" />
-                      Address <span className="text-red-500">*</span>
+                      {t("components.deliveryDetails.address")} <span className="text-red-500">*</span>
                     </span>
                   </label>
                   <input
@@ -676,7 +675,7 @@ export default function DeliveryForm({
                       })
                     }
                     required
-                    placeholder="Street address, building, etc."
+                    placeholder={t("components.deliveryForm.streetAddress")}
                     className={inputClass}
                   />
                 </>
@@ -685,7 +684,7 @@ export default function DeliveryForm({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelClass}>Region</label>
+                <label className={labelClass}>{t("components.deliveryForm.region")}</label>
                 <select
                   value={formData.dropoff_region_id || ""}
                   onChange={(e) =>
@@ -699,7 +698,7 @@ export default function DeliveryForm({
                   disabled={loadingRegions}
                   className={inputClass}
                 >
-                  <option value="">Select region</option>
+                  <option value="">{t("components.deliveryForm.selectRegion")}</option>
                   {regions.map((region) => (
                     <option key={region.id} value={region.id}>
                       {region.name}
@@ -708,7 +707,7 @@ export default function DeliveryForm({
                 </select>
               </div>
               <div>
-                <label className={labelClass}>District</label>
+                <label className={labelClass}>{t("components.deliveryForm.district")}</label>
                 <select
                   value={formData.dropoff_district_id || ""}
                   onChange={(e) =>
@@ -724,7 +723,7 @@ export default function DeliveryForm({
                   }
                   className={inputClass}
                 >
-                  <option value="">Select district</option>
+                  <option value="">{t("components.deliveryForm.selectDistrict")}</option>
                   {dropoffDistricts.map((district) => (
                     <option key={district.id} value={district.id}>
                       {district.name}
@@ -744,7 +743,7 @@ export default function DeliveryForm({
             <Package className="w-5 h-5 text-amber-600" />
           </div>
           <span>
-            Special Instructions <span className="text-red-500">*</span>
+            {t("components.deliveryForm.specialInstructions")} <span className="text-red-500">*</span>
           </span>
         </div>
         <textarea
@@ -754,7 +753,7 @@ export default function DeliveryForm({
           }
           required
           rows={3}
-          placeholder="Package details, handling instructions, delivery notes..."
+          placeholder={t("components.deliveryForm.instructionsPlaceholder")}
           className={inputClass + " resize-none"}
         />
       </div>
@@ -766,13 +765,13 @@ export default function DeliveryForm({
             <div className="p-2 bg-purple-100 rounded-lg">
               <DollarSign className="w-5 h-5 text-purple-600" />
             </div>
-            <span>Delivery Fee</span>
+            <span>{t("components.deliveryForm.deliveryFee")}</span>
           </div>
           <div>
             <label className={labelClass}>
               <span className="flex items-center gap-1.5">
                 <DollarSign className="w-4 h-4 text-gray-400" />
-                Fee Amount (TZS)
+                {t("components.deliveryForm.feeAmount")}
               </span>
             </label>
             <input
@@ -786,12 +785,11 @@ export default function DeliveryForm({
                   delivery_fee: e.target.value ? parseFloat(e.target.value) : 0,
                 })
               }
-              placeholder="Enter delivery fee"
+              placeholder={t("components.deliveryForm.enterFee")}
               className={inputClass}
             />
             <p className="mt-1.5 text-xs text-gray-500">
-              Auto-filled from selected business package. You can adjust if
-              needed.
+              {t("components.deliveryForm.feeHint")}
             </p>
           </div>
         </div>
@@ -804,13 +802,13 @@ export default function DeliveryForm({
             <div className="p-2 bg-gray-100 rounded-lg">
               <Calendar className="w-5 h-5 text-gray-600" />
             </div>
-            <span>Delivery Date & Time</span>
+            <span>{t("components.deliveryForm.deliveryDateTime")}</span>
           </div>
           <div>
             <label className={labelClass}>
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-gray-400" />
-                When was this delivery done?
+                {t("components.deliveryForm.whenDone")}
               </span>
             </label>
             <input
@@ -825,7 +823,7 @@ export default function DeliveryForm({
               className={inputClass}
             />
             <p className="mt-1.5 text-xs text-gray-500">
-              Defaults to current date/time. Adjust if the delivery was already completed.
+              {t("components.deliveryForm.dateHint")}
             </p>
           </div>
         </div>
@@ -839,7 +837,7 @@ export default function DeliveryForm({
           className="flex-1 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm"
         >
           {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-          {loading ? "Creating Delivery..." : "Create Delivery"}
+          {loading ? t("components.deliveryForm.creating") : t("components.deliveryForm.create")}
         </button>
         {onCancel && (
           <button
@@ -847,7 +845,7 @@ export default function DeliveryForm({
             onClick={onCancel}
             className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
         )}
       </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface PhoneVerificationProps {
   phone: string;
@@ -28,6 +29,7 @@ export default function PhoneVerification({
   error,
   success,
 }: PhoneVerificationProps) {
+  const t = useT();
   const handlePhoneSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onPhoneSubmit();
@@ -44,7 +46,7 @@ export default function PhoneVerification({
         <form onSubmit={handlePhoneSubmit} className="space-y-4">
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number
+              {t('common.phone')}
             </label>
             <input
               type="tel"
@@ -57,7 +59,7 @@ export default function PhoneVerification({
               disabled={loading}
             />
             <p className="mt-1 text-sm text-gray-500">
-              Enter your phone number to continue
+              {t('components.phoneVerification.enterPhoneHint')}
             </p>
           </div>
 
@@ -81,10 +83,10 @@ export default function PhoneVerification({
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Sending code...</span>
+                <span>{t('components.phoneVerification.sendingCode')}</span>
               </>
             ) : (
-              'Send Verification Code'
+              t('components.phoneVerification.sendCode')
             )}
           </button>
         </form>
@@ -92,7 +94,7 @@ export default function PhoneVerification({
         <form onSubmit={handleOTPSubmit} className="space-y-4">
           <div>
             <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-2">
-              Verification Code
+              {t('components.phoneVerification.verificationCode')}
             </label>
             <input
               type="text"
@@ -106,7 +108,7 @@ export default function PhoneVerification({
               disabled={loading}
             />
             <p className="mt-1 text-sm text-gray-500">
-              Enter the 6-digit code sent to {phone}
+              {t('components.phoneVerification.enterCodeSentTo', { phone })}
             </p>
           </div>
 
@@ -124,10 +126,10 @@ export default function PhoneVerification({
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Verifying...</span>
+                <span>{t('components.phoneVerification.verifying')}</span>
               </>
             ) : (
-              'Verify Code'
+              t('components.phoneVerification.verifyCode')
             )}
           </button>
 
@@ -140,7 +142,7 @@ export default function PhoneVerification({
             className="w-full text-gray-600 hover:text-gray-900 text-sm"
             disabled={loading}
           >
-            Resend code
+            {t('components.phoneVerification.resendCode')}
           </button>
         </form>
       )}

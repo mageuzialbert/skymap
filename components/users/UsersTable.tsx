@@ -1,6 +1,7 @@
 'use client';
 
 import { User, Shield, Bike, Building2, X, Edit, Eye, IdCard } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface UserData {
   id: string;
@@ -43,6 +44,7 @@ export default function UsersTable({
   onDeactivate,
   showActions = true,
 }: UsersTableProps) {
+  const t = useT();
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -57,26 +59,26 @@ export default function UsersTable({
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                User
+                {t('components.users.user')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contact
+                {t('components.users.contact')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                License
+                {t('components.users.license')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
+                {t('components.users.role')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                {t('common.status')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Created
+                {t('components.deliveries.created')}
               </th>
               {showActions && (
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t('common.actions')}
                 </th>
               )}
             </tr>
@@ -88,7 +90,7 @@ export default function UsersTable({
                   colSpan={showActions ? 7 : 6}
                   className="px-6 py-10 text-center text-gray-500"
                 >
-                  No riders found
+                  {t('components.users.noneFound')}
                 </td>
               </tr>
             ) : (
@@ -128,7 +130,7 @@ export default function UsersTable({
                           <span className="font-mono">{user.license_number}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400 italic">Not set</span>
+                        <span className="text-xs text-gray-400 italic">{t('components.users.notSet')}</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -148,7 +150,7 @@ export default function UsersTable({
                             : 'bg-gray-100 text-gray-800'
                         }`}
                       >
-                        {user.active ? 'Active' : 'Inactive'}
+                        {user.active ? t('components.users.active') : t('components.users.inactive')}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -161,8 +163,8 @@ export default function UsersTable({
                             <button
                               onClick={() => onView(user)}
                               className="p-1.5 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors cursor-pointer"
-                              title="View details"
-                              aria-label={`View details of ${user.name}`}
+                              title={t('components.users.viewDetails')}
+                              aria-label={t('components.users.viewDetailsOf', { name: user.name })}
                             >
                               <Eye className="w-4 h-4" />
                             </button>
@@ -171,8 +173,8 @@ export default function UsersTable({
                             <button
                               onClick={() => onEdit(user)}
                               className="p-1.5 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors cursor-pointer"
-                              title="Edit user"
-                              aria-label={`Edit ${user.name}`}
+                              title={t('components.users.editUser')}
+                              aria-label={t('components.users.editUserName', { name: user.name })}
                             >
                               <Edit className="w-4 h-4" />
                             </button>
@@ -181,8 +183,8 @@ export default function UsersTable({
                             <button
                               onClick={() => onDeactivate(user.id)}
                               className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                              title="Deactivate user"
-                              aria-label={`Deactivate ${user.name}`}
+                              title={t('components.users.deactivateUser')}
+                              aria-label={t('components.users.deactivateUserName', { name: user.name })}
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -201,7 +203,7 @@ export default function UsersTable({
       {/* Mobile cards */}
       <div className="md:hidden divide-y divide-gray-100">
         {users.length === 0 ? (
-          <div className="px-4 py-8 text-center text-gray-500">No riders found</div>
+          <div className="px-4 py-8 text-center text-gray-500">{t('components.users.noneFound')}</div>
         ) : (
           users.map((user) => {
             const RoleIcon = roleIcons[user.role] || User;
@@ -252,17 +254,17 @@ export default function UsersTable({
                   <div className="mt-3 flex items-center gap-4 text-sm font-medium">
                     {onView && (
                       <button onClick={() => onView(user)} className="inline-flex items-center gap-1 text-gray-600">
-                        <Eye className="w-4 h-4" /> View
+                        <Eye className="w-4 h-4" /> {t('components.deliveries.view')}
                       </button>
                     )}
                     {onEdit && (
                       <button onClick={() => onEdit(user)} className="inline-flex items-center gap-1 text-gray-600">
-                        <Edit className="w-4 h-4" /> Edit
+                        <Edit className="w-4 h-4" /> {t('common.edit')}
                       </button>
                     )}
                     {onDeactivate && user.active && (
                       <button onClick={() => onDeactivate(user.id)} className="inline-flex items-center gap-1 text-red-600">
-                        <X className="w-4 h-4" /> Deactivate
+                        <X className="w-4 h-4" /> {t('components.users.deactivate')}
                       </button>
                     )}
                   </div>

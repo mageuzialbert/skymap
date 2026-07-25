@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Loader2, Save } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface CMSContent {
   id: string;
@@ -11,6 +12,7 @@ interface CMSContent {
 }
 
 export default function AdminContentPage() {
+  const t = useT();
   const [content, setContent] = useState<CMSContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
@@ -23,11 +25,11 @@ export default function AdminContentPage() {
   async function loadContent() {
     try {
       const response = await fetch('/api/admin/cms/content');
-      if (!response.ok) throw new Error('Failed to load content');
+      if (!response.ok) throw new Error(t('admin.cms.content.errLoad'));
       const data = await response.json();
       setContent(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load content');
+      setError(err instanceof Error ? err.message : t('admin.cms.content.errLoad'));
     } finally {
       setLoading(false);
     }
@@ -46,12 +48,12 @@ export default function AdminContentPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to save content');
+        throw new Error(data.error || t('admin.cms.content.errSave'));
       }
 
       loadContent();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save content');
+      setError(err instanceof Error ? err.message : t('admin.cms.content.errSave'));
     } finally {
       setSaving(null);
     }
@@ -90,7 +92,7 @@ export default function AdminContentPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Manage CMS Content</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">{t('admin.cms.content.title')}</h1>
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
@@ -100,11 +102,11 @@ export default function AdminContentPage() {
 
       {/* About Us Section */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">About Us</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('admin.cms.content.aboutHeading')}</h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title
+              {t('admin.cms.content.titleLabel')}
             </label>
             <input
               type="text"
@@ -129,7 +131,7 @@ export default function AdminContentPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
+              {t('admin.cms.content.descriptionLabel')}
             </label>
             <textarea
               value={aboutContent?.content?.description || ''}
@@ -154,7 +156,7 @@ export default function AdminContentPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Features (one per line)
+              {t('admin.cms.content.featuresLabel')}
             </label>
             <textarea
               value={
@@ -179,7 +181,7 @@ export default function AdminContentPage() {
                 }
               }}
               rows={6}
-              placeholder="Fast and Reliable Delivery&#10;Real-time Tracking&#10;Weekly Billing&#10;Professional Service"
+              placeholder={t('admin.cms.content.featuresPlaceholder')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
@@ -196,12 +198,12 @@ export default function AdminContentPage() {
             {saving === 'about_us' ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving...</span>
+                <span>{t('common.saving')}</span>
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span>Save About Us</span>
+                <span>{t('admin.cms.content.saveAboutUs')}</span>
               </>
             )}
           </button>

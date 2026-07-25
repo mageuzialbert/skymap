@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { Building2, Users, BarChart3, Image, FileText, Loader2, Settings, Receipt, CreditCard, MessageSquare } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import { useRouter } from 'next/navigation';
+import { useT } from '@/lib/i18n';
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const t = useT();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,99 +36,99 @@ export default function AdminDashboard() {
 
   const adminCards = [
     {
-      title: 'Manage Businesses',
-      description: 'View and manage all registered businesses',
+      title: t('admin.cards.businesses.title'),
+      description: t('admin.cards.businesses.desc'),
       icon: Building2,
       href: '/dashboard/admin/businesses',
       color: 'bg-blue-500',
     },
     {
-      title: 'Manage Users',
-      description: 'View and manage all system users',
+      title: t('admin.cards.users.title'),
+      description: t('admin.cards.users.desc'),
       icon: Users,
       href: '/dashboard/admin/users',
       color: 'bg-green-500',
     },
     {
-      title: 'Delivery Packages',
-      description: 'Manage delivery fee packages',
+      title: t('admin.cards.deliveryPackages.title'),
+      description: t('admin.cards.deliveryPackages.desc'),
       icon: Building2,
       href: '/dashboard/admin/delivery-packages',
       color: 'bg-cyan-500',
     },
     {
-      title: 'Expense Categories',
-      description: 'Manage expense categories',
+      title: t('admin.cards.expenseCategories.title'),
+      description: t('admin.cards.expenseCategories.desc'),
       icon: FileText,
       href: '/dashboard/admin/expense-categories',
       color: 'bg-pink-500',
     },
     {
-      title: 'Expenses',
-      description: 'Track and manage platform expenses',
+      title: t('admin.cards.expenses.title'),
+      description: t('admin.cards.expenses.desc'),
       icon: BarChart3,
       href: '/dashboard/admin/expenses',
       color: 'bg-red-500',
     },
     {
-      title: 'Operations',
-      description: 'View operations dashboard and metrics',
+      title: t('admin.cards.operations.title'),
+      description: t('admin.cards.operations.desc'),
       icon: BarChart3,
       href: '/dashboard/staff/operations',
       color: 'bg-indigo-500',
     },
     {
-      title: 'Financial Analytics',
-      description: 'View revenue, expenses, profit, and financial data',
+      title: t('admin.cards.financial.title'),
+      description: t('admin.cards.financial.desc'),
       icon: BarChart3,
       href: '/dashboard/staff/financial',
       color: 'bg-emerald-500',
     },
     {
-      title: 'CMS - Sliders',
-      description: 'Manage landing page slider images',
+      title: t('admin.cards.sliders.title'),
+      description: t('admin.cards.sliders.desc'),
       icon: Image,
       href: '/dashboard/admin/cms/sliders',
       color: 'bg-purple-500',
     },
     {
-      title: 'CMS - Content',
-      description: 'Edit About Us and other CMS content',
+      title: t('admin.cards.content.title'),
+      description: t('admin.cards.content.desc'),
       icon: FileText,
       href: '/dashboard/admin/cms/content',
       color: 'bg-orange-500',
     },
     {
-      title: 'Company Profile',
-      description: 'Manage company logo, contact info, and details',
+      title: t('admin.cards.companyProfile.title'),
+      description: t('admin.cards.companyProfile.desc'),
       icon: Settings,
       href: '/dashboard/admin/company-profile',
       color: 'bg-teal-500',
     },
     {
-      title: 'Invoice Management',
-      description: 'View, create, and manage invoices and proforma invoices',
+      title: t('admin.cards.invoices.title'),
+      description: t('admin.cards.invoices.desc'),
       icon: Receipt,
       href: '/dashboard/admin/invoices',
       color: 'bg-amber-500',
     },
     {
-      title: 'Payment Instructions',
-      description: 'Configure payment instructions for invoices',
+      title: t('admin.cards.paymentInstructions.title'),
+      description: t('admin.cards.paymentInstructions.desc'),
       icon: CreditCard,
       href: '/dashboard/admin/payment-instructions',
       color: 'bg-violet-500',
     },
     {
-      title: 'SMS Templates',
-      description: 'Manage predefined SMS templates for events',
+      title: t('admin.cards.smsTemplates.title'),
+      description: t('admin.cards.smsTemplates.desc'),
       icon: MessageSquare,
       href: '/dashboard/admin/sms/templates',
       color: 'bg-sky-500',
     },
     {
-      title: 'Send SMS',
-      description: 'Send custom SMS to clients',
+      title: t('admin.cards.sendSms.title'),
+      description: t('admin.cards.sendSms.desc'),
       icon: MessageSquare,
       href: '/dashboard/admin/sms/send',
       color: 'bg-rose-500',
@@ -135,8 +137,8 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-      <p className="text-gray-600 mb-8">Manage your logistics platform</p>
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('admin.dashboard.title')}</h1>
+      <p className="text-gray-600 mb-8">{t('admin.dashboard.subtitle')}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {adminCards.map((card) => (
