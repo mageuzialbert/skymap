@@ -1,17 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Bodoni_Moda } from "next/font/google";
+import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 import { createClient } from '@/lib/supabase-server';
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration';
 import { LanguageProvider } from '@/lib/i18n';
 
-// Display serif used for the hero tagline.
-const bodoni = Bodoni_Moda({
+// Inter drives all body/UI text; Sora is the display face for headings.
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
+});
+const sora = Sora({
   subsets: ["latin"],
   weight: ["600", "700", "800"],
-  variable: "--font-bodoni",
+  variable: "--font-sora",
   display: "swap",
-  adjustFontFallback: false,
 });
 
 async function getCompanyProfile() {
@@ -78,7 +83,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={bodoni.variable}>
+    <html lang="en" className={`${inter.variable} ${sora.variable}`}>
       <head>
         {/* PWA Meta Tags */}
         <meta name="application-name" content="The Skaymap" />
