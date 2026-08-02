@@ -287,7 +287,7 @@ export async function getDashboardPathForCurrentUser(): Promise<string | null> {
     case 'RIDER':
       return '/dashboard/rider';
     default:
-      return '/dashboard/business';
+      return '/dashboard/business/request-ride';
   }
 }
 

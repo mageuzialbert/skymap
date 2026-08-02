@@ -216,7 +216,7 @@ export default function AdminCompanyProfilePage() {
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Company Logo */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="text-xl font-semibold mb-4">{t('admin.companyProfile.logoHeading')}</h2>
           <div className="flex items-start gap-6">
             <div className="flex-1">
@@ -224,7 +224,7 @@ export default function AdminCompanyProfilePage() {
                 {t('admin.companyProfile.logoImageLabel')}
               </label>
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
+                <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
                   <Upload className="w-4 h-4" />
                   <span>{uploadingLogo ? t('admin.common.uploading') : t('admin.companyProfile.uploadLogo')}</span>
                   <input
@@ -264,7 +264,7 @@ export default function AdminCompanyProfilePage() {
         </div>
 
         {/* Favicon */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="text-xl font-semibold mb-4">{t('admin.companyProfile.faviconHeading')}</h2>
           <div className="flex items-start gap-6">
             <div className="flex-1">
@@ -272,7 +272,7 @@ export default function AdminCompanyProfilePage() {
                 {t('admin.companyProfile.faviconFileLabel')}
               </label>
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
+                <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
                   <Upload className="w-4 h-4" />
                   <span>{uploadingFavicon ? t('admin.common.uploading') : t('admin.companyProfile.uploadFavicon')}</span>
                   <input
@@ -312,7 +312,7 @@ export default function AdminCompanyProfilePage() {
         </div>
 
         {/* Company Information */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="text-xl font-semibold mb-4">{t('admin.companyProfile.infoHeading')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
@@ -424,7 +424,7 @@ export default function AdminCompanyProfilePage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
           >
             {saving ? (
               <>

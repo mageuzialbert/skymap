@@ -152,7 +152,7 @@ export default function AdminVehiclesPage() {
               resetForm();
               setShowForm(true);
             }}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto justify-center"
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-full hover:bg-primary-dark transition-colors w-full sm:w-auto justify-center"
           >
             <Plus className="w-5 h-5" />
             {t('admin.vehicles.add')}
@@ -257,14 +257,14 @@ export default function AdminVehiclesPage() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                className="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2.5 rounded-full hover:bg-gray-200 transition-colors font-medium"
               >
                 {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={submitting || !formData.name}
-                className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
               >
                 {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 {t('common.save')}

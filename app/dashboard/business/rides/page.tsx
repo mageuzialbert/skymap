@@ -7,6 +7,8 @@ import { Loader2, Filter, Bike, Plus, MapPin, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
 import ServiceBadge from '@/components/common/ServiceBadge';
+import OverviewStats from '@/components/business/OverviewStats';
+import { cardClass, pillPrimary, pageTitle } from '@/lib/ui';
 
 interface Ride {
   id: string;
@@ -135,15 +137,14 @@ export default function RidesHistoryPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('client.ridesHistory')}</h1>
-        <Link
-          href="/dashboard/business/request-ride"
-          className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-medium shadow-sm"
-        >
+        <h1 className={pageTitle}>{t('client.ridesHistory')}</h1>
+        <Link href="/dashboard/business/request-ride" className={pillPrimary}>
           <Plus className="w-5 h-5" />
           <span className="hidden sm:inline">{t('client.requestRide')}</span>
         </Link>
       </div>
+
+      <OverviewStats />
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
@@ -166,7 +167,7 @@ export default function RidesHistoryPage() {
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
           <div>
@@ -175,7 +176,7 @@ export default function RidesHistoryPage() {
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
           <div>
@@ -184,7 +185,7 @@ export default function RidesHistoryPage() {
               type="time"
               value={timeFrom}
               onChange={(e) => setTimeFrom(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
           <div>
@@ -193,7 +194,7 @@ export default function RidesHistoryPage() {
               type="time"
               value={timeTo}
               onChange={(e) => setTimeTo(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
           <div>
@@ -201,7 +202,7 @@ export default function RidesHistoryPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
             >
               <option value="ALL">{t('business.rides.status.all')}</option>
               <option value="CREATED">{t('business.rides.status.created')}</option>
@@ -220,7 +221,7 @@ export default function RidesHistoryPage() {
       </div>
 
       {/* Desktop table */}
-      <div className="hidden md:block bg-white rounded-lg shadow-md overflow-hidden">
+      <div className={`hidden md:block overflow-hidden ${cardClass}`}>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

@@ -166,7 +166,7 @@ export default function AdminExpenseCategoriesPage() {
         {role === 'ADMIN' && (
           <button
             onClick={handleNewCategory}
-            className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2"
+            className="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             {t('admin.expenseCategories.new')}
@@ -175,13 +175,13 @@ export default function AdminExpenseCategoriesPage() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
           {error}
         </div>
       )}
 
       {/* Categories Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -257,7 +257,7 @@ export default function AdminExpenseCategoriesPage() {
 
       {/* Create/Edit Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               {editingCategory ? t('admin.expenseCategories.editTitle') : t('admin.expenseCategories.newTitle')}
@@ -273,7 +273,7 @@ export default function AdminExpenseCategoriesPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder={t('admin.expenseCategories.namePlaceholder')}
                 />
               </div>
@@ -286,7 +286,7 @@ export default function AdminExpenseCategoriesPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder={t('admin.expenseCategories.descriptionPlaceholder')}
                 />
               </div>
@@ -320,7 +320,7 @@ export default function AdminExpenseCategoriesPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                   {submitting ? t('common.saving') : editingCategory ? t('admin.expenseCategories.update') : t('admin.expenseCategories.create')}

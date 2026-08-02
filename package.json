@@ -14,14 +14,16 @@
     "import-new": "node scripts/import-to-new.js",
     "import-pg": "node scripts/import-pg.js",
     "migrate-storage": "node scripts/migrate-storage.js",
-    "sms-reset": "node scripts/send-password-reset-sms.js"
+    "sms-reset": "node scripts/send-password-reset-sms.js",
+    "gen-icons": "node scripts/gen-icons.js",
+    "gen-hero": "node scripts/gen-hero.js",
+    "gen-service-images": "node scripts/gen-service-images.js"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.8",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
     "lucide-react": "^0.562.0",
-    "motion": "^12.38.0",
     "next": "^14.2.5",
     "nodemailer": "^8.0.11",
     "pg": "^8.21.0",

@@ -176,7 +176,7 @@ export default function StaffCreateInvoicePage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="text-xl font-semibold mb-4">{t('staff.invoices.invoiceDetails')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -268,7 +268,7 @@ export default function StaffCreateInvoicePage() {
 
         {/* Charges Preview */}
         {formData.business_id && formData.start_date && formData.end_date && (
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-4">{t('staff.invoices.chargesPreview')}</h2>
             {loadingCharges ? (
               <div className="flex items-center justify-center py-8">
@@ -342,7 +342,7 @@ export default function StaffCreateInvoicePage() {
           <button
             type="submit"
             disabled={submitting || charges.length === 0}
-            className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
           >
             {submitting ? (
               <>

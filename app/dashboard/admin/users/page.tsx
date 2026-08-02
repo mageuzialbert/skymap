@@ -258,7 +258,7 @@ export default function AdminUsersPage() {
               setEditingUser(null);
               setEditingPermissions([]);
             }}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors cursor-pointer"
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors cursor-pointer"
           >
             <Plus className="w-5 h-5" />
             {t('admin.users.add')}
@@ -267,7 +267,7 @@ export default function AdminUsersPage() {
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
               {editingUser ? t('admin.users.editUser') : t('admin.users.createUser')}

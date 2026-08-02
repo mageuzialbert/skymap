@@ -87,7 +87,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
     <div className="space-y-6">
       {/* Revenue, Expenses, and Profit Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">
@@ -101,7 +101,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.financial.totalExpenses')}</p>
@@ -113,7 +113,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.financial.profit')}</p>
@@ -128,7 +128,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.financial.thisMonthRevenue')}</p>
@@ -153,7 +153,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
       )}
 
       {/* Invoices Overview */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">{t('components.financial.invoicesOverview')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div className="text-center">
@@ -190,7 +190,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
       </div>
 
       {/* Top Businesses */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">{t('components.financial.topBusinesses')}</h3>
         {data.topBusinesses.length === 0 ? (
           <p className="text-gray-500 text-center py-4">{t('components.financial.noBusinessRevenue')}</p>
@@ -229,7 +229,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
       </div>
 
       {/* Recent Charges */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">{t('components.financial.recentCharges')}</h3>
         {data.chargesBreakdown.length === 0 ? (
           <p className="text-gray-500 text-center py-4">{t('components.financial.noRecentCharges')}</p>
@@ -277,7 +277,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
 
       {/* Expense Breakdown by Category */}
       {data.expenses.breakdown.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h3 className="text-lg font-semibold mb-4">{t('components.financial.expensesByCategory')}</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -330,7 +330,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
       )}
 
       {/* Revenue vs Expenses Comparison */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">{t('components.financial.revenueVsExpenses')}</h3>
         <div className="space-y-4">
           <div>
@@ -366,7 +366,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
 
       {/* Revenue Trends */}
       {data.revenueTrends.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h3 className="text-lg font-semibold mb-4">{t('components.financial.revenueTrends')}</h3>
           <div className="space-y-2">
             {data.revenueTrends.map((trend) => (

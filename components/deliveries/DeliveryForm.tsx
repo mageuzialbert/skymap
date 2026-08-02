@@ -834,7 +834,7 @@ export default function DeliveryForm({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm"
+          className="flex-1 bg-primary text-white px-6 py-3 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm"
         >
           {loading && <Loader2 className="w-5 h-5 animate-spin" />}
           {loading ? t("components.deliveryForm.creating") : t("components.deliveryForm.create")}
@@ -843,7 +843,7 @@ export default function DeliveryForm({
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+            className="px-6 py-3 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors font-medium"
           >
             {t("common.cancel")}
           </button>

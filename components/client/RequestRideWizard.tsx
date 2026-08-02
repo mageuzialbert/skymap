@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import NextImage from 'next/image';
 import {
   ArrowRight,
   ArrowLeft,
@@ -21,7 +22,6 @@ import {
   CheckCircle2,
   AlertCircle,
   CalendarClock,
-  ShieldCheck,
 } from 'lucide-react';
 import { LocationState } from '@/components/landing/types';
 import AddressInput from '@/components/landing/AddressInput';
@@ -48,6 +48,14 @@ const SERVICE_ICONS: Record<string, any> = {
   UserRound,
   Clock,
   Send,
+};
+
+// Real service photos (same as the home page). Falls back to the Lucide icon.
+const SERVICE_IMAGES: Record<string, string> = {
+  errand: '/services/errand.webp',
+  delivery: '/services/delivery.webp',
+  ride: '/services/ride.webp',
+  hire: '/services/hire.webp',
 };
 
 type StepId = 'purpose' | 'transport' | 'details' | 'errand' | 'hireVehicle' | 'hireDetails' | 'time';
@@ -392,9 +400,9 @@ export default function RequestRideWizard({
   };
 
   const inputClass =
-    'w-full h-11 pl-10 pr-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50';
+    'w-full h-11 pl-10 pr-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50';
   const plainInput =
-    'w-full h-11 px-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50';
+    'w-full h-11 px-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50';
 
   const serviceDef = serviceType ? getServiceType(serviceType) : null;
   const serviceLabelText = serviceType ? t(`components.serviceTypes.${serviceType}.label`) : '-';
@@ -405,9 +413,8 @@ export default function RequestRideWizard({
     <div>
       {/* ===== PURPOSE ===== */}
       {currentStep === 'purpose' && (
-        <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
-          <h3 className="text-base font-semibold text-gray-900 mb-1">{t('components.rideWizard.whatNeed')}</h3>
-          <p className="text-xs text-gray-500 mb-4">{t('components.rideWizard.chooseService')}</p>
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
+          <h3 className="text-base font-semibold text-gray-900 mb-4">{t('components.rideWizard.whatNeed')}</h3>
           <div className="flex flex-col gap-3">
             {SERVICE_TYPES.map((s) => {
               const Icon = SERVICE_ICONS[s.icon] || Package;
@@ -417,17 +424,29 @@ export default function RequestRideWizard({
                   key={s.key}
                   type="button"
                   onClick={() => chooseService(s.key)}
-                  className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${
+                  className={`flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all ${
                     selected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-primary/50'
                   }`}
                 >
-                  <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                      selected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </div>
+                  {SERVICE_IMAGES[s.key] ? (
+                    <NextImage
+                      src={SERVICE_IMAGES[s.key]}
+                      alt=""
+                      width={96}
+                      height={96}
+                      className={`w-12 h-12 rounded-full object-cover shrink-0 ring-2 ${
+                        selected ? 'ring-primary' : 'ring-black/5'
+                      }`}
+                    />
+                  ) : (
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                        selected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </div>
+                  )}
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-gray-900">{t(s.labelKey)}</p>
                     <p className="text-xs text-gray-500 mt-0.5 leading-snug">{t(s.descriptionKey)}</p>
@@ -441,7 +460,7 @@ export default function RequestRideWizard({
 
       {/* ===== TRANSPORT (delivery / ride) ===== */}
       {currentStep === 'transport' && (
-        <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
           <header className="flex items-center gap-2.5 mb-4">
             <Truck className="w-5 h-5 text-gray-400 shrink-0" />
             <div>
@@ -457,7 +476,7 @@ export default function RequestRideWizard({
 
       {/* ===== HIRE VEHICLE (people / load + physical vehicle) ===== */}
       {currentStep === 'hireVehicle' && (
-        <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
           <header className="flex items-center gap-2.5 mb-4">
             <Truck className="w-5 h-5 text-gray-400 shrink-0" />
             <div>
@@ -481,7 +500,7 @@ export default function RequestRideWizard({
                     setHireVehicleId(null);
                     setHireVehicle(null);
                   }}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${
                     selected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-primary/50'
                   }`}
                 >
@@ -519,7 +538,7 @@ export default function RequestRideWizard({
       {/* ===== HIRE DETAILS (locations + supportive info) ===== */}
       {currentStep === 'hireDetails' && (
         <div className="space-y-5">
-          <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <header className="flex items-center gap-2.5 mb-4">
               <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
               <div>
@@ -554,7 +573,7 @@ export default function RequestRideWizard({
             </div>
           </section>
 
-          <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <header className="flex items-center gap-2.5 mb-4">
               {hireCategory === 'people' ? (
                 <Users className="w-5 h-5 text-gray-400 shrink-0" />
@@ -654,7 +673,7 @@ export default function RequestRideWizard({
                 onChange={(e) => setHireNotes(e.target.value)}
                 rows={3}
                 placeholder={t('components.rideWizard.hirePlaceholder')}
-                className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 disabled={loading}
               />
             </div>
@@ -665,7 +684,7 @@ export default function RequestRideWizard({
       {/* ===== ERRAND (Send a Rider) ===== */}
       {currentStep === 'errand' && (
         <div className="space-y-5">
-          <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <header className="flex items-center gap-2.5 mb-4">
               <Send className="w-5 h-5 text-gray-400 shrink-0" />
               <div>
@@ -748,7 +767,7 @@ export default function RequestRideWizard({
                   onChange={(e) => setErrandNotes(e.target.value)}
                   rows={3}
                   placeholder={t('components.rideWizard.errandNotesPlaceholder')}
-                  className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   disabled={loading}
                 />
               </div>
@@ -760,7 +779,7 @@ export default function RequestRideWizard({
       {/* ===== DETAILS (delivery / ride) ===== */}
       {currentStep === 'details' && (
         <div className="space-y-5">
-          <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <header className="flex items-center gap-2.5 mb-4">
               <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
               <div>
@@ -846,7 +865,7 @@ export default function RequestRideWizard({
 
           {/* Delivery package */}
           {svc === 'delivery' && (
-            <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+            <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
               <header className="flex items-center gap-2.5 mb-4">
                 <Package className="w-5 h-5 text-gray-400 shrink-0" />
                 <div>
@@ -938,7 +957,7 @@ export default function RequestRideWizard({
 
           {/* Ride notes (optional) */}
           {svc === 'ride' && (
-            <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+            <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
               <header className="flex items-center gap-2.5 mb-4">
                 <UserRound className="w-5 h-5 text-gray-400 shrink-0" />
                 <div>
@@ -953,7 +972,7 @@ export default function RequestRideWizard({
                 onChange={(e) => setServiceDetails(e.target.value)}
                 rows={4}
                 placeholder={t('components.rideWizard.tripPlaceholder')}
-                className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50"
+                className="w-full p-3 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-50"
                 disabled={loading}
               />
             </section>
@@ -964,7 +983,7 @@ export default function RequestRideWizard({
       {/* ===== TIME & REVIEW ===== */}
       {currentStep === 'time' && (
         <div className="space-y-5">
-          <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <header className="flex items-center gap-2.5 mb-4">
               <CalendarClock className="w-5 h-5 text-gray-400 shrink-0" />
               <div>
@@ -976,7 +995,7 @@ export default function RequestRideWizard({
               <button
                 type="button"
                 onClick={() => setScheduleLater(false)}
-                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                className={`p-4 rounded-2xl border-2 text-left transition-all ${
                   !scheduleLater ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-primary/50'
                 }`}
               >
@@ -986,7 +1005,7 @@ export default function RequestRideWizard({
               <button
                 type="button"
                 onClick={() => setScheduleLater(true)}
-                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                className={`p-4 rounded-2xl border-2 text-left transition-all ${
                   scheduleLater ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-primary/50'
                 }`}
               >
@@ -1001,7 +1020,7 @@ export default function RequestRideWizard({
                   type="datetime-local"
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
-                  className="w-full h-11 px-3 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full h-11 px-3 text-sm text-gray-900 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   disabled={loading}
                 />
               </div>
@@ -1009,7 +1028,7 @@ export default function RequestRideWizard({
           </section>
 
           {/* Review */}
-          <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
             <h3 className="text-base font-semibold text-gray-900 mb-3">{t('components.rideWizard.review')}</h3>
             <dl className="space-y-2 text-sm">
               <ReviewRow label={t('components.rideWizard.service')} value={serviceLabelText} />
@@ -1063,7 +1082,7 @@ export default function RequestRideWizard({
             type="button"
             onClick={goBack}
             disabled={loading}
-            className="inline-flex items-center gap-2 h-12 px-5 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 h-12 px-5 rounded-full border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             <ArrowLeft className="w-5 h-5" />
             {t('common.back')}
@@ -1074,7 +1093,7 @@ export default function RequestRideWizard({
             type="button"
             onClick={goNext}
             disabled={!canAdvance()}
-            className={`flex-1 h-12 px-6 text-base font-semibold text-white rounded-lg flex items-center justify-center gap-2.5 transition-colors ${
+            className={`ml-auto h-12 px-6 text-base font-semibold text-white rounded-full inline-flex items-center justify-center gap-2.5 transition-colors ${
               canAdvance() ? 'bg-primary hover:bg-primary-dark shadow-sm' : 'bg-gray-300 cursor-not-allowed'
             }`}
           >
@@ -1086,7 +1105,7 @@ export default function RequestRideWizard({
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="flex-1 h-12 px-6 text-base font-semibold text-white rounded-lg flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-dark shadow-sm transition-colors disabled:opacity-60"
+            className="ml-auto h-12 px-6 text-base font-semibold text-white rounded-full inline-flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-dark shadow-sm transition-colors disabled:opacity-60"
           >
             {loading ? (
               <>
@@ -1102,11 +1121,6 @@ export default function RequestRideWizard({
           </button>
         )}
       </div>
-
-      <p className="text-center text-xs text-gray-500 flex items-center justify-center gap-1.5 mt-3">
-        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-        <span>{t('components.rideWizard.encryptedNote')}</span>
-      </p>
 
       {/* Modals */}
       <CameraCapture isOpen={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={handleCameraCapture} />

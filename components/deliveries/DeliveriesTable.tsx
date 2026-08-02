@@ -137,7 +137,7 @@ export default function DeliveriesTable({
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value="ALL">{t("components.deliveries.allStatuses")}</option>
             <option value="CREATED">{t("components.deliveryStatus.CREATED")}</option>
@@ -154,7 +154,7 @@ export default function DeliveriesTable({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => onExport("csv")}
-                className="flex items-center gap-1.5 px-2 sm:px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors"
                 title={t("components.deliveries.exportCsv")}
               >
                 <Download className="w-4 h-4" />
@@ -162,7 +162,7 @@ export default function DeliveriesTable({
               </button>
               <button
                 onClick={() => onExport("excel")}
-                className="flex items-center gap-1.5 px-2 sm:px-3 py-2 text-sm bg-green-100 hover:bg-green-200 text-green-700 rounded-md transition-colors"
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-2 text-sm bg-green-100 hover:bg-green-200 text-green-700 rounded-xl transition-colors"
                 title={t("components.deliveries.exportExcel")}
               >
                 <FileSpreadsheet className="w-4 h-4" />
@@ -178,7 +178,7 @@ export default function DeliveriesTable({
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         {/* Pagination controls - Top */}
         {hasPagination && (
           <div className="px-3 sm:px-6 py-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2 sm:gap-4 bg-gray-50">

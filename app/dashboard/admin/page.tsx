@@ -152,7 +152,7 @@ export default function AdminDashboard() {
           <Link
             key={card.href}
             href={card.href}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-start space-x-4">
               <div className={`${card.color} p-3 rounded-lg`}>

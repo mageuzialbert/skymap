@@ -20,20 +20,6 @@ export async function getAuthenticatedUser(request?: Request) {
     // Use the SSR client which properly handles cookies
     const supabaseClient = await createServerClient();
 
-    // Debug: Check available cookies
-    const cookieStore = await import('next/headers').then(m => m.cookies());
-    const allCookies = cookieStore.getAll();
-    const authCookies = allCookies.filter(c => 
-      c.name.includes('supabase') || 
-      c.name.includes('auth') || 
-      c.name.includes('sb-') || 
-      c.name.includes('access_token') ||
-      c.name.includes('refresh_token')
-    );
-    console.log('Available cookies count:', allCookies.length);
-    console.log('All cookie names:', allCookies.map(c => c.name));
-    console.log('Auth-related cookies:', authCookies.map(c => ({ name: c.name, hasValue: !!c.value, valueLength: c.value?.length || 0 })));
-
     const { data: { user }, error } = await supabaseClient.auth.getUser();
     
     if (error) {
@@ -48,7 +34,6 @@ export async function getAuthenticatedUser(request?: Request) {
       if (sessionError) {
         console.error('Session error:', sessionError);
       } else if (session?.user) {
-        console.log('Got user from session instead:', session.user.id);
         const user = session.user;
         
         // Get role from users table
@@ -65,11 +50,8 @@ export async function getAuthenticatedUser(request?: Request) {
     }
 
     if (!user) {
-      console.error('No user found in getUser response');
       return { user: null, role: null };
     }
-
-    console.log('Auth user found:', { userId: user.id, email: user.email });
 
     // Get role from users table
     const { data: userData, error: userError } = await supabaseAdmin
@@ -82,8 +64,6 @@ export async function getAuthenticatedUser(request?: Request) {
       console.error('Error fetching user role:', userError);
       return { user, role: null };
     }
-
-    console.log('User role retrieved:', { userId: user.id, role: userData?.role });
 
     return { user, role: userData?.role || null };
   } catch (error) {

@@ -6,6 +6,11 @@
     "verifying": "Verifying...",
     "login": {
       "subtitle": "Sign in to your account",
+      "welcome": "Welcome back",
+      "brandHeadline": "Move anything, anywhere in Tanzania",
+      "point1": "Fast, reliable pickups & deliveries",
+      "point2": "Safe, verified riders",
+      "point3": "Real-time order tracking",
       "smsCode": "SMS Code",
       "phonePlaceholder": "0712345678 or +255712345678",
       "passwordPlaceholder": "Enter your password",

@@ -200,7 +200,7 @@ export default function PermissionSelector({
               value={preset}
               onChange={(e) => applyPreset(e.target.value as PresetType)}
               disabled={disabled}
-              className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50"
+              className="text-sm border border-gray-300 rounded-xl px-2 py-1 focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50"
             >
               <option value="full">{t('components.permissions.fullAccess')}</option>
               <option value="default">{t('components.permissions.default')}</option>

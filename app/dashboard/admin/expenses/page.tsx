@@ -246,7 +246,7 @@ export default function AdminExpensesPage() {
         </div>
         <button
           onClick={handleNewExpense}
-          className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2"
+          className="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
           {t('admin.expenses.new')}
@@ -254,7 +254,7 @@ export default function AdminExpensesPage() {
       </div>
 
       {/* Summary Card */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600">{t('admin.expenses.total')}</p>
@@ -271,7 +271,7 @@ export default function AdminExpensesPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-500" />
@@ -280,7 +280,7 @@ export default function AdminExpensesPage() {
           <select
             value={filters.category_id}
             onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value="">{t('admin.expenses.allCategories')}</option>
             {categories.map((cat) => (
@@ -294,14 +294,14 @@ export default function AdminExpensesPage() {
             value={filters.start_date}
             onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
             placeholder={t('admin.expenses.startDate')}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           <input
             type="date"
             value={filters.end_date}
             onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
             placeholder={t('admin.expenses.endDate')}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           {(filters.category_id || filters.start_date || filters.end_date) && (
             <button
@@ -315,13 +315,13 @@ export default function AdminExpensesPage() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
           {error}
         </div>
       )}
 
       {/* Expenses Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -411,7 +411,7 @@ export default function AdminExpensesPage() {
 
       {/* Create/Edit Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               {editingExpense ? t('admin.expenses.editTitle') : t('admin.expenses.newTitle')}
@@ -426,7 +426,7 @@ export default function AdminExpensesPage() {
                   value={formData.category_id}
                   onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
                   <option value="">{t('admin.expenses.selectCategory')}</option>
                   {categories.map((cat) => (
@@ -448,7 +448,7 @@ export default function AdminExpensesPage() {
                   required
                   step="0.01"
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="0.00"
                 />
               </div>
@@ -461,7 +461,7 @@ export default function AdminExpensesPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder={t('admin.expenses.descriptionPlaceholder')}
                 />
               </div>
@@ -474,7 +474,7 @@ export default function AdminExpensesPage() {
                   type="text"
                   value={formData.supplier}
                   onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder={t('admin.expenses.supplierPlaceholder')}
                 />
               </div>
@@ -488,7 +488,7 @@ export default function AdminExpensesPage() {
                   value={formData.expense_date}
                   onChange={(e) => setFormData({ ...formData, expense_date: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
 
@@ -508,7 +508,7 @@ export default function AdminExpensesPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                   {submitting ? t('common.saving') : editingExpense ? t('admin.expenses.update') : t('admin.expenses.create')}

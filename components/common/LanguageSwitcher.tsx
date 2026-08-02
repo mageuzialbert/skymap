@@ -34,12 +34,11 @@ export default function LanguageSwitcher({ variant = 'dark', className = '' }: L
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors ${btnColor}`}
+        className={`flex items-center justify-center p-2 rounded-lg transition-colors ${btnColor}`}
         aria-label="Change language"
+        title={current.label}
       >
-        <Globe className="w-4 h-4" />
-        <span className="hidden sm:inline">{current.flag} {current.label}</span>
-        <span className="sm:hidden">{current.flag}</span>
+        <Globe className="w-5 h-5" />
       </button>
 
       {open && (
@@ -54,10 +53,7 @@ export default function LanguageSwitcher({ variant = 'dark', className = '' }: L
               }}
               className="flex items-center justify-between w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
-              <span className="flex items-center gap-2">
-                <span>{l.flag}</span>
-                <span>{l.label}</span>
-              </span>
+              <span>{l.label}</span>
               {l.code === locale && <Check className="w-4 h-4 text-primary" />}
             </button>
           ))}

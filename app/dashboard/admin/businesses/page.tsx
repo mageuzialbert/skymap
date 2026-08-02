@@ -268,7 +268,7 @@ export default function AdminBusinessesPage() {
         {!showForm && canCreate && (
           <button
             onClick={handleCreate}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors"
           >
             <Plus className="w-5 h-5" />
             {t("admin.businesses.register")}
@@ -278,7 +278,7 @@ export default function AdminBusinessesPage() {
 
       {/* Filters Section */}
       {!showForm && (
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-center">
             {/* Search Input */}
             <div className="flex-1 w-full md:w-auto">
@@ -289,7 +289,7 @@ export default function AdminBusinessesPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t("admin.businesses.searchPlaceholder")}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
             </div>
@@ -300,7 +300,7 @@ export default function AdminBusinessesPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="ALL">{t("admin.businesses.allStatuses")}</option>
                 <option value="ACTIVE">{t("admin.common.active")}</option>
@@ -312,7 +312,7 @@ export default function AdminBusinessesPage() {
             {(searchQuery || statusFilter !== "ALL") && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <X className="w-4 h-4" />
                 {t("admin.businesses.clear")}
@@ -331,7 +331,7 @@ export default function AdminBusinessesPage() {
 
       {/* Create/Edit Form */}
       {showForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
               {editingBusiness ? t("admin.businesses.editBusiness") : t("admin.businesses.registerBusiness")}

@@ -1,22 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Sora } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { createClient } from '@/lib/supabase-server';
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration';
 import { LanguageProvider } from '@/lib/i18n';
 
-// Inter drives all body/UI text; Sora is the display face for headings.
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+// Fonts are self-hosted (woff2 in ./fonts) so builds never depend on reaching
+// Google Fonts. Inter drives all body/UI text; Sora is the display face.
+const inter = localFont({
   variable: "--font-inter",
   display: "swap",
+  src: [
+    { path: "./fonts/inter-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/inter-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/inter-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/inter-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
 });
-const sora = Sora({
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
+const sora = localFont({
   variable: "--font-sora",
   display: "swap",
+  src: [
+    { path: "./fonts/sora-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/sora-latin-700-normal.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/sora-latin-800-normal.woff2", weight: "800", style: "normal" },
+  ],
 });
 
 async function getCompanyProfile() {

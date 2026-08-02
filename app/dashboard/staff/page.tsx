@@ -100,7 +100,7 @@ export default function StaffDashboard() {
         <h1 className="text-3xl font-bold text-gray-900">{t('staff.dashboard.title')}</h1>
         <Link
           href="/dashboard/staff/deliveries?action=create"
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors"
         >
           <Plus className="w-5 h-5" />
           {t('staff.dashboard.createDelivery')}
@@ -109,7 +109,7 @@ export default function StaffDashboard() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('staff.dashboard.totalDeliveries')}</p>
@@ -119,7 +119,7 @@ export default function StaffDashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('staff.dashboard.pendingAssignments')}</p>
@@ -131,7 +131,7 @@ export default function StaffDashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('staff.dashboard.inTransit')}</p>
@@ -143,7 +143,7 @@ export default function StaffDashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('staff.dashboard.completedToday')}</p>
@@ -155,7 +155,7 @@ export default function StaffDashboard() {
       </div>
 
       {/* Status Distribution */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4">{t('staff.dashboard.deliveriesByStatus')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(statusCounts).map(([status, count]) => (
@@ -168,7 +168,7 @@ export default function StaffDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4">{t('staff.dashboard.quickActions')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
@@ -185,7 +185,7 @@ export default function StaffDashboard() {
       </div>
 
       {/* Recent Deliveries */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">{t('staff.dashboard.recentDeliveries')}</h2>
           <Link

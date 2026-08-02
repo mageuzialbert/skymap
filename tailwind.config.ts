@@ -8,6 +8,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // Softer, consistently round-edged controls app-wide. Almost every button
+      // and input uses rounded / rounded-md / rounded-lg, so bumping these tokens
+      // rounds them everywhere at once. `full` (pills/avatars) and `2xl`/`3xl`
+      // (large cards/modals) are left at their defaults.
+      borderRadius: {
+        DEFAULT: "0.5rem", // 8px  (was 4px)
+        md: "0.625rem", // 10px (was 6px)
+        lg: "0.75rem", // 12px (was 8px)
+        xl: "0.875rem", // 14px (was 12px)
+      },
       fontFamily: {
         sans: [
           "var(--font-inter)",

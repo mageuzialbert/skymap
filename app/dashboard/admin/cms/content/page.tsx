@@ -101,7 +101,7 @@ export default function AdminContentPage() {
       )}
 
       {/* About Us Section */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">{t('admin.cms.content.aboutHeading')}</h2>
         <div className="space-y-4">
           <div>
@@ -193,7 +193,7 @@ export default function AdminContentPage() {
               }
             }}
             disabled={saving === 'about_us'}
-            className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
           >
             {saving === 'about_us' ? (
               <>

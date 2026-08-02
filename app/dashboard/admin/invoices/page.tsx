@@ -162,7 +162,7 @@ export default function AdminInvoicesPage() {
         </div>
         <Link
           href="/dashboard/admin/invoices/create"
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors"
         >
           <Plus className="w-5 h-5" />
           {t('admin.invoices.create')}
@@ -176,7 +176,7 @@ export default function AdminInvoicesPage() {
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <div className="relative">
@@ -219,7 +219,7 @@ export default function AdminInvoicesPage() {
       </div>
 
       {/* Invoices Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

@@ -431,18 +431,18 @@ export default function BusinessProfilePage() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
           {success}
         </div>
       )}
 
-      <form onSubmit={handleSave} className="bg-white rounded-lg shadow-md p-6 space-y-6">
+      <form onSubmit={handleSave} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
         {/* Business Logo */}
         <div>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('business.profile.businessLogo')}</h2>
@@ -452,7 +452,7 @@ export default function BusinessProfilePage() {
                 {t('business.profile.logoImage')}
               </label>
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
+                <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
                   <Upload className="w-4 h-4" />
                   <span>{uploadingLogo ? t('business.profile.uploading') : t('business.profile.uploadLogo')}</span>
                   <input
@@ -504,7 +504,7 @@ export default function BusinessProfilePage() {
                 value={profile.name}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
 
@@ -516,7 +516,7 @@ export default function BusinessProfilePage() {
                 type="tel"
                 value={profile.phone}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-50 text-gray-500"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {t('business.profile.phoneHint')}
@@ -531,7 +531,7 @@ export default function BusinessProfilePage() {
                 type="email"
                 value={profile.email}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-50 text-gray-500"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {t('business.profile.emailHint')}
@@ -544,7 +544,7 @@ export default function BusinessProfilePage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('business.profile.addressInfo')}</h2>
 
           {loadError && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-700 rounded-md text-sm flex items-center gap-2">
+            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl text-sm flex items-center gap-2">
               <AlertCircle className="w-4 h-4" />
               <span>{t('business.profile.mapsLoadError')}</span>
             </div>
@@ -573,7 +573,7 @@ export default function BusinessProfilePage() {
                     type="text"
                     value={profile.address || ''}
                     onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder={t('business.profile.streetAddress')}
                   />
                 </div>
@@ -593,7 +593,7 @@ export default function BusinessProfilePage() {
                 type="text"
                 value={profile.city || ''}
                 onChange={(e) => setProfile({ ...profile, city: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder={t('business.profile.city')}
               />
             </div>
@@ -606,7 +606,7 @@ export default function BusinessProfilePage() {
                 type="text"
                 value={profile.postal_code || ''}
                 onChange={(e) => setProfile({ ...profile, postal_code: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder={t('business.profile.postalCode')}
               />
             </div>
@@ -628,7 +628,7 @@ export default function BusinessProfilePage() {
                     setProfile({ ...profile, district_id: null });
                   }
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">{t('business.profile.selectRegion')}</option>
                 {regions.map(region => (
@@ -647,7 +647,7 @@ export default function BusinessProfilePage() {
                 value={profile.district_id || ''}
                 onChange={(e) => setProfile({ ...profile, district_id: e.target.value ? parseInt(e.target.value) : null })}
                 disabled={!selectedRegionId || districts.length === 0}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <option value="">{t('business.profile.selectDistrict')}</option>
                 {districts.map(district => (
@@ -669,7 +669,7 @@ export default function BusinessProfilePage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
+            className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
           >
             {saving ? (
               <>
@@ -687,7 +687,7 @@ export default function BusinessProfilePage() {
       </form>
 
       {/* Password Reset Section */}
-      <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mt-6">
         <div className="mb-4">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
             <Lock className="w-5 h-5" />
@@ -699,13 +699,13 @@ export default function BusinessProfilePage() {
         </div>
 
         {passwordError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
             {passwordError}
           </div>
         )}
 
         {passwordSuccess && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
             {passwordSuccess}
           </div>
         )}
@@ -722,7 +722,7 @@ export default function BusinessProfilePage() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder={t('business.profile.enterNewPassword')}
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -740,7 +740,7 @@ export default function BusinessProfilePage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder={t('business.profile.confirmNewPassword')}
               />
             </div>
@@ -750,7 +750,7 @@ export default function BusinessProfilePage() {
             <button
               type="submit"
               disabled={resettingPassword || !newPassword || !confirmPassword}
-              className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
+              className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
             >
               {resettingPassword ? (
                 <>

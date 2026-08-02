@@ -94,7 +94,7 @@ export default function RiderCreateDeliveryPage() {
         <p className="text-gray-600 mt-1">{t('rider.createDelivery.subtitle')}</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <DeliveryForm
           onSubmit={handleCreateDelivery}
           onCancel={() => router.push('/dashboard/rider')}

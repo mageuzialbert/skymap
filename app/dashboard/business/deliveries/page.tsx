@@ -223,7 +223,7 @@ function BusinessDeliveriesContent() {
         {!showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="flex items-center space-x-2 bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-medium shadow-sm"
+            className="flex items-center space-x-2 bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary-dark transition-colors font-medium shadow-lg shadow-primary/25"
           >
             <Plus className="w-5 h-5" />
             <span>{t('business.deliveries.createDelivery')}</span>
@@ -233,7 +233,7 @@ function BusinessDeliveriesContent() {
 
       {/* Create Delivery Form */}
       {showCreateForm && (
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">{t('business.deliveries.createNewDelivery')}</h2>
             <button
@@ -267,7 +267,7 @@ function BusinessDeliveriesContent() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-sm font-medium"
+          className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-sm font-medium"
         >
           {statusOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -283,7 +283,7 @@ function BusinessDeliveriesContent() {
       </div>
 
       {/* Deliveries Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

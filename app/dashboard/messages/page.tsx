@@ -80,7 +80,7 @@ export default function MessagesPage() {
       <div className="flex-1 min-h-0 flex gap-4">
         {/* List */}
         <aside
-          className={`w-full lg:w-80 lg:shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-y-auto ${
+          className={`w-full lg:w-80 lg:shrink-0 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-y-auto ${
             selected ? 'hidden lg:block' : 'block'
           }`}
         >
@@ -134,7 +134,7 @@ export default function MessagesPage() {
               onBack={() => setSelected(null)}
             />
           ) : (
-            <div className="h-full flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 text-center text-gray-500 p-8">
+            <div className="h-full flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500 p-8">
               <div>
                 <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                   <MessageCircle className="w-7 h-7 text-primary" />

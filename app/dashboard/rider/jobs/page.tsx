@@ -95,7 +95,7 @@ export default function RiderJobsPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
         >
           <option value="ALL">{t('rider.jobs.allStatuses')}</option>
           <option value="PENDING_CONFIRMATION">{t('rider.status.PENDING_CONFIRMATION')}</option>
@@ -109,7 +109,7 @@ export default function RiderJobsPage() {
 
       {/* Deliveries List */}
       {deliveries.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
           <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
           <p className="text-gray-500 text-lg mb-2">{t('rider.jobs.noneFound')}</p>
           <p className="text-gray-400 text-sm">

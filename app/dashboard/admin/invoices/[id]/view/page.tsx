@@ -198,7 +198,7 @@ export default function AdminInvoiceViewPage() {
           </button>
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+            className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors"
           >
             <Printer className="w-5 h-5" />
             {t('admin.invoiceView.print')}

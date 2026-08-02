@@ -6,6 +6,11 @@
     "verifying": "Inathibitisha...",
     "login": {
       "subtitle": "Ingia kwenye akaunti yako",
+      "welcome": "Karibu tena",
+      "brandHeadline": "Safirisha chochote, popote Tanzania",
+      "point1": "Upokeaji na usafirishaji wa haraka na wa kuaminika",
+      "point2": "Waendeshaji salama na waliothibitishwa",
+      "point3": "Fuatilia oda yako moja kwa moja",
       "smsCode": "Msimbo wa SMS",
       "phonePlaceholder": "0712345678 au +255712345678",
       "passwordPlaceholder": "Weka nenosiri lako",

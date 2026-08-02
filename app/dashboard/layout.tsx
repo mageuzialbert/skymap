@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import NextImage from "next/image";
 import {
   LayoutDashboard,
   Package,
@@ -23,12 +24,34 @@ import {
   MessageSquare,
   Bike,
   Truck,
+  PackagePlus,
+  History,
+  MessageCircle,
+  ReceiptText,
+  CircleUser,
+  BadgeCheck,
 } from "lucide-react";
 import { getCurrentUser, logout } from "@/lib/auth";
 import { getUserRole } from "@/lib/roles";
 import { PermissionsProvider, usePermissions } from "@/lib/permissions-context";
 import { useT } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+
+// Distinct colored chip per sidebar item (cycled by position).
+const NAV_TINTS = [
+  "bg-primary/10 text-primary",
+  "bg-amber-100 text-amber-700",
+  "bg-blue-100 text-blue-700",
+  "bg-emerald-100 text-emerald-700",
+  "bg-purple-100 text-purple-700",
+  "bg-rose-100 text-rose-700",
+  "bg-cyan-100 text-cyan-700",
+  "bg-indigo-100 text-indigo-700",
+  "bg-orange-100 text-orange-700",
+  "bg-fuchsia-100 text-fuchsia-700",
+  "bg-lime-100 text-lime-700",
+  "bg-sky-100 text-sky-700",
+];
 
 // Navigation item interface with permission requirements
 interface NavItem {
@@ -97,7 +120,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const getDashboardBase = () => {
     switch (role) {
       case "BUSINESS":
-        return "/dashboard/business";
+        return "/dashboard/business/request-ride";
       case "STAFF":
         return "/dashboard/staff";
       case "RIDER":
@@ -110,17 +133,16 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   };
 
   const businessNavItems: NavItem[] = [
-    { href: "/dashboard/business", label: t("nav.overview"), icon: LayoutDashboard },
-    { href: "/dashboard/business/request-ride", label: t("nav.orderDelivery"), icon: Bike },
+    { href: "/dashboard/business/request-ride", label: t("nav.orderDelivery"), icon: PackagePlus },
     {
       href: "/dashboard/business/rides",
       label: t("nav.ridesHistory"),
-      icon: Package,
+      icon: History,
     },
-    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageSquare },
-    { href: "/dashboard/business/invoices", label: t("nav.invoices"), icon: Receipt },
-    { href: "/dashboard/business/profile", label: t("nav.profile"), icon: User },
-    { href: "/dashboard/business/verify", label: t("nav.verify"), icon: Shield },
+    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageCircle },
+    { href: "/dashboard/business/invoices", label: t("nav.invoices"), icon: ReceiptText },
+    { href: "/dashboard/business/profile", label: t("nav.profile"), icon: CircleUser },
+    { href: "/dashboard/business/verify", label: t("nav.verify"), icon: BadgeCheck },
   ];
 
   // Admin has access to all items - no permission filtering needed
@@ -299,7 +321,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               {navItems.length > 0 && (
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden mr-3 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  className="lg:hidden mr-3 p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   aria-label={t("nav.toggleSidebar")}
                 >
                   {sidebarOpen ? (
@@ -309,12 +331,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                   )}
                 </button>
               )}
-              <Link href={getDashboardBase()} className="flex items-center gap-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo1.jpeg" alt="The Skymap" className="w-8 h-8 rounded-lg object-cover" />
-                <span className="text-2xl font-bold text-primary">
-                  The Skymap
-                </span>
+              <Link href={getDashboardBase()} className="flex items-center">
+                <NextImage
+                  src="/logo-cropped.png"
+                  alt="The Skymap"
+                  width={686}
+                  height={339}
+                  priority
+                  className="h-8 w-auto object-contain sm:h-9"
+                />
               </Link>
             </div>
             <div className="flex items-center space-x-4">
@@ -324,7 +349,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <LanguageSwitcher variant="dark" />
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
+                className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-full hover:bg-gray-100"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">{t("common.logout")}</span>
@@ -357,20 +382,26 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             `}
           >
             <nav className="p-4 space-y-2">
-              {navItems.map((item) => {
+              {navItems.map((item, i) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-md transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
                       isActive
-                        ? "bg-primary text-white"
+                        ? "bg-primary text-white shadow-md shadow-primary/25"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
-                    <item.icon className="w-5 h-5" />
+                    <span
+                      className={`flex h-9 w-9 items-center justify-center rounded-xl shrink-0 ${
+                        isActive ? "bg-white/20 text-white" : NAV_TINTS[i % NAV_TINTS.length]
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                    </span>
                     <span className="font-medium">{item.label}</span>
                   </Link>
                 );

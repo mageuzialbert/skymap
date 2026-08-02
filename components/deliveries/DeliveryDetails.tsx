@@ -118,7 +118,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
   return (
     <div className="space-y-6">
       {/* Header / Status */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="text-sm text-gray-500 mb-1">{t('components.deliveryDetails.requestId')}: {delivery.id}</div>
           <h1 className="text-2xl font-bold text-gray-900">{t('components.deliveryDetails.requestDetails')}</h1>
@@ -141,7 +141,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
         {/* Left Column: Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Map Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-4 border-b border-gray-200 bg-gray-50">
               <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" />
@@ -183,7 +183,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
           </div>
 
           {/* Locations Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
               {/* Pickup */}
               <div className="p-6 space-y-4">
@@ -260,7 +260,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
         <div className="space-y-6">
           {/* Service details (ride note / hire plan / errand instructions) */}
           {delivery.service_details && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-gray-500" />
                 {t('components.deliveryDetails.requestDetails')}
@@ -273,7 +273,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
 
           {/* Package Info - deliveries only */}
           {delivery.service_type === 'delivery' || !delivery.service_type ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Package className="w-5 h-5 text-gray-500" />
               {t('components.deliveryDetails.packageInfo')}
@@ -306,7 +306,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
           ) : null}
 
           {/* Rider Info */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <User className="w-5 h-5 text-gray-500" />
               {t('components.deliveryDetails.assignedRider')}
@@ -336,7 +336,7 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
           </div>
 
           {/* Timeline */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-gray-500" />
               {t('components.deliveryDetails.timeline')}

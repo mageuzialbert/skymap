@@ -205,7 +205,7 @@ export default function AdminDeliveryPackagesPage() {
         {role === 'ADMIN' && (
           <button
             onClick={handleNewPackage}
-            className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2"
+            className="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             {t('admin.deliveryPackages.new')}
@@ -214,13 +214,13 @@ export default function AdminDeliveryPackagesPage() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
           {error}
         </div>
       )}
 
       {/* Packages Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -326,7 +326,7 @@ export default function AdminDeliveryPackagesPage() {
 
       {/* Create/Edit Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               {editingPackage ? t('admin.deliveryPackages.editTitle') : t('admin.deliveryPackages.newTitle')}
@@ -342,7 +342,7 @@ export default function AdminDeliveryPackagesPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder={t('admin.deliveryPackages.namePlaceholder')}
                 />
               </div>
@@ -355,7 +355,7 @@ export default function AdminDeliveryPackagesPage() {
                   type="text"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder={t('admin.deliveryPackages.descriptionPlaceholder')}
                 />
               </div>
@@ -371,7 +371,7 @@ export default function AdminDeliveryPackagesPage() {
                   required
                   step="0.01"
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder={t('admin.deliveryPackages.feePlaceholder')}
                 />
               </div>
@@ -418,7 +418,7 @@ export default function AdminDeliveryPackagesPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                   {submitting ? t('common.saving') : editingPackage ? t('admin.deliveryPackages.update') : t('admin.deliveryPackages.create')}

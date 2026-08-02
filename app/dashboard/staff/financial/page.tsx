@@ -79,26 +79,26 @@ export default function StaffFinancialPage() {
       </div>
 
       {/* Date Range Selector */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
         <div className="flex items-center gap-4 flex-wrap">
           <label className="text-sm font-medium text-gray-700">{t('staff.financial.dateRange')}</label>
           <input
             type="date"
             value={dateRange.start}
             onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           <span className="text-gray-500">{t('staff.financial.to')}</span>
           <input
             type="date"
             value={dateRange.end}
             onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           {(dateRange.start || dateRange.end) && (
             <button
               onClick={() => setDateRange({ start: '', end: '' })}
-              className="text-sm text-gray-600 hover:text-gray-800 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="text-sm text-gray-600 hover:text-gray-800 px-3 py-2 border border-gray-300 rounded-xl hover:bg-gray-50"
             >
               {t('staff.financial.clear')}
             </button>

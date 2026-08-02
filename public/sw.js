@@ -1,6 +1,6 @@
 // Bump this version whenever cached assets (icons, manifest) change so the
 // activate handler purges the old cache and clients pick up the new icons.
-const CACHE_NAME = 'kasi-courier-v4';
+const CACHE_NAME = 'kasi-courier-v5';
 const OFFLINE_URL = '/offline';
 
 // Assets to cache immediately on install
@@ -8,6 +8,7 @@ const PRECACHE_ASSETS = [
   '/',
   '/offline',
   '/manifest.json',
+  '/hero/rider.webp',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/icon-maskable-512.png',

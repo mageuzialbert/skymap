@@ -288,7 +288,7 @@ export default function BusinessVerifyPage() {
 
       <div className="space-y-6">
         {/* Phone Verification */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <Phone className="w-6 h-6 text-gray-700" />
@@ -316,7 +316,7 @@ export default function BusinessVerifyPage() {
                 type="tel"
                 value={phone}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-50 text-gray-500"
               />
             </div>
 
@@ -326,7 +326,7 @@ export default function BusinessVerifyPage() {
                   <button
                     onClick={handleSendPhoneOTP}
                     disabled={phoneSending || !phone}
-                    className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
                     {phoneSending ? (
                       <>
@@ -352,14 +352,14 @@ export default function BusinessVerifyPage() {
                         onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         placeholder="000000"
                         maxLength={6}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                       />
                     </div>
                     <div className="flex gap-3">
                       <button
                         onClick={handleVerifyPhone}
                         disabled={phoneOtp.length !== 6 || phoneVerifying}
-                        className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
+                        className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
                       >
                         {phoneVerifying ? (
                           <>
@@ -379,7 +379,7 @@ export default function BusinessVerifyPage() {
                           setPhoneOtp('');
                           setPhoneError('');
                         }}
-                        className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium"
+                        className="bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors font-medium"
                       >
                         {t('common.cancel')}
                       </button>
@@ -388,12 +388,12 @@ export default function BusinessVerifyPage() {
                 )}
 
                 {phoneSuccess && (
-                  <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
+                  <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
                     {phoneSuccess}
                   </div>
                 )}
                 {phoneError && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
                     {phoneError}
                   </div>
                 )}
@@ -403,7 +403,7 @@ export default function BusinessVerifyPage() {
         </div>
 
         {/* Email Verification */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <Mail className="w-6 h-6 text-gray-700" />
@@ -424,7 +424,7 @@ export default function BusinessVerifyPage() {
 
           <div className="space-y-4">
             {((!emailVerified && email.endsWith('@kasicourier.local')) || emailEditing) && (
-              <div className="p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md text-sm">
+              <div className="p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl text-sm">
                 {emailEditing
                   ? t('business.verify.emailChangeWarning')
                   : t('business.verify.placeholderEmailWarning')
@@ -443,7 +443,7 @@ export default function BusinessVerifyPage() {
                       type="email"
                       value={email}
                       disabled
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-xl bg-gray-50 text-gray-500"
                     />
                     <button
                       onClick={() => {
@@ -452,7 +452,7 @@ export default function BusinessVerifyPage() {
                         setEmailError('');
                         setEmailSuccess('');
                       }}
-                      className="flex items-center space-x-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium"
+                      className="flex items-center space-x-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors font-medium"
                     >
                       <Pencil className="w-4 h-4" />
                       <span>{t('common.edit')}</span>
@@ -465,7 +465,7 @@ export default function BusinessVerifyPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={t('business.verify.enterEmail')}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                     {emailEditing && (
                       <button
@@ -475,7 +475,7 @@ export default function BusinessVerifyPage() {
                           setEmailError('');
                           setEmailSuccess('');
                         }}
-                        className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium"
+                        className="bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors font-medium"
                       >
                         {t('common.cancel')}
                       </button>
@@ -496,7 +496,7 @@ export default function BusinessVerifyPage() {
                     }
                   }}
                   disabled={emailSending || !email || email.endsWith('@kasicourier.local')}
-                  className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
+                  className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
                 >
                   {emailSending ? (
                     <>
@@ -512,13 +512,13 @@ export default function BusinessVerifyPage() {
                 </button>
 
                 {emailError && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
                     {emailError}
                   </div>
                 )}
 
                 {emailSuccess && (
-                  <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
+                  <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
                     {emailSuccess}
                   </div>
                 )}

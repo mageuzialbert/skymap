@@ -223,7 +223,7 @@ export default function UserForm({
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
 
@@ -235,7 +235,7 @@ export default function UserForm({
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required
               placeholder="+255759561311"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
 
@@ -246,7 +246,7 @@ export default function UserForm({
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
 
@@ -261,7 +261,7 @@ export default function UserForm({
               required={!user}
               minLength={6}
               placeholder={user ? t('components.userForm.leaveEmptyPassword') : t('components.userForm.minChars')}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             />
             {user && (
               <p className="mt-1 text-xs text-gray-500">{t('components.userForm.leaveEmptyPassword')}</p>
@@ -274,7 +274,7 @@ export default function UserForm({
               value={formData.role}
               onChange={(e) => handleRoleChange(e.target.value as 'STAFF' | 'RIDER')}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="STAFF">{t('components.userForm.staff')}</option>
               <option value="RIDER">{t('components.userForm.rider')}</option>
@@ -309,7 +309,7 @@ export default function UserForm({
                     setFormData({ ...formData, license_number: e.target.value })
                   }
                   placeholder="e.g. TZ-LIC-12345678"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent font-mono"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent font-mono"
                 />
               </div>
             </div>
@@ -328,7 +328,7 @@ export default function UserForm({
                   onChange={(e) =>
                     setFormData({ ...formData, vehicle_type_id: e.target.value || null })
                   }
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
                   <option value="">{t('components.userForm.selectVehicleType')}</option>
                   {vehicleTypes
@@ -369,7 +369,7 @@ export default function UserForm({
         <button
           type="submit"
           disabled={loading || uploading}
-          className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+          className="flex-1 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           {loading ? t('common.saving') : user ? t('components.userForm.updateUser') : t('components.userForm.createUser')}

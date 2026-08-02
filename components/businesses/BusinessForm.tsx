@@ -206,7 +206,7 @@ export default function BusinessForm({
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
 
@@ -222,7 +222,7 @@ export default function BusinessForm({
             }
             required
             placeholder="+255759561311"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
 
@@ -241,7 +241,7 @@ export default function BusinessForm({
                 }
                 required
                 placeholder="client@example.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
               />
               <p className="mt-1 text-xs text-gray-500">Used for login</p>
             </div>
@@ -259,7 +259,7 @@ export default function BusinessForm({
                 required
                 minLength={6}
                 placeholder="Minimum 6 characters"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
           </>
@@ -278,7 +278,7 @@ export default function BusinessForm({
             step="0.01"
             min="0"
             placeholder="0.00"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           <p className="mt-1 text-xs text-gray-500">
             Leave empty to use default pricing
@@ -332,7 +332,7 @@ export default function BusinessForm({
                   setFormData({ ...formData, address: e.target.value })
                 }
                 placeholder="Enter business address"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
           ) : (
@@ -359,7 +359,7 @@ export default function BusinessForm({
                 )
               }
               disabled={loadingRegions}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100"
             >
               <option value="">Select region</option>
               {regions.map((region) => (
@@ -383,7 +383,7 @@ export default function BusinessForm({
                 })
               }
               disabled={!selectedRegionId || loadingDistricts}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100"
             >
               <option value="">Select district</option>
               {districts.map((district) => (
@@ -405,7 +405,7 @@ export default function BusinessForm({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="flex-1 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           {loading

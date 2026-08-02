@@ -59,7 +59,7 @@ export default function StatusUpdateModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end md:items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50 p-4">
       <div className="bg-white rounded-t-lg md:rounded-lg shadow-xl max-w-md w-full max-h-[90dvh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold">{t('rider.statusModal.title')}</h2>
@@ -84,7 +84,7 @@ export default function StatusUpdateModal({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t('rider.statusModal.currentStatus')}
             </label>
-            <div className="px-4 py-2 bg-gray-50 rounded-md text-sm text-gray-700">
+            <div className="px-4 py-2 bg-gray-50 rounded-xl text-sm text-gray-700">
               {t(`rider.status.${currentStatus}`)}
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function StatusUpdateModal({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder={t('rider.statusModal.notePlaceholder')}
             />
           </div>
@@ -139,7 +139,7 @@ export default function StatusUpdateModal({
             <button
               onClick={handleSubmit}
               disabled={loading || !selectedStatus}
-              className="flex-1 bg-primary text-white px-4 py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium"
+              className="flex-1 bg-primary text-white px-4 py-3 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               {loading ? t('rider.statusModal.updating') : t('rider.statusModal.updateStatus')}

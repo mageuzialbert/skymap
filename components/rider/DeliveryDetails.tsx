@@ -284,7 +284,7 @@ export default function DeliveryDetails({
           <div className="flex gap-2">
             <a
               href={`tel:${delivery.pickup_phone}`}
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-sm font-medium"
             >
               <Phone className="w-4 h-4" />
               {t('rider.common.call')}
@@ -323,7 +323,7 @@ export default function DeliveryDetails({
             {delivery.dropoff_phone && (
               <a
                 href={`tel:${delivery.dropoff_phone}`}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-sm font-medium"
               >
                 <Phone className="w-4 h-4" />
                 {t('rider.common.call')}

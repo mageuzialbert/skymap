@@ -168,7 +168,7 @@ export default function RiderProfilePage() {
               <button
                 onClick={savePhone}
                 disabled={saving}
-                className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {t('common.save')}

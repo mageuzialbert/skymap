@@ -56,7 +56,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.operations.totalDeliveries')}</p>
@@ -68,7 +68,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.operations.activeDeliveries')}</p>
@@ -80,7 +80,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.operations.completedToday')}</p>
@@ -92,7 +92,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.operations.avgDeliveryTime')}</p>
@@ -106,7 +106,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
       </div>
 
       {/* Status Distribution */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">{t('components.operations.byStatus')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(data.statusCounts).map(([status, count]) => (
@@ -125,7 +125,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
       </div>
 
       {/* Recent Deliveries */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">{t('components.operations.recentDeliveries')}</h3>
         {data.recentDeliveries.length === 0 ? (
           <p className="text-gray-500 text-center py-4">{t('components.operations.noRecent')}</p>

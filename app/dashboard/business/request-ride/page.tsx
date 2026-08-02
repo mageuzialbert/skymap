@@ -7,6 +7,7 @@ import RequestRideWizard from '@/components/client/RequestRideWizard';
 import { LocationState } from '@/components/landing/types';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
+import { cardClass } from '@/lib/ui';
 
 const libraries: ('places' | 'geometry' | 'drawing' | 'visualization')[] = ['places'];
 
@@ -97,15 +98,8 @@ export default function RequestRidePage() {
 
   return (
     <div className="w-full">
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('business.requestRide.title')}</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {t('business.requestRide.subtitle')}
-        </p>
-      </div>
-
       {!apiKey || loadError ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-start gap-3 text-amber-700">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <p className="text-sm">
@@ -114,7 +108,7 @@ export default function RequestRidePage() {
           </div>
         </div>
       ) : !isLoaded ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-10 flex items-center justify-center">
+        <div className={`${cardClass} p-10 flex items-center justify-center`}>
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
         </div>
       ) : (

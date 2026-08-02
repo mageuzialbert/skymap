@@ -3,10 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MessageSquare, Mail, Loader2, ArrowLeft, Eye, EyeOff, CheckCircle2, Home } from 'lucide-react';
+import { MessageSquare, Mail, Loader2, ArrowLeft, Eye, EyeOff, CheckCircle2, Lock } from 'lucide-react';
 import { requestPasswordReset, confirmPasswordReset } from '@/lib/auth';
-import LanguageSwitcher from '@/components/common/LanguageSwitcher';
 import { useT } from '@/lib/i18n';
+import AuthShell, {
+  AuthField,
+  inputBase,
+  primaryBtn,
+  secondaryBtn,
+  otpInputClass,
+} from '@/components/auth/AuthShell';
 
 type Channel = 'sms' | 'email';
 
@@ -80,238 +86,200 @@ export default function ForgotPasswordPage() {
 
   const loginHref = resetRole && ['ADMIN', 'STAFF', 'RIDER'].includes(resetRole) ? '/staff-login' : '/login';
 
+  const subtitle =
+    step === 1 ? t('authx.forgot.subtitle1') : step === 2 ? t('authx.forgot.subtitle2') : t('authx.forgot.subtitle3');
+
+  const footer =
+    step !== 3 ? (
+      <p className="text-sm text-gray-600">
+        {t('authx.forgot.rememberedIt')}{' '}
+        <Link href="/login" className="font-semibold text-primary hover:text-primary-dark">
+          {t('authx.forgot.backToLogin')}
+        </Link>
+      </p>
+    ) : undefined;
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 px-4 py-8">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-        {/* Top row: back to home + language switcher */}
-        <div className="flex items-center justify-between mb-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors"
-          >
-            <Home className="w-4 h-4" />
-            {t('common.backToHome')}
-          </Link>
-          <LanguageSwitcher />
-        </div>
+    <AuthShell heading={t('authx.forgot.title')} subtitle={subtitle} footer={footer}>
+      {error && (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
+      )}
+      {info && step !== 3 && (
+        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">{info}</div>
+      )}
 
-        {/* Header */}
-        <div className="flex items-center mb-4">
-          <Link href="/" className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo1.jpeg" alt="The Skymap" className="w-8 h-8" />
-            <span className="text-lg font-bold text-primary">The Skymap</span>
-          </Link>
-        </div>
+      {/* Step 1 - request a code */}
+      {step === 1 && (
+        <form onSubmit={handleSendCode} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setChannel('sms')}
+              className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 transition-colors ${
+                channel === 'sms'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-gray-200 text-gray-600 hover:border-primary/60'
+              }`}
+            >
+              <MessageSquare className="h-5 w-5" />
+              <span className="text-sm font-medium">{t('auth.channelSms')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setChannel('email')}
+              className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 transition-colors ${
+                channel === 'email'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-gray-200 text-gray-600 hover:border-primary/60'
+              }`}
+            >
+              <Mail className="h-5 w-5" />
+              <span className="text-sm font-medium">{t('auth.channelEmail')}</span>
+            </button>
+          </div>
 
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">{t('authx.forgot.title')}</h1>
-          <p className="text-gray-600 text-sm mt-1">
-            {step === 1 && t('authx.forgot.subtitle1')}
-            {step === 2 && t('authx.forgot.subtitle2')}
-            {step === 3 && t('authx.forgot.subtitle3')}
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">{error}</div>
-        )}
-        {info && step !== 3 && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">{info}</div>
-        )}
-
-        {/* Step 1 - request a code */}
-        {step === 1 && (
-          <form onSubmit={handleSendCode} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setChannel('sms')}
-                className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-colors ${
-                  channel === 'sms' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600 hover:border-primary/60'
-                }`}
-              >
-                <MessageSquare className="w-5 h-5" />
-                <span className="text-sm font-medium">{t('auth.channelSms')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setChannel('email')}
-                className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-colors ${
-                  channel === 'email' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600 hover:border-primary/60'
-                }`}
-              >
-                <Mail className="w-5 h-5" />
-                <span className="text-sm font-medium">{t('auth.channelEmail')}</span>
-              </button>
-            </div>
-
-            {channel === 'sms' ? (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.phone')}</label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md text-gray-600 text-sm">
-                    +255
-                  </span>
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 12))}
-                    required
-                    className="flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-r-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder={t('authx.forgot.phonePlaceholder')}
-                  />
-                </div>
-                <p className="text-xs text-gray-400 mt-1">{t('authx.forgot.smsTzNote')}</p>
-              </div>
-            ) : (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('authx.forgot.emailAddress')}</label>
+          {channel === 'sms' ? (
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('common.phone')}</label>
+              <div className="flex items-stretch gap-2">
+                <span className="inline-flex items-center rounded-full border border-gray-300 bg-gray-50 px-4 text-sm text-gray-600">
+                  +255
+                </span>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="tel"
+                  inputMode="numeric"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 12))}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder={t('authx.forgot.emailPlaceholder')}
+                  className={`${inputBase} min-w-0 flex-1 px-5`}
+                  placeholder={t('authx.forgot.phonePlaceholder')}
                 />
               </div>
-            )}
+              <p className="mt-1 text-xs text-gray-400">{t('authx.forgot.smsTzNote')}</p>
+            </div>
+          ) : (
+            <AuthField
+              id="reset-email"
+              label={t('authx.forgot.emailAddress')}
+              icon={Mail}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder={t('authx.forgot.emailPlaceholder')}
+            />
+          )}
 
+          <button type="submit" disabled={loading} className={primaryBtn}>
+            {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+            {t('auth.sendCode')}
+          </button>
+        </form>
+      )}
+
+      {/* Step 2 - verify + set new password */}
+      {step === 2 && (
+        <form onSubmit={handleReset} className="space-y-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+              {t('authx.forgot.verificationCode')}
+            </label>
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              inputMode="numeric"
+              maxLength={6}
+              className={otpInputClass}
+              placeholder="000000"
+            />
             <button
-              type="submit"
+              type="button"
+              onClick={() => handleSendCode()}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
+              className="mt-1.5 text-xs text-primary hover:underline disabled:opacity-50"
             >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {t('auth.sendCode')}
+              {t('auth.resendCode')}
             </button>
-          </form>
-        )}
+          </div>
 
-        {/* Step 2 - verify + set new password */}
-        {step === 2 && (
-          <form onSubmit={handleReset} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('authx.forgot.verificationCode')}</label>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                inputMode="numeric"
-                maxLength={6}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent text-center text-lg tracking-[0.4em]"
-                placeholder="------"
-              />
+          <AuthField
+            id="new-password"
+            label={t('authx.forgot.newPassword')}
+            icon={Lock}
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            minLength={8}
+            placeholder={t('authx.forgot.passwordPlaceholder8')}
+            rightSlot={
               <button
                 type="button"
-                onClick={() => handleSendCode()}
-                disabled={loading}
-                className="text-xs text-primary hover:underline mt-1.5 disabled:opacity-50"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
+                aria-label={showPassword ? t('authx.hidePassword') : t('authx.showPassword')}
+                tabIndex={-1}
               >
-                {t('auth.resendCode')}
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
-            </div>
+            }
+          />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('authx.forgot.newPassword')}</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  minLength={8}
-                  className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder={t('authx.forgot.passwordPlaceholder8')}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((s) => !s)}
-                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-                  aria-label={showPassword ? t('authx.hidePassword') : t('authx.showPassword')}
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('authx.forgot.confirmNewPassword')}</label>
-              <div className="relative">
-                <input
-                  type={showConfirm ? 'text' : 'password'}
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  minLength={8}
-                  className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder={t('authx.forgot.confirmPlaceholder')}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((s) => !s)}
-                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-                  aria-label={showConfirm ? t('authx.hidePassword') : t('authx.showPassword')}
-                  tabIndex={-1}
-                >
-                  {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
+          <AuthField
+            id="confirm-password"
+            label={t('authx.forgot.confirmNewPassword')}
+            icon={Lock}
+            type={showConfirm ? 'text' : 'password'}
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            minLength={8}
+            placeholder={t('authx.forgot.confirmPlaceholder')}
+            rightSlot={
               <button
                 type="button"
-                onClick={() => {
-                  setStep(1);
-                  setError('');
-                  setInfo('');
-                }}
-                className="flex items-center justify-center gap-1 bg-gray-100 text-gray-700 py-2.5 px-4 rounded-md hover:bg-gray-200 transition-colors font-medium"
+                onClick={() => setShowConfirm((s) => !s)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
+                aria-label={showConfirm ? t('authx.hidePassword') : t('authx.showPassword')}
+                tabIndex={-1}
               >
-                <ArrowLeft className="w-4 h-4" />
-                {t('common.back')}
+                {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
-              >
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {t('authx.forgot.resetPassword')}
-              </button>
-            </div>
-          </form>
-        )}
+            }
+          />
 
-        {/* Step 3 - done */}
-        {step === 3 && (
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-9 h-9 text-green-600" />
-            </div>
-            <p className="text-gray-700">
-              {t('authx.forgot.doneMessage')}
-            </p>
+          <div className="flex gap-3">
             <button
-              onClick={() => router.push(loginHref)}
-              className="w-full bg-primary text-white py-2.5 px-4 rounded-md hover:bg-primary-dark transition-colors font-medium"
+              type="button"
+              onClick={() => {
+                setStep(1);
+                setError('');
+                setInfo('');
+              }}
+              className={secondaryBtn}
             >
-              {t('authx.forgot.goToLogin')}
+              <ArrowLeft className="h-4 w-4" />
+              {t('common.back')}
+            </button>
+            <button type="submit" disabled={loading} className={primaryBtn}>
+              {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+              {t('authx.forgot.resetPassword')}
             </button>
           </div>
-        )}
+        </form>
+      )}
 
-        {step !== 3 && (
-          <div className="text-center mt-6 text-sm text-gray-600">
-            {t('authx.forgot.rememberedIt')}{' '}
-            <Link href="/login" className="text-primary font-medium hover:underline">
-              {t('authx.forgot.backToLogin')}
-            </Link>
+      {/* Step 3 - done */}
+      {step === 3 && (
+        <div className="space-y-4 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+            <CheckCircle2 className="h-9 w-9 text-green-600" />
           </div>
-        )}
-      </div>
-    </div>
+          <p className="text-gray-700">{t('authx.forgot.doneMessage')}</p>
+          <button onClick={() => router.push(loginHref)} className={primaryBtn}>
+            {t('authx.forgot.goToLogin')}
+          </button>
+        </div>
+      )}
+    </AuthShell>
   );
 }

@@ -6,6 +6,7 @@ import { Loader2, X, FileText, Printer } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
 import InvoiceDocument from '@/components/invoices/InvoiceDocument';
+import { cardClass, pillPrimary, pageTitle, overlayClass } from '@/lib/ui';
 
 interface Invoice {
   id: string;
@@ -214,14 +215,11 @@ export default function BusinessInvoicesPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">{t('business.invoices.title')}</h1>
-        <p className="text-gray-600 mt-2">
-          {t('business.invoices.subtitle')}
-        </p>
+        <h1 className={pageTitle}>{t('business.invoices.title')}</h1>
       </div>
 
       {/* Invoices Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className={`overflow-hidden ${cardClass}`}>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -289,14 +287,14 @@ export default function BusinessInvoicesPage() {
 
       {/* Invoice Detail Modal */}
       {selectedInvoice && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+        <div className={`${overlayClass} flex items-center justify-center p-4`}>
+          <div className="bg-white rounded-2xl shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10">
               <h2 className="text-2xl font-bold text-gray-900">{t('business.invoices.details')}</h2>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => router.push(`/dashboard/business/invoices/${selectedInvoice.id}/print`)}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                  className={pillPrimary}
                 >
                   <Printer className="w-4 h-4" />
                   {t('business.invoices.printPdf')}

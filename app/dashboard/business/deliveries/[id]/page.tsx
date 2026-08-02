@@ -120,7 +120,7 @@ function HireVehicleCard({ info }: { info: any }) {
   const confirmed = info.confirmed;
   const Icon = v.category === 'people' ? Users : Truck;
   return (
-    <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6">
+    <div className="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden shrink-0">
           {v.image_url ? (

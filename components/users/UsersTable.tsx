@@ -53,7 +53,7 @@ export default function UsersTable({
     });
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="overflow-x-auto hidden md:block">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

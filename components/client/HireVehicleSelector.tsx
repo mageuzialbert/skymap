@@ -23,8 +23,7 @@ interface Props {
 }
 
 // Single-column list of physical hire vehicles for the chosen category.
-// Sensitive details (plate/driver/phone) are intentionally NOT shown here —
-// they are only revealed to the customer once the order is confirmed.
+// Sensitive details (plate/driver/phone) are intentionally NOT shown here - // they are only revealed to the customer once the order is confirmed.
 export default function HireVehicleSelector({ category, value, onChange, disabled }: Props) {
   const t = useT();
   const [vehicles, setVehicles] = useState<HireVehicleOption[]>([]);

@@ -83,7 +83,7 @@ export default function RiderAssignmentModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
       <div className="bg-white rounded-t-2xl sm:rounded-lg shadow-xl max-w-md w-full max-h-[90dvh] flex flex-col">
         <div className="flex justify-between items-center p-5 sm:p-6 border-b shrink-0">
           <h2 className="text-lg sm:text-xl font-semibold">{t('components.riderAssignment.title')}</h2>
@@ -129,7 +129,7 @@ export default function RiderAssignmentModal({
                   value={selectedRiderId}
                   onChange={(e) => setSelectedRiderId(e.target.value)}
                   disabled={loading}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
                   <option value="">{t('components.riderAssignment.chooseRider')}</option>
                   {riders.map((rider) => (
@@ -144,7 +144,7 @@ export default function RiderAssignmentModal({
                 <button
                   onClick={handleAssign}
                   disabled={loading || !selectedRiderId}
-                  className="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {loading ? t('components.riderAssignment.assigning') : t('components.riderAssignment.title')}

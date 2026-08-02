@@ -91,7 +91,7 @@ export default function RiderDashboard() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-md p-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('rider.dashboard.assigned')}</p>
@@ -101,7 +101,7 @@ export default function RiderDashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('rider.dashboard.inProgress')}</p>
@@ -111,7 +111,7 @@ export default function RiderDashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('rider.dashboard.completedToday')}</p>
@@ -123,18 +123,18 @@ export default function RiderDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
         <h2 className="text-lg font-semibold mb-4">{t('rider.dashboard.quickActions')}</h2>
         <Link
           href="/dashboard/rider/jobs"
-          className="block w-full bg-primary text-white text-center py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors font-medium"
+          className="block w-full bg-primary text-white text-center py-3 px-4 rounded-full hover:bg-primary-dark transition-colors font-medium"
         >
           {t('rider.dashboard.viewAllJobs')}
         </Link>
       </div>
 
       {/* Recent Deliveries */}
-      <div className="bg-white rounded-lg shadow-md p-4">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">{t('rider.dashboard.recentDeliveries')}</h2>
           <Link

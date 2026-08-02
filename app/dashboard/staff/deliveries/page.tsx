@@ -432,7 +432,7 @@ export default function StaffDeliveriesPage() {
         {!showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors"
           >
             <Plus className="w-5 h-5" />
             {t("staff.deliveries.createDelivery")}
@@ -441,7 +441,7 @@ export default function StaffDeliveriesPage() {
       </div>
 
       {showCreateForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">{t("staff.deliveries.createNewDelivery")}</h2>
             <button
@@ -485,7 +485,7 @@ export default function StaffDeliveriesPage() {
 
       {/* Fee Edit Modal */}
       {showFeeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold mb-4">{t("staff.deliveries.editFeeTitle")}</h3>
             <div className="mb-4">
@@ -508,14 +508,14 @@ export default function StaffDeliveriesPage() {
                   setShowFeeModal(false);
                   setEditingDeliveryId(null);
                 }}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
               >
                 {t("common.cancel")}
               </button>
               <button
                 onClick={handleSaveFee}
                 disabled={savingFee}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
               >
                 {savingFee ? t("common.saving") : t("common.save")}
               </button>

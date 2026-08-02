@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/auth-server';
 
 // GET - Public list of active hire vehicles for the client selection step.
 // Optional ?category=people|load. Deliberately omits sensitive fields
-// (plate_number, driver_name, driver_phone) — those are only revealed to the
+// (plate_number, driver_name, driver_phone) - those are only revealed to the
 // customer AFTER their order is confirmed.
 export async function GET(request: NextRequest) {
   try {
