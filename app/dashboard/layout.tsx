@@ -333,7 +333,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               )}
               <Link href={getDashboardBase()} className="flex items-center">
                 <NextImage
-                  src="/logo-cropped.png"
+                  src="/logo-cropped.webp"
                   alt="The Skymap"
                   width={686}
                   height={339}

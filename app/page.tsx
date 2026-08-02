@@ -54,7 +54,7 @@ export default function Home() {
       <div className="relative z-30 shrink-0 p-3 flex items-center justify-between bg-white shadow-sm">
         {/* Logo (cropped mark + wordmark, same asset as the login page) */}
         <Image
-          src="/logo-cropped.png"
+          src="/logo-cropped.webp"
           alt="The Skymap"
           width={686}
           height={339}

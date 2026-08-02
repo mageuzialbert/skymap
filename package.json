@@ -17,7 +17,8 @@
     "sms-reset": "node scripts/send-password-reset-sms.js",
     "gen-icons": "node scripts/gen-icons.js",
     "gen-hero": "node scripts/gen-hero.js",
-    "gen-service-images": "node scripts/gen-service-images.js"
+    "gen-service-images": "node scripts/gen-service-images.js",
+    "optimize-images": "node scripts/optimize-images.js"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.8",

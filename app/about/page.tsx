@@ -79,7 +79,7 @@ export default function AboutPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-2.5">
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo-cropped.png"
+              src="/logo-cropped.webp"
               alt="The Skymap"
               width={686}
               height={339}
@@ -106,7 +106,7 @@ export default function AboutPage() {
           {/* Brand chip (white so the teal logo reads on the dark hero) */}
           <div className="mx-auto mb-5 inline-flex items-center rounded-2xl bg-white px-4 py-2 shadow-lg shadow-black/10">
             <Image
-              src="/logo-cropped.png"
+              src="/logo-cropped.webp"
               alt="The Skymap"
               width={686}
               height={339}

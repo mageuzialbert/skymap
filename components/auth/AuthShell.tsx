@@ -138,7 +138,7 @@ export default function AuthShell({
           <div className="mb-8 text-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo-cropped.png"
+              src="/logo-cropped.webp"
               alt="The Skymap Logistics"
               className="mx-auto mb-4 h-auto w-40 object-contain sm:w-44"
             />
