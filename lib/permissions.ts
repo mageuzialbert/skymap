@@ -121,18 +121,6 @@ export const PERMISSION_MODULES: PermissionModule[] = [
     ],
   },
   {
-    id: 'cms_videos',
-    name: 'CMS - Videos',
-    description: 'Manage landing page videos',
-    availableFor: ['STAFF'],
-    actions: [
-      { id: 'view', name: 'View', description: 'View landing videos' },
-      { id: 'create', name: 'Create', description: 'Add new landing videos' },
-      { id: 'update', name: 'Update', description: 'Edit video settings' },
-      { id: 'delete', name: 'Delete', description: 'Remove landing videos' },
-    ],
-  },
-  {
     id: 'cms_content',
     name: 'CMS - Content',
     description: 'Manage website content (About Us, etc.)',

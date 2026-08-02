@@ -21,7 +21,6 @@ import {
   CreditCard,
   FolderOpen,
   MessageSquare,
-  Video,
   Bike,
   Truck,
 } from "lucide-react";
@@ -140,7 +139,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     { href: "/dashboard/admin/vehicles", label: t("nav.vehicles"), icon: Bike },
     { href: "/dashboard/admin/hire-vehicles", label: t("nav.hireVehicles"), icon: Truck },
     { href: "/dashboard/admin/cms/sliders", label: t("nav.cmsSliders"), icon: Image },
-    { href: "/dashboard/admin/cms/videos", label: t("nav.cmsVideos"), icon: Video },
     {
       href: "/dashboard/admin/cms/content",
       label: t("nav.cmsContent"),
@@ -212,12 +210,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       label: t("nav.cmsSliders"),
       icon: Image,
       modules: ["cms_sliders"],
-    },
-    {
-      href: "/dashboard/admin/cms/videos",
-      label: t("nav.cmsVideos"),
-      icon: Video,
-      modules: ["cms_videos"],
     },
     {
       href: "/dashboard/admin/cms/content",
