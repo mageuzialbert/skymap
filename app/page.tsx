@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { LogIn } from 'lucide-react';
 import HeroMedia from '@/components/landing/HeroMedia';
 import LanguageSwitcher from '@/components/common/LanguageSwitcher';
@@ -34,10 +35,18 @@ export default function Home() {
         {/* Header - solid top bar */}
         <div className="relative z-30 shrink-0 p-3 flex items-center justify-between bg-white shadow-sm">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo1.jpeg" alt="The Skymap" className="w-8 h-8" />
-            <span className="text-lg font-bold text-gray-900 drop-shadow-sm">{t('common.appName')}</span>
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/icons/skymap_logo_transparent.png"
+              alt="The Skymap"
+              width={56}
+              height={56}
+              priority
+              className="h-12 w-12 sm:h-14 sm:w-14 object-contain"
+            />
+            <span className="text-xl sm:text-2xl font-bold font-display text-gray-900 drop-shadow-sm">
+              {t('common.appName')}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
