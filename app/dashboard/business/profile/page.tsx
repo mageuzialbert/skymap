@@ -9,6 +9,7 @@ import { useT } from '@/lib/i18n';
 import Alert from '@/components/common/Alert';
 import { cardClass, inputClass, inputReadOnly, pageTitle, pillPrimary, sectionTitle } from '@/lib/ui';
 import LocationPicker from '@/components/common/LocationPicker';
+import { MAPS_API_KEY, MAPS_LIBRARIES } from '@/lib/maps';
 
 interface BusinessProfile {
   name: string;
@@ -64,8 +65,8 @@ export default function BusinessProfilePage() {
   const [passwordSuccess, setPasswordSuccess] = useState('');
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    libraries: ['places'],
+    googleMapsApiKey: MAPS_API_KEY,
+    libraries: MAPS_LIBRARIES,
   });
 
   useEffect(() => {

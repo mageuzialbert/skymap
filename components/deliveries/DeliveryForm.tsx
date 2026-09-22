@@ -20,6 +20,7 @@ import Alert from "@/components/common/Alert";
 import LocationPicker from "@/components/common/LocationPicker";
 import { useT } from "@/lib/i18n";
 import { cardClass, fieldLabel as labelClass, inputClass, sectionTitle } from "@/lib/ui";
+import { MAPS_API_KEY, MAPS_LIBRARIES } from '@/lib/maps';
 
 interface Region {
   id: number;
@@ -102,8 +103,8 @@ export default function DeliveryForm({
   const [defaultPackageFee, setDefaultPackageFee] = useState<number>(0);
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries: ["places"],
+    googleMapsApiKey: MAPS_API_KEY,
+    libraries: MAPS_LIBRARIES,
   });
 
   // Get current datetime in local timezone for the default created_at value

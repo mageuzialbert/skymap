@@ -7,6 +7,7 @@ import LocationPicker from "@/components/common/LocationPicker";
 import Alert from '@/components/common/Alert';
 import { useT } from '@/lib/i18n';
 import { fieldLabel, helpText, inputClass, pillGhost, pillPrimary, sectionLabel } from '@/lib/ui';
+import { MAPS_API_KEY, MAPS_LIBRARIES } from '@/lib/maps';
 
 interface Business {
   id: string;
@@ -89,8 +90,8 @@ export default function BusinessForm({
   const [loadingDistricts, setLoadingDistricts] = useState(false);
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries: ["places"],
+    googleMapsApiKey: MAPS_API_KEY,
+    libraries: MAPS_LIBRARIES,
   });
 
   // Load regions on mount

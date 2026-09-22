@@ -19,6 +19,7 @@ import { splitAddress } from '@/lib/address';
 import { BUCKET_DOT, BUCKET_TEXT, statusBucket, statusLabelKey } from '@/lib/deliveryStatus';
 import { useT } from '@/lib/i18n';
 import { cardClass, sectionLabel } from '@/lib/ui';
+import { MAPS_API_KEY, MAPS_LIBRARIES } from '@/lib/maps';
 
 interface Delivery {
   id: string;
@@ -59,7 +60,8 @@ const defaultCenter = { lat: -6.7924, lng: 39.2083 };
 export default function DeliveryDetails({ delivery }: { delivery: Delivery }) {
   const t = useT();
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: MAPS_API_KEY,
+    libraries: MAPS_LIBRARIES,
   });
 
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);

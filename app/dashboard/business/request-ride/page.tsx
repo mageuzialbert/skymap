@@ -8,8 +8,9 @@ import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
 import type { BusinessProfile } from '@/lib/wizard/steps';
 import { cardClass } from '@/lib/ui';
+import { MAPS_API_KEY, MAPS_LIBRARIES } from '@/lib/maps';
 
-const libraries: ('places' | 'geometry' | 'drawing' | 'visualization')[] = ['places'];
+
 
 /**
  * Loads Google Places and the signed-in business, then hands both to the
@@ -19,8 +20,8 @@ const libraries: ('places' | 'geometry' | 'drawing' | 'visualization')[] = ['pla
  */
 export default function RequestRidePage() {
   const t = useT();
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
-  const { isLoaded, loadError } = useLoadScript({ googleMapsApiKey: apiKey, libraries });
+  const apiKey = MAPS_API_KEY;
+  const { isLoaded, loadError } = useLoadScript({ googleMapsApiKey: apiKey, libraries: MAPS_LIBRARIES });
 
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
 
