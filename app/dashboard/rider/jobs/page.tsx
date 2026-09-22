@@ -4,26 +4,23 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Package } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
-import DeliveryCard from '@/components/rider/DeliveryCard';
+import { EmptyState, ListToolbar, RecordList, RecordRow } from '@/components/common/RecordList';
+import ServiceIcon from '@/components/common/ServiceIcon';
 import { useT } from '@/lib/i18n';
-import { statusBucket } from '@/lib/deliveryStatus';
-import { cardClass, chipCount, chipTrack, filterChip, pageTitle, stickyFilterBar } from '@/lib/ui';
+import { splitAddress } from '@/lib/address';
+import { BUCKET_DOT, BUCKET_TEXT, statusBucket, statusLabelKey } from '@/lib/deliveryStatus';
+import { formatTime, groupByDay } from '@/lib/time';
+import { usePoll } from '@/lib/usePoll';
+import { pageTitle, sectionLabel } from '@/lib/ui';
 
 interface Delivery {
   id: string;
   business_id: string;
   pickup_address: string;
-  pickup_latitude: number | null;
-  pickup_longitude: number | null;
-  pickup_name: string;
-  pickup_phone: string;
   dropoff_address: string;
-  dropoff_latitude: number | null;
-  dropoff_longitude: number | null;
   dropoff_name: string;
-  dropoff_phone: string;
-  package_description: string | null;
   status: string;
+  service_type?: string | null;
   created_at: string;
   businesses?: {
     id: string;
@@ -49,10 +46,7 @@ export default function RiderJobsPage() {
   const loadDeliveries = useCallback(async () => {
     try {
       const response = await fetch('/api/rider/deliveries?limit=1000');
-      if (response.ok) {
-        const data = await response.json();
-        setDeliveries(data);
-      }
+      if (response.ok) setDeliveries(await response.json());
     } catch (error) {
       console.error('Error loading deliveries:', error);
     } finally {
@@ -73,10 +67,11 @@ export default function RiderJobsPage() {
   }, [router]);
 
   useEffect(() => {
-    if (role === 'RIDER') {
-      loadDeliveries();
-    }
+    if (role === 'RIDER') loadDeliveries();
   }, [role, loadDeliveries]);
+
+  // A job assigned while the app is open should appear without a reload.
+  usePoll(loadDeliveries, 30_000, role === 'RIDER');
 
   const counts = useMemo(() => {
     const c = { ALL: deliveries.length, ACTIVE: 0, DONE: 0, FAILED: 0 };
@@ -89,11 +84,14 @@ export default function RiderJobsPage() {
     [deliveries, bucket]
   );
 
-  const chips: { key: Bucket; label: string }[] = [
-    { key: 'ALL', label: t('rider.jobs.buckets.all') },
-    { key: 'ACTIVE', label: t('rider.jobs.buckets.active') },
-    { key: 'DONE', label: t('rider.jobs.buckets.delivered') },
-    { key: 'FAILED', label: t('rider.jobs.buckets.failed') },
+  // Riders work in days; an ungrouped list of sixty rows is unreadable.
+  const days = useMemo(() => groupByDay(filtered, (d) => d.created_at, t), [filtered, t]);
+
+  const chips = [
+    { key: 'ALL' as const, label: t('business.rides.status.all'), count: counts.ALL },
+    { key: 'ACTIVE' as const, label: t('business.rides.status.active'), count: counts.ACTIVE },
+    { key: 'DONE' as const, label: t('business.rides.status.delivered'), count: counts.DONE },
+    { key: 'FAILED' as const, label: t('business.rides.status.failed'), count: counts.FAILED },
   ];
 
   if (loading) {
@@ -108,39 +106,48 @@ export default function RiderJobsPage() {
     <div>
       <div className="mb-4">
         <h1 className={pageTitle}>{t('rider.jobs.title')}</h1>
-        <p className="mt-1 text-gray-600">{t('rider.jobs.subtitle')}</p>
+        <p className="mt-1 text-[15px] text-gray-500">{t('rider.jobs.subtitle')}</p>
       </div>
 
-      {/* Chips stay in reach while the job list scrolls. */}
-      <div className={stickyFilterBar}>
-        <div className={chipTrack}>
-          {chips.map((c) => (
-            <button
-              key={c.key}
-              type="button"
-              onClick={() => setBucket(c.key)}
-              aria-pressed={bucket === c.key}
-              className={filterChip(bucket === c.key)}
-            >
-              {c.label}
-              <span className={chipCount(bucket === c.key)}>{counts[c.key]}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      <ListToolbar chips={chips} active={bucket} onChange={setBucket} />
 
       {filtered.length === 0 ? (
-        <div className={`${cardClass} px-6 py-12 text-center`}>
-          <Package className="mx-auto mb-4 h-12 w-12 text-gray-300" />
-          <p className="text-base font-semibold text-gray-900">{t('rider.jobs.noneFound')}</p>
-          <p className="mx-auto mt-1 max-w-xs text-sm text-gray-500">
-            {bucket === 'ALL' ? t('rider.jobs.noneAssigned') : t('rider.jobs.noneFiltered')}
-          </p>
-        </div>
+        <EmptyState
+          icon={Package}
+          title={t('rider.jobs.noneFound')}
+          body={bucket === 'ALL' ? t('rider.jobs.noneAssigned') : t('rider.jobs.noneFiltered')}
+        />
       ) : (
-        <div>
-          {filtered.map((delivery) => (
-            <DeliveryCard key={delivery.id} delivery={delivery} />
+        <div className="space-y-5">
+          {days.map((day) => (
+            <section key={day.key}>
+              <h2 className={sectionLabel}>{day.label}</h2>
+              <RecordList>
+                {day.rows.map((d) => {
+                  const tone = statusBucket(d.status);
+                  const destination = splitAddress(d.dropoff_name || d.dropoff_address || '').title;
+                  return (
+                    <RecordRow
+                      key={d.id}
+                      href={`/dashboard/rider/jobs/${d.id}`}
+                      leading={
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
+                          <ServiceIcon serviceType={d.service_type} className="h-[18px] w-[18px]" />
+                        </span>
+                      }
+                      title={destination || t('rider.card.dropoff')}
+                      trailing={formatTime(d.created_at)}
+                      subtitle={d.businesses?.name || t('rider.card.unknownBusiness')}
+                      status={{
+                        dot: BUCKET_DOT[tone],
+                        text: BUCKET_TEXT[tone],
+                        label: t(statusLabelKey(d.status)),
+                      }}
+                    />
+                  );
+                })}
+              </RecordList>
+            </section>
           ))}
         </div>
       )}

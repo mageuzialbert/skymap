@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { usePermissions } from '@/lib/permissions-context';
 import DeliveryForm, { DeliveryFormData } from '@/components/deliveries/DeliveryForm';
 import { useT } from '@/lib/i18n';
+import { cardClass } from '@/lib/ui';
 
 export default function RiderCreateDeliveryPage() {
   const t = useT();
@@ -94,7 +95,7 @@ export default function RiderCreateDeliveryPage() {
         <p className="text-gray-600 mt-1">{t('rider.createDelivery.subtitle')}</p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className={`${cardClass} p-6`}>
         <DeliveryForm
           onSubmit={handleCreateDelivery}
           onCancel={() => router.push('/dashboard/rider')}

@@ -1,44 +1,20 @@
 {
   "rider": {
-    "status": {
-      "PENDING_CONFIRMATION": "Pending Confirmation",
-      "ASSIGNED": "Assigned",
-      "PICKED_UP": "Picked Up",
-      "IN_TRANSIT": "In Transit",
-      "DELIVERED": "Delivered",
-      "FAILED": "Failed",
-      "REJECTED": "Rejected"
-    },
-    "common": {
-      "call": "Call",
-      "navigate": "Navigate"
-    },
+    "common": {},
     "dashboard": {
       "title": "Rider Dashboard",
-      "subtitle": "Manage your assigned deliveries",
       "assigned": "Assigned",
       "inProgress": "In Progress",
       "completedToday": "Completed Today",
-      "quickActions": "Quick Actions",
-      "viewAllJobs": "View All Jobs",
       "recentDeliveries": "Recent Deliveries",
-      "viewAll": "View all →",
       "noDeliveries": "No deliveries assigned yet",
-      "deliveryNumber": "Delivery #{{id}}"
+      "currentJob": "Current job"
     },
     "jobs": {
       "title": "My Jobs",
       "subtitle": "Assigned deliveries",
-      "allStatuses": "All Statuses",
       "noneFound": "No deliveries found",
       "noneAssigned": "You don't have any assigned deliveries yet.",
-      "noneWithStatus": "No deliveries with status \"{{status}}\"",
-      "buckets": {
-        "all": "All",
-        "active": "Active",
-        "delivered": "Delivered",
-        "failed": "Failed"
-      },
       "noneFiltered": "No jobs match this filter."
     },
     "jobDetail": {
@@ -51,7 +27,8 @@
       "declineConfirm": "Decline this ride? It will be sent back for reassignment.",
       "failedUpdateStatus": "Failed to update status",
       "failedConfirm": "Failed to confirm ride",
-      "failedDecline": "Failed to decline ride"
+      "failedDecline": "Failed to decline ride",
+      "declineTitle": "Decline this job?"
     },
     "profile": {
       "title": "My Profile",
@@ -90,19 +67,11 @@
     },
     "card": {
       "unknownBusiness": "Unknown Business",
-      "pickup": "Pickup",
-      "dropoff": "Drop-off",
-      "callLabel": "Call {{label}}",
-      "minAgo": "{{count}}m ago",
-      "hourAgo": "{{count}}h ago",
-      "dayAgo": "{{count}}d ago"
+      "dropoff": "Drop-off"
     },
     "details": {
-      "goToPickup": "Go to Pickup",
-      "goToDropoff": "Go to Drop-off",
       "navigateToPickup": "Navigate to Pickup",
       "navigateToDropoff": "Navigate to Drop-off",
-      "gpsReady": "GPS Ready",
       "openInGoogleMaps": "Open in Google Maps",
       "newRideTitle": "New ride assigned to you",
       "newRideBody": "Please confirm to accept this ride, then you can start it. Decline to send it back for reassignment.",
@@ -110,7 +79,6 @@
       "awaitingBody": "This delivery is pending approval from staff/admin. Once confirmed, you will be able to start the delivery.",
       "rejectedTitle": "Delivery Rejected",
       "rejectedBody": "This delivery request was rejected by staff/admin.",
-      "business": "Business",
       "unknown": "Unknown",
       "client": "Client",
       "chatWithClient": "Chat with client",
@@ -118,12 +86,13 @@
       "dropoffLocation": "Drop-off Location",
       "requestDetails": "Request Details",
       "packageDetails": "Package Details",
-      "packageImage": "Package Image:",
       "viewFull": "View Full",
       "deliveryTimeline": "Delivery Timeline",
       "decline": "Decline",
       "confirmRide": "Confirm Ride",
-      "updateDeliveryStatus": "Update Delivery Status"
+      "updateDeliveryStatus": "Update Delivery Status",
+      "call": "Call",
+      "navigate": "Navigate"
     },
     "statusModal": {
       "title": "Update Delivery Status",
@@ -134,23 +103,18 @@
       "updating": "Updating...",
       "updateStatus": "Update Status",
       "selectStatus": "Please select a status",
-      "cannotTransition": "Cannot transition from {{from}} to {{to}}",
       "failedUpdate": "Failed to update status",
       "options": {
         "PICKED_UP": {
-          "label": "Picked Up",
           "description": "Package has been collected from pickup location"
         },
         "IN_TRANSIT": {
-          "label": "In Transit",
           "description": "Package is on the way to destination"
         },
         "DELIVERED": {
-          "label": "Delivered",
           "description": "Package has been successfully delivered"
         },
         "FAILED": {
-          "label": "Failed",
           "description": "Delivery could not be completed"
         }
       }

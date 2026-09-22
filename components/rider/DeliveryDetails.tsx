@@ -1,11 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { Package, MapPin, Phone, User, Clock, FileText, Navigation, ExternalLink, CalendarClock, ClipboardList } from 'lucide-react';
-import StatusUpdateModal from './StatusUpdateModal';
+import {
+  CalendarClock,
+  ClipboardList,
+  ExternalLink,
+  MapPin,
+  Navigation,
+  Package,
+  Phone,
+  User,
+} from 'lucide-react';
+import StatusSheet from './StatusSheet';
 import ChatLauncher from '@/components/chat/ChatLauncher';
+import ActionBar from '@/components/common/ActionBar';
+import Alert from '@/components/common/Alert';
 import ServiceBadge, { formatSchedule } from '@/components/common/ServiceBadge';
+import FieldGroup from '@/components/wizard/FieldGroup';
+import { splitAddress } from '@/lib/address';
+import { BUCKET_DOT, BUCKET_TEXT, statusBucket, statusLabelKey } from '@/lib/deliveryStatus';
 import { useT } from '@/lib/i18n';
+import { formatStamp } from '@/lib/time';
+import { cardClass, pillGhost, pillPrimary, sectionLabel } from '@/lib/ui';
 
 interface Delivery {
   id: string;
@@ -56,21 +72,24 @@ interface DeliveryDetailsProps {
   delivery: Delivery;
   events?: DeliveryEvent[];
   onStatusUpdate: (status: string, note: string) => Promise<void>;
-  onConfirm?: () => Promise<void>;
-  onDecline?: () => Promise<void>;
+  onConfirm?: () => void;
+  /** Opens the confirmation dialog; the page owns the decline itself. */
+  onDecline?: () => void;
   loading?: boolean;
 }
 
-const statusColors: Record<string, string> = {
-  PENDING_CONFIRMATION: 'bg-purple-100 text-purple-800',
-  ASSIGNED: 'bg-blue-100 text-blue-800',
-  PICKED_UP: 'bg-yellow-100 text-yellow-800',
-  IN_TRANSIT: 'bg-orange-100 text-orange-800',
-  DELIVERED: 'bg-green-100 text-green-800',
-  FAILED: 'bg-red-100 text-red-800',
-  REJECTED: 'bg-red-100 text-red-800',
-};
+function mapsUrl(lat: number | null, lng: number | null, address: string) {
+  const destination = lat && lng ? `${lat},${lng}` : encodeURIComponent(address);
+  return `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+}
 
+/**
+ * One job, for the rider who is doing it.
+ *
+ * The customer's version of this screen is a read-only record with a map; this
+ * one is an action surface. What they share - the status header, the stop rows,
+ * the package block - uses the same vocabulary, so the two read as one app.
+ */
 export default function DeliveryDetails({
   delivery,
   events = [],
@@ -80,402 +99,323 @@ export default function DeliveryDetails({
   loading = false,
 }: DeliveryDetailsProps) {
   const t = useT();
-  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [statusSheetOpen, setStatusSheetOpen] = useState(false);
 
-  // The rider must accept (confirm) an assigned ride before they can start it.
+  // A rider must accept an assigned ride before they can start it.
   const needsConfirm = delivery.status === 'ASSIGNED' && !delivery.rider_confirmed_at;
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   const canUpdateStatus =
     (delivery.status === 'ASSIGNED' && !!delivery.rider_confirmed_at) ||
     ['PICKED_UP', 'IN_TRANSIT'].includes(delivery.status);
 
-  // Generate Google Maps navigation URL
-  const getNavigationUrl = (lat: number | null, lng: number | null, address: string) => {
-    if (lat && lng) {
-      return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-    }
-    // Fallback to address search if no coordinates
-    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
-  };
+  // Where the rider is headed right now: the pickup until they have it, the
+  // drop-off afterwards.
+  const heading =
+    delivery.status === 'ASSIGNED'
+      ? {
+          lat: delivery.pickup_latitude,
+          lng: delivery.pickup_longitude,
+          address: delivery.pickup_address,
+          label: t('rider.details.navigateToPickup'),
+        }
+      : ['PICKED_UP', 'IN_TRANSIT'].includes(delivery.status)
+        ? {
+            lat: delivery.dropoff_latitude,
+            lng: delivery.dropoff_longitude,
+            address: delivery.dropoff_address,
+            label: t('rider.details.navigateToDropoff'),
+          }
+        : null;
 
-  // Get the next navigation target based on status
-  const getNextDestination = () => {
-    if (delivery.status === 'ASSIGNED') {
-      return {
-        type: 'pickup',
-        lat: delivery.pickup_latitude,
-        lng: delivery.pickup_longitude,
-        address: delivery.pickup_address,
-        label: t('rider.details.navigateToPickup'),
-      };
-    } else if (delivery.status === 'PICKED_UP' || delivery.status === 'IN_TRANSIT') {
-      return {
-        type: 'dropoff',
-        lat: delivery.dropoff_latitude,
-        lng: delivery.dropoff_longitude,
-        address: delivery.dropoff_address,
-        label: t('rider.details.navigateToDropoff'),
-      };
-    }
-    return null;
-  };
-
-  const nextDestination = getNextDestination();
+  const tone = statusBucket(delivery.status);
 
   return (
-    <div className="space-y-4 pb-32">
-      {/* Service + Status */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2">
+    <div className="space-y-5">
+      {/* Where it stands */}
+      <section className={`${cardClass} p-4 sm:p-5`}>
+        <div className="flex flex-wrap items-center gap-2">
           <ServiceBadge serviceType={delivery.service_type} />
-          <span className="inline-flex items-center gap-1.5 text-sm text-gray-600">
-            <CalendarClock className="w-4 h-4 text-gray-400" />
-            {formatSchedule(delivery.scheduled_pickup_at)}
+          <span
+            className={`inline-flex items-center gap-1.5 text-[13px] font-semibold ${BUCKET_TEXT[tone]}`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${BUCKET_DOT[tone]}`} />
+            {t(statusLabelKey(delivery.status))}
           </span>
         </div>
-        <span
-          className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${
-            statusColors[delivery.status] || statusColors.ASSIGNED
-          }`}
-        >
-          {t(`rider.status.${delivery.status}`)}
-        </span>
-      </div>
+        <p className="mt-3 flex items-center gap-2 text-[15px] text-gray-700">
+          <CalendarClock className="h-4 w-4 shrink-0 text-gray-400" />
+          {formatSchedule(delivery.scheduled_pickup_at)}
+        </p>
+      </section>
 
-      {/* Rider acceptance notice */}
       {needsConfirm && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Clock className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h4 className="font-semibold text-blue-900">{t('rider.details.newRideTitle')}</h4>
-              <p className="text-sm text-blue-700 mt-1">
-                {t('rider.details.newRideBody')}
-              </p>
-            </div>
-          </div>
-        </div>
+        <Alert tone="info">
+          <span className="font-semibold">{t('rider.details.newRideTitle')}</span>
+          <span className="mt-0.5 block">{t('rider.details.newRideBody')}</span>
+        </Alert>
       )}
-
-      {/* Pending Confirmation Notice */}
       {delivery.status === 'PENDING_CONFIRMATION' && (
-        <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Clock className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <h4 className="font-semibold text-purple-900">{t('rider.details.awaitingTitle')}</h4>
-              <p className="text-sm text-purple-700 mt-1">
-                {t('rider.details.awaitingBody')}
-              </p>
-            </div>
-          </div>
-        </div>
+        <Alert tone="warning">
+          <span className="font-semibold">{t('rider.details.awaitingTitle')}</span>
+          <span className="mt-0.5 block">{t('rider.details.awaitingBody')}</span>
+        </Alert>
       )}
-
-      {/* Rejected Notice */}
       {delivery.status === 'REJECTED' && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <Clock className="w-5 h-5 text-red-600" />
-            </div>
-            <div>
-              <h4 className="font-semibold text-red-900">{t('rider.details.rejectedTitle')}</h4>
-              <p className="text-sm text-red-700 mt-1">
-                {t('rider.details.rejectedBody')}
-              </p>
-            </div>
-          </div>
-        </div>
+        <Alert tone="error">
+          <span className="font-semibold">{t('rider.details.rejectedTitle')}</span>
+          <span className="mt-0.5 block">{t('rider.details.rejectedBody')}</span>
+        </Alert>
       )}
 
-      {/* Quick Navigation Card - Most Important for Riders */}
-      {nextDestination && (
-        <div className="bg-gradient-to-r from-primary to-primary-dark rounded-xl p-4 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Navigation className="w-5 h-5" />
-              <span className="font-semibold">
-                {nextDestination.type === 'pickup' ? t('rider.details.goToPickup') : t('rider.details.goToDropoff')}
-              </span>
-            </div>
-            {(nextDestination.lat && nextDestination.lng) && (
-              <span className="text-xs bg-white/20 px-2 py-1 rounded-full">{t('rider.details.gpsReady')}</span>
-            )}
-          </div>
-          <p className="text-sm text-white/90 mb-3 line-clamp-2">{nextDestination.address}</p>
+      {/* The one thing to do next. */}
+      {heading && (
+        <section className={`${cardClass} p-4 sm:p-5`}>
+          <p className="text-[13px] text-gray-500">{heading.label}</p>
+          <p className="mt-1 text-[15px] font-semibold leading-snug text-gray-900">
+            {splitAddress(heading.address).title}
+          </p>
           <a
-            href={getNavigationUrl(nextDestination.lat, nextDestination.lng, nextDestination.address)}
+            href={mapsUrl(heading.lat, heading.lng, heading.address)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full bg-white text-primary font-semibold py-3 rounded-lg hover:bg-gray-100 transition-colors"
+            className={`${pillPrimary} mt-4 h-12 w-full text-base`}
           >
-            <Navigation className="w-5 h-5" />
+            <Navigation className="h-5 w-5" />
             {t('rider.details.openInGoogleMaps')}
           </a>
-        </div>
+        </section>
       )}
 
-      {/* Business Info */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Package className="w-5 h-5 text-primary" />
-          </div>
-          <h3 className="font-semibold text-gray-900">{t('rider.details.business')}</h3>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-700">
-            <p className="font-medium">{delivery.businesses?.name || t('rider.details.unknown')}</p>
-            <p className="text-gray-500">{delivery.businesses?.phone || ''}</p>
-          </div>
-          {delivery.businesses?.phone && (
-            <a
-              href={`tel:${delivery.businesses.phone}`}
-              className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full hover:bg-primary/20 transition-colors"
-            >
-              <Phone className="w-5 h-5 text-primary" />
-            </a>
-          )}
-        </div>
-
-        {/* Live chat with the client (available once assigned) */}
-        {['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED'].includes(delivery.status) && (
-          <div className="mt-4">
-            <ChatLauncher
-              deliveryId={delivery.id}
-              otherName={delivery.businesses?.name || t('rider.details.client')}
-              label={t('rider.details.chatWithClient')}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Pickup Information */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <MapPin className="w-5 h-5 text-blue-600" />
-          </div>
-          <h3 className="font-semibold text-gray-900">{t('rider.details.pickupLocation')}</h3>
-          {delivery.pickup_latitude && delivery.pickup_longitude && (
-            <span className="ml-auto text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">GPS</span>
-          )}
-        </div>
-        <div className="space-y-3">
-          <div>
-            <p className="font-medium text-gray-900">{delivery.pickup_name}</p>
-            <p className="text-sm text-gray-600">{delivery.pickup_address}</p>
-          </div>
-          <div className="flex gap-2">
-            <a
-              href={`tel:${delivery.pickup_phone}`}
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-sm font-medium"
-            >
-              <Phone className="w-4 h-4" />
-              {t('rider.common.call')}
-            </a>
-            <a
-              href={getNavigationUrl(delivery.pickup_latitude, delivery.pickup_longitude, delivery.pickup_address)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium"
-            >
-              <Navigation className="w-4 h-4" />
-              {t('rider.common.navigate')}
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Dropoff Information - only when there is a destination */}
-      {delivery.dropoff_address && (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-green-100 rounded-lg">
-            <MapPin className="w-5 h-5 text-green-600" />
-          </div>
-          <h3 className="font-semibold text-gray-900">{t('rider.details.dropoffLocation')}</h3>
-          {delivery.dropoff_latitude && delivery.dropoff_longitude && (
-            <span className="ml-auto text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">GPS</span>
-          )}
-        </div>
-        <div className="space-y-3">
-          <div>
-            <p className="font-medium text-gray-900">{delivery.dropoff_name}</p>
-            <p className="text-sm text-gray-600">{delivery.dropoff_address}</p>
-          </div>
-          <div className="flex gap-2">
-            {delivery.dropoff_phone && (
+      {/* Who the job is for */}
+      <FieldGroup label={t('rider.details.client')}>
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500">
+            <User className="h-5 w-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[15px] font-semibold text-gray-900">
+              {delivery.businesses?.name || t('rider.details.unknown')}
+            </span>
+            {delivery.businesses?.phone && (
               <a
-                href={`tel:${delivery.dropoff_phone}`}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-sm font-medium"
+                href={`tel:${delivery.businesses.phone}`}
+                className="mt-0.5 inline-flex items-center gap-1.5 text-[13px] font-medium text-primary"
               >
-                <Phone className="w-4 h-4" />
-                {t('rider.common.call')}
+                <Phone className="h-3.5 w-3.5" />
+                {delivery.businesses.phone}
               </a>
             )}
-            <a
-              href={getNavigationUrl(delivery.dropoff_latitude, delivery.dropoff_longitude, delivery.dropoff_address)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
-            >
-              <Navigation className="w-4 h-4" />
-              {t('rider.common.navigate')}
-            </a>
-          </div>
+          </span>
         </div>
-      </div>
-      )}
+        <ChatLauncher
+          deliveryId={delivery.id}
+          otherName={delivery.businesses?.name || t('rider.details.client')}
+          label={t('rider.details.chatWithClient')}
+        />
+      </FieldGroup>
 
-      {/* Request details (ride note / hire plan / errand instructions) */}
+      {/* Both ends of the journey */}
+      <section>
+        <h2 className={sectionLabel}>{t('components.deliveryDetails.routeMap')}</h2>
+        <div className={`${cardClass} overflow-hidden`}>
+          <Stop
+            which="pickup"
+            label={t('rider.details.pickupLocation')}
+            address={delivery.pickup_address}
+            name={delivery.pickup_name}
+            phone={delivery.pickup_phone}
+            lat={delivery.pickup_latitude}
+            lng={delivery.pickup_longitude}
+          />
+          {delivery.dropoff_address && (
+            <>
+              <span className="ml-[3.25rem] block h-px bg-gray-100" />
+              <Stop
+                which="dropoff"
+                label={t('rider.details.dropoffLocation')}
+                address={delivery.dropoff_address}
+                name={delivery.dropoff_name}
+                phone={delivery.dropoff_phone}
+                lat={delivery.dropoff_latitude}
+                lng={delivery.dropoff_longitude}
+              />
+            </>
+          )}
+        </div>
+      </section>
+
       {delivery.service_details && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-gray-100 rounded-lg">
-              <ClipboardList className="w-5 h-5 text-gray-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900">{t('rider.details.requestDetails')}</h3>
-          </div>
-          <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
-            {delivery.service_details}
-          </p>
-        </div>
-      )}
-
-      {/* Package Description */}
-      {(delivery.package_description || delivery.package_image_url) && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <FileText className="w-5 h-5 text-amber-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900">{t('rider.details.packageDetails')}</h3>
-          </div>
-          
-          {delivery.package_description && (
-            <p className="text-sm text-gray-700 bg-amber-50 p-3 rounded-lg mb-3">
-              {delivery.package_description}
+        <section>
+          <h2 className={sectionLabel}>{t('rider.details.requestDetails')}</h2>
+          <div className={`${cardClass} flex items-start gap-3 p-4 sm:p-5`}>
+            <ClipboardList className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
+            <p className="min-w-0 flex-1 whitespace-pre-wrap text-[15px] leading-relaxed text-gray-800">
+              {delivery.service_details}
             </p>
-          )}
-
-          {delivery.package_image_url && (
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">{t('rider.details.packageImage')}</p>
-              <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 w-full">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={delivery.package_image_url} 
-                  alt="Package" 
-                  className="w-full h-auto object-contain max-h-64"
-                />
-                <a 
-                  href={delivery.package_image_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded backdrop-blur-sm transition-colors"
-                >
-                  {t('rider.details.viewFull')}
-                </a>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        </section>
       )}
 
-      {/* Delivery Timeline */}
+      {(delivery.package_description || delivery.package_image_url) && (
+        <section>
+          <h2 className={sectionLabel}>{t('rider.details.packageDetails')}</h2>
+          <div className={`${cardClass} p-4 sm:p-5`}>
+            {delivery.package_description && (
+              <div className="flex items-start gap-3">
+                <Package className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
+                <p className="min-w-0 flex-1 whitespace-pre-wrap text-[15px] leading-relaxed text-gray-800">
+                  {delivery.package_description}
+                </p>
+              </div>
+            )}
+            {delivery.package_image_url && (
+              <a
+                href={delivery.package_image_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${pillGhost} mt-4 h-12 w-full text-base`}
+              >
+                <ExternalLink className="h-5 w-5" />
+                {t('rider.details.viewFull')}
+              </a>
+            )}
+          </div>
+        </section>
+      )}
+
       {events.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="p-2 bg-gray-100 rounded-lg">
-              <Clock className="w-5 h-5 text-gray-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900">{t('rider.details.deliveryTimeline')}</h3>
-          </div>
-          <div className="space-y-3">
-            {events.map((event, index) => (
-              <div key={event.id} className="flex gap-3">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 rounded-full bg-primary"></div>
-                  {index < events.length - 1 && (
-                    <div className="w-0.5 h-full bg-gray-200 mt-1"></div>
-                  )}
-                </div>
-                <div className="flex-1 pb-3">
-                  <div className="flex items-center gap-2 mb-1">
+        <section>
+          <h2 className={sectionLabel}>{t('rider.details.deliveryTimeline')}</h2>
+          <div className={`${cardClass} p-4 sm:p-5`}>
+            <ol className="space-y-4">
+              {events.map((event) => {
+                const eventTone = statusBucket(event.status);
+                return (
+                  <li key={event.id} className="flex gap-3">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                        statusColors[event.status] || statusColors.ASSIGNED
-                      }`}
-                    >
-                      {t(`rider.status.${event.status}`)}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {formatDateTime(event.created_at)}
-                    </span>
-                  </div>
-                  {event.note && (
-                    <p className="text-sm text-gray-600 mt-1">{event.note}</p>
-                  )}
-                </div>
-              </div>
-            ))}
+                      className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${BUCKET_DOT[eventTone]}`}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[15px] font-medium text-gray-900">
+                        {t(statusLabelKey(event.status))}
+                      </p>
+                      <p className="mt-0.5 text-[13px] text-gray-500">
+                        {formatStamp(event.created_at)}
+                      </p>
+                      {event.note && (
+                        <p className="mt-1 text-[13px] text-gray-600">{event.note}</p>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Sticky Bottom Action Bar - Confirm/Decline before accepting, else Update Status */}
-      {needsConfirm ? (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lg z-40 flex gap-3">
+      {/* Sticky, not fixed: a fixed bar here paints over the tab bar, which is
+          a normal-flow sibling of the scrolling <main>. */}
+      {needsConfirm && onConfirm && onDecline ? (
+        <ActionBar>
           <button
-            onClick={() => onDecline?.()}
+            type="button"
+            onClick={onDecline}
             disabled={loading}
-            className="flex-1 bg-red-50 text-red-700 py-4 rounded-xl hover:bg-red-100 transition-colors font-semibold disabled:opacity-50"
+            className={`${pillGhost} h-12 flex-1 text-base text-red-600`}
           >
             {t('rider.details.decline')}
           </button>
           <button
-            onClick={() => onConfirm?.()}
+            type="button"
+            onClick={onConfirm}
             disabled={loading}
-            className="flex-[2] bg-primary text-white py-4 rounded-xl hover:bg-primary-dark transition-colors font-semibold text-lg flex items-center justify-center gap-2 disabled:opacity-50"
+            className={`${pillPrimary} h-12 flex-[2] text-base`}
           >
             {t('rider.details.confirmRide')}
           </button>
-        </div>
+        </ActionBar>
       ) : canUpdateStatus ? (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lg z-40">
+        <ActionBar>
           <button
-            onClick={() => setShowStatusModal(true)}
-            className="w-full bg-primary text-white py-4 rounded-xl hover:bg-primary-dark transition-colors font-semibold text-lg flex items-center justify-center gap-2"
+            type="button"
+            onClick={() => setStatusSheetOpen(true)}
+            disabled={loading}
+            className={`${pillPrimary} h-12 w-full text-base`}
           >
             {t('rider.details.updateDeliveryStatus')}
           </button>
-        </div>
+        </ActionBar>
       ) : null}
 
-      {/* Status Update Modal */}
-      <StatusUpdateModal
-        isOpen={showStatusModal}
-        onClose={() => setShowStatusModal(false)}
-        onUpdate={onStatusUpdate}
+      <StatusSheet
+        isOpen={statusSheetOpen}
+        onClose={() => setStatusSheetOpen(false)}
         currentStatus={delivery.status}
-        loading={loading}
+        onUpdate={onStatusUpdate}
       />
+    </div>
+  );
+}
+
+/** One end of the journey, with the two things a rider does there. */
+function Stop({
+  which,
+  label,
+  address,
+  name,
+  phone,
+  lat,
+  lng,
+}: {
+  which: 'pickup' | 'dropoff';
+  label: string;
+  address: string;
+  name?: string | null;
+  phone?: string | null;
+  lat: number | null;
+  lng: number | null;
+}) {
+  const t = useT();
+  const { title, detail } = splitAddress(address || '');
+  const Icon = which === 'pickup' ? Navigation : MapPin;
+  const contact = name && name.trim() !== title.trim() ? name : '';
+
+  return (
+    <div className="px-4 py-3.5">
+      <div className="flex items-start gap-3">
+        <span
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+            which === 'pickup' ? 'bg-primary/10 text-primary' : 'bg-secondary/15 text-secondary-dark'
+          }`}
+        >
+          <Icon className="h-[18px] w-[18px]" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[13px] text-gray-500">{label}</p>
+          <p className="mt-0.5 text-[15px] font-semibold leading-snug text-gray-900">{title}</p>
+          {detail && <p className="mt-0.5 text-[13px] text-gray-500">{detail}</p>}
+          {contact && <p className="mt-1 text-[13px] text-gray-700">{contact}</p>}
+        </div>
+      </div>
+      {/* Both actions on the same token - these used to be a pill beside a
+          rounded-lg button in the same row. */}
+      <div className="mt-3 flex gap-2 pl-[3.25rem]">
+        {phone && (
+          <a href={`tel:${phone}`} className={`${pillGhost} h-11 flex-1 text-[15px]`}>
+            <Phone className="h-4 w-4" />
+            {t('rider.details.call')}
+          </a>
+        )}
+        <a
+          href={mapsUrl(lat, lng, address)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${pillGhost} h-11 flex-1 text-[15px]`}
+        >
+          <Navigation className="h-4 w-4" />
+          {t('rider.details.navigate')}
+        </a>
+      </div>
     </div>
   );
 }

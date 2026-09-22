@@ -1,190 +1,222 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Package, CheckCircle, Clock, TrendingUp, Loader2 } from 'lucide-react';
-import { getUserRole } from '@/lib/roles';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Loader2, Navigation, Package, Phone } from 'lucide-react';
+import Alert from '@/components/common/Alert';
+import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
+import ServiceIcon from '@/components/common/ServiceIcon';
+import StatStrip from '@/components/common/StatStrip';
+import { getUserRole } from '@/lib/roles';
+import { splitAddress } from '@/lib/address';
+import { BUCKET_DOT, BUCKET_TEXT, statusBucket, statusLabelKey } from '@/lib/deliveryStatus';
 import { useT } from '@/lib/i18n';
+import { formatTime } from '@/lib/time';
+import { usePoll } from '@/lib/usePoll';
+import { cardClass, pageTitle, pillGhost, pillPrimary, sectionLabel } from '@/lib/ui';
 
 interface Delivery {
   id: string;
   status: string;
+  service_type?: string | null;
+  pickup_address: string;
+  pickup_latitude: number | null;
+  pickup_longitude: number | null;
+  dropoff_address: string;
+  dropoff_name: string;
+  dropoff_latitude: number | null;
+  dropoff_longitude: number | null;
+  rider_confirmed_at?: string | null;
   created_at: string;
   delivered_at: string | null;
+  businesses?: { id: string; name: string; phone: string };
 }
 
+function mapsUrl(lat: number | null, lng: number | null, address: string) {
+  const destination = lat && lng ? `${lat},${lng}` : encodeURIComponent(address);
+  return `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+}
+
+/**
+ * The rider's home answers "what am I doing right now".
+ *
+ * It used to be three metric cards plus a Quick Actions card whose only link
+ * was the Activity tab, permanently on screen. The job in hand is the thing
+ * that matters, so it leads.
+ */
 export default function RiderDashboard() {
   const t = useT();
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
+  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [loading, setLoading] = useState(true);
-  const [metrics, setMetrics] = useState({
-    assigned: 0,
-    inProgress: 0,
-    completedToday: 0,
-  });
-  const [recentDeliveries, setRecentDeliveries] = useState<Delivery[]>([]);
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch('/api/rider/deliveries?limit=20');
+      if (res.ok) setDeliveries(await res.json());
+    } catch (error) {
+      console.error('Error loading deliveries:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function checkRole() {
+    (async () => {
       const userRole = await getUserRole();
       if (userRole !== 'RIDER') {
         router.push('/dashboard/business');
         return;
       }
       setRole(userRole);
-      loadDashboardData();
-    }
-    checkRole();
-  }, [router]);
+      load();
+    })();
+  }, [router, load]);
 
-  async function loadDashboardData() {
-    try {
-      // Load deliveries
-      const response = await fetch('/api/rider/deliveries?limit=10');
-      if (response.ok) {
-        const deliveries = await response.json();
-        setRecentDeliveries(deliveries);
-
-        // Calculate metrics
-        const assigned = deliveries.filter((d: Delivery) => d.status === 'ASSIGNED').length;
-        const inProgress = deliveries.filter((d: Delivery) => 
-          ['PICKED_UP', 'IN_TRANSIT'].includes(d.status)
-        ).length;
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const completedToday = deliveries.filter((d: Delivery) => 
-          d.status === 'DELIVERED' && 
-          d.delivered_at && 
-          new Date(d.delivered_at) >= today
-        ).length;
-
-        setMetrics({
-          assigned,
-          inProgress,
-          completedToday,
-        });
-      }
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  usePoll(load, 30_000, role === 'RIDER');
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
 
+  const awaiting = deliveries.find((d) => d.status === 'ASSIGNED' && !d.rider_confirmed_at);
+  const current = deliveries.find(
+    (d) =>
+      (d.status === 'ASSIGNED' && d.rider_confirmed_at) ||
+      ['PICKED_UP', 'IN_TRANSIT'].includes(d.status)
+  );
+
+  const today = new Date().toDateString();
+  const stats = [
+    {
+      label: t('rider.dashboard.assigned'),
+      value: deliveries.filter((d) => d.status === 'ASSIGNED').length,
+    },
+    {
+      label: t('rider.dashboard.inProgress'),
+      value: deliveries.filter((d) => ['PICKED_UP', 'IN_TRANSIT'].includes(d.status)).length,
+    },
+    {
+      label: t('rider.dashboard.completedToday'),
+      value: deliveries.filter(
+        (d) => d.status === 'DELIVERED' && d.delivered_at && new Date(d.delivered_at).toDateString() === today
+      ).length,
+    },
+  ];
+
+  // Where the current job is headed: the pickup until collected, then the drop-off.
+  const heading = current
+    ? current.status === 'ASSIGNED'
+      ? {
+          lat: current.pickup_latitude,
+          lng: current.pickup_longitude,
+          address: current.pickup_address,
+        }
+      : {
+          lat: current.dropoff_latitude,
+          lng: current.dropoff_longitude,
+          address: current.dropoff_address,
+        }
+    : null;
+
   return (
-    <div className="pb-20">
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('rider.dashboard.title')}</h1>
-        <p className="text-gray-600 mt-1">{t('rider.dashboard.subtitle')}</p>
-      </div>
+    <div className="space-y-5">
+      <h1 className={pageTitle}>{t('rider.dashboard.title')}</h1>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('rider.dashboard.assigned')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.assigned}</p>
-            </div>
-            <Package className="w-8 h-8 text-blue-500" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('rider.dashboard.inProgress')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.inProgress}</p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-orange-500" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('rider.dashboard.completedToday')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.completedToday}</p>
-            </div>
-            <CheckCircle className="w-8 h-8 text-green-500" />
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
-        <h2 className="text-lg font-semibold mb-4">{t('rider.dashboard.quickActions')}</h2>
-        <Link
-          href="/dashboard/rider/jobs"
-          className="block w-full bg-primary text-white text-center py-3 px-4 rounded-full hover:bg-primary-dark transition-colors font-medium"
-        >
-          {t('rider.dashboard.viewAllJobs')}
-        </Link>
-      </div>
-
-      {/* Recent Deliveries */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">{t('rider.dashboard.recentDeliveries')}</h2>
-          <Link
-            href="/dashboard/rider/jobs"
-            className="text-primary hover:text-primary-dark text-sm"
-          >
-            {t('rider.dashboard.viewAll')}
+      {awaiting && (
+        <Alert tone="info">
+          <Link href={`/dashboard/rider/jobs/${awaiting.id}`} className="block">
+            <span className="font-semibold underline">{t('rider.details.newRideTitle')}</span>
           </Link>
-        </div>
-        {recentDeliveries.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Package className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-            <p>{t('rider.dashboard.noDeliveries')}</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {recentDeliveries.slice(0, 5).map((delivery) => (
-              <Link
-                key={delivery.id}
-                href={`/dashboard/rider/jobs/${delivery.id}`}
-                className="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+        </Alert>
+      )}
+
+      {current && heading && (
+        <section>
+          <h2 className={sectionLabel}>{t('rider.dashboard.currentJob')}</h2>
+          <div className={`${cardClass} p-4 sm:p-5`}>
+            <Link href={`/dashboard/rider/jobs/${current.id}`} className="block">
+              <span
+                className={`inline-flex items-center gap-1.5 text-[13px] font-semibold ${
+                  BUCKET_TEXT[statusBucket(current.status)]
+                }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">
-                      {t('rider.dashboard.deliveryNumber', { id: delivery.id.slice(0, 8) })}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(delivery.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      delivery.status === 'ASSIGNED'
-                        ? 'bg-blue-100 text-blue-800'
-                        : delivery.status === 'PICKED_UP' || delivery.status === 'IN_TRANSIT'
-                        ? 'bg-orange-100 text-orange-800'
-                        : delivery.status === 'DELIVERED'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}
-                  >
-                    {t(`rider.status.${delivery.status}`)}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${BUCKET_DOT[statusBucket(current.status)]}`}
+                />
+                {t(statusLabelKey(current.status))}
+              </span>
+              <p className="mt-2 text-[17px] font-semibold leading-snug text-gray-900">
+                {splitAddress(heading.address).title}
+              </p>
+              <p className="mt-0.5 text-[13px] text-gray-500">
+                {current.businesses?.name || t('rider.card.unknownBusiness')}
+              </p>
+            </Link>
+            {/* Both actions on the same token, and big enough for a gloved thumb. */}
+            <div className="mt-4 flex gap-2">
+              {current.businesses?.phone && (
+                <a
+                  href={`tel:${current.businesses.phone}`}
+                  className={`${pillGhost} h-12 flex-1 text-base`}
+                >
+                  <Phone className="h-5 w-5" />
+                  {t('rider.details.call')}
+                </a>
+              )}
+              <a
+                href={mapsUrl(heading.lat, heading.lng, heading.address)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${pillPrimary} h-12 flex-[2] text-base`}
+              >
+                <Navigation className="h-5 w-5" />
+                {t('rider.details.navigate')}
+              </a>
+            </div>
           </div>
+        </section>
+      )}
+
+      <StatStrip stats={stats} />
+
+      <section>
+        <h2 className={sectionLabel}>{t('rider.dashboard.recentDeliveries')}</h2>
+        {deliveries.length === 0 ? (
+          <EmptyState icon={Package} title={t('rider.dashboard.noDeliveries')} />
+        ) : (
+          <RecordList>
+            {deliveries.slice(0, 5).map((d) => {
+              const tone = statusBucket(d.status);
+              return (
+                <RecordRow
+                  key={d.id}
+                  href={`/dashboard/rider/jobs/${d.id}`}
+                  leading={
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
+                      <ServiceIcon serviceType={d.service_type} className="h-[18px] w-[18px]" />
+                    </span>
+                  }
+                  title={splitAddress(d.dropoff_name || d.dropoff_address || '').title}
+                  trailing={formatTime(d.created_at)}
+                  subtitle={d.businesses?.name || t('rider.card.unknownBusiness')}
+                  status={{
+                    dot: BUCKET_DOT[tone],
+                    text: BUCKET_TEXT[tone],
+                    label: t(statusLabelKey(d.status)),
+                  }}
+                />
+              );
+            })}
+          </RecordList>
         )}
-      </div>
+      </section>
     </div>
   );
 }

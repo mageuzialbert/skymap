@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { usePermissions } from '@/lib/permissions-context';
 import BusinessForm, { BusinessFormData } from '@/components/businesses/BusinessForm';
 import { useT } from '@/lib/i18n';
+import { cardClass } from '@/lib/ui';
 
 export default function RiderRegisterBusinessPage() {
   const t = useT();
@@ -109,7 +110,7 @@ export default function RiderRegisterBusinessPage() {
         <p className="text-gray-600 mt-1">{t('rider.registerBusiness.subtitle')}</p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className={`${cardClass} p-6`}>
         <BusinessForm
           onSubmit={handleCreateBusiness}
           onCancel={() => router.push('/dashboard/rider')}

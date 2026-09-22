@@ -1,44 +1,20 @@
 {
   "rider": {
-    "status": {
-      "PENDING_CONFIRMATION": "Inasubiri Uthibitisho",
-      "ASSIGNED": "Umepangiwa",
-      "PICKED_UP": "Imechukuliwa",
-      "IN_TRANSIT": "Njiani",
-      "DELIVERED": "Imefikishwa",
-      "FAILED": "Imeshindikana",
-      "REJECTED": "Imekataliwa"
-    },
-    "common": {
-      "call": "Piga simu",
-      "navigate": "Elekeza"
-    },
+    "common": {},
     "dashboard": {
       "title": "Dashibodi ya Dereva",
-      "subtitle": "Simamia usafirishaji uliopangiwa",
       "assigned": "Umepangiwa",
       "inProgress": "Yanaendelea",
       "completedToday": "Yamekamilika Leo",
-      "quickActions": "Vitendo vya Haraka",
-      "viewAllJobs": "Tazama Kazi Zote",
       "recentDeliveries": "Usafirishaji wa Karibuni",
-      "viewAll": "Tazama zote →",
       "noDeliveries": "Hakuna usafirishaji uliopangiwa bado",
-      "deliveryNumber": "Usafirishaji #{{id}}"
+      "currentJob": "Kazi ya sasa"
     },
     "jobs": {
       "title": "Kazi Zangu",
       "subtitle": "Usafirishaji uliopangiwa",
-      "allStatuses": "Hali Zote",
       "noneFound": "Hakuna usafirishaji uliopatikana",
       "noneAssigned": "Huna usafirishaji wowote uliopangiwa bado.",
-      "noneWithStatus": "Hakuna usafirishaji wenye hali \"{{status}}\"",
-      "buckets": {
-        "all": "Zote",
-        "active": "Inaendelea",
-        "delivered": "Imefikishwa",
-        "failed": "Imeshindwa"
-      },
       "noneFiltered": "Hakuna kazi zinazolingana na kichujio hiki."
     },
     "jobDetail": {
@@ -51,7 +27,8 @@
       "declineConfirm": "Kataa safari hii? Itarudishwa ili ipangiwe upya.",
       "failedUpdateStatus": "Imeshindwa kusasisha hali",
       "failedConfirm": "Imeshindwa kuthibitisha safari",
-      "failedDecline": "Imeshindwa kukataa safari"
+      "failedDecline": "Imeshindwa kukataa safari",
+      "declineTitle": "Kataa kazi hii?"
     },
     "profile": {
       "title": "Wasifu Wangu",
@@ -90,19 +67,11 @@
     },
     "card": {
       "unknownBusiness": "Biashara Isiyojulikana",
-      "pickup": "Kuchukua",
-      "dropoff": "Kufikisha",
-      "callLabel": "Piga simu {{label}}",
-      "minAgo": "dakika {{count}} zilizopita",
-      "hourAgo": "saa {{count}} zilizopita",
-      "dayAgo": "siku {{count}} zilizopita"
+      "dropoff": "Kufikisha"
     },
     "details": {
-      "goToPickup": "Nenda Kuchukua",
-      "goToDropoff": "Nenda Kufikisha",
       "navigateToPickup": "Elekeza Mahali pa Kuchukua",
       "navigateToDropoff": "Elekeza Mahali pa Kufikisha",
-      "gpsReady": "GPS Tayari",
       "openInGoogleMaps": "Fungua katika Google Maps",
       "newRideTitle": "Safari mpya umepangiwa",
       "newRideBody": "Tafadhali thibitisha ili kukubali safari hii, kisha unaweza kuanza. Kataa ili irudishwe kupangiwa upya.",
@@ -110,7 +79,6 @@
       "awaitingBody": "Usafirishaji huu unasubiri idhini ya wafanyakazi/msimamizi. Ukishathibitishwa, utaweza kuanza usafirishaji.",
       "rejectedTitle": "Usafirishaji Umekataliwa",
       "rejectedBody": "Ombi hili la usafirishaji lilikataliwa na wafanyakazi/msimamizi.",
-      "business": "Biashara",
       "unknown": "Haijulikani",
       "client": "Mteja",
       "chatWithClient": "Ongea na mteja",
@@ -118,12 +86,13 @@
       "dropoffLocation": "Mahali pa Kufikisha",
       "requestDetails": "Maelezo ya Ombi",
       "packageDetails": "Maelezo ya Kifurushi",
-      "packageImage": "Picha ya Kifurushi:",
       "viewFull": "Tazama Kamili",
       "deliveryTimeline": "Ratiba ya Usafirishaji",
       "decline": "Kataa",
       "confirmRide": "Thibitisha Safari",
-      "updateDeliveryStatus": "Sasisha Hali ya Usafirishaji"
+      "updateDeliveryStatus": "Sasisha Hali ya Usafirishaji",
+      "call": "Piga simu",
+      "navigate": "Elekeza"
     },
     "statusModal": {
       "title": "Sasisha Hali ya Usafirishaji",
@@ -134,23 +103,18 @@
       "updating": "Inasasisha...",
       "updateStatus": "Sasisha Hali",
       "selectStatus": "Tafadhali chagua hali",
-      "cannotTransition": "Haiwezi kubadilika kutoka {{from}} kwenda {{to}}",
       "failedUpdate": "Imeshindwa kusasisha hali",
       "options": {
         "PICKED_UP": {
-          "label": "Imechukuliwa",
           "description": "Kifurushi kimechukuliwa kutoka mahali pa kuchukua"
         },
         "IN_TRANSIT": {
-          "label": "Njiani",
           "description": "Kifurushi kiko njiani kwenda mahali pa kufikisha"
         },
         "DELIVERED": {
-          "label": "Imefikishwa",
           "description": "Kifurushi kimefikishwa kwa mafanikio"
         },
         "FAILED": {
-          "label": "Imeshindikana",
           "description": "Usafirishaji haukuweza kukamilika"
         }
       }

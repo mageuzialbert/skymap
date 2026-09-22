@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Loader2, User as UserIcon, Phone, Mail, IdCard, Bike, CheckCircle2, Save, Pencil } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
+import Alert from '@/components/common/Alert';
+import { cardClass, fieldLabel, inputClass, insetDivider, pageTitle, pillGhost, pillPrimary, sectionLabel } from '@/lib/ui';
 
 interface RiderProfile {
   id: string;
@@ -103,16 +105,16 @@ export default function RiderProfilePage() {
   );
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">{t('rider.profile.title')}</h1>
+    <div>
+      <h1 className={`${pageTitle} mb-5`}>{t('rider.profile.title')}</h1>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>
+        <Alert tone="error" className="mb-4">{error}</Alert>
       )}
       {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+        <Alert tone="success" className="mb-4">
           {success}
-        </div>
+        </Alert>
       )}
 
       {/* Header card */}
@@ -120,7 +122,7 @@ export default function RiderProfilePage() {
         <div className="w-20 h-20 rounded-2xl bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
           {profile.profile_picture_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={profile.profile_picture_url} alt="Profile" className="w-full h-full object-cover" />
+            <img src={profile.profile_picture_url} alt="" className="w-full h-full object-cover" />
           ) : (
             <UserIcon className="w-9 h-9 text-gray-400" />
           )}
@@ -161,14 +163,14 @@ export default function RiderProfilePage() {
               type="tel"
               value={phoneInput}
               onChange={(e) => setPhoneInput(e.target.value)}
-              placeholder="+255759561311"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="+255…"
+              className={`${inputClass} flex-1`}
             />
             <div className="flex gap-2">
               <button
                 onClick={savePhone}
                 disabled={saving}
-                className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
+                className={pillPrimary}
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {t('common.save')}
@@ -179,7 +181,7 @@ export default function RiderProfilePage() {
                   setPhoneInput(profile.phone || '');
                   setError('');
                 }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className={pillGhost}
               >
                 {t('common.cancel')}
               </button>
@@ -192,8 +194,8 @@ export default function RiderProfilePage() {
       </div>
 
       {/* Read-only details */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h2 className="text-sm font-semibold text-gray-900 mb-2">{t('rider.profile.details')}</h2>
+      <div className={`${cardClass} p-4 sm:p-5`}>
+        <h2 className={sectionLabel}>{t('rider.profile.details')}</h2>
         <ReadField icon={UserIcon} label={t('rider.profile.name')} value={profile.name || ''} />
         <ReadField icon={Mail} label={t('rider.profile.email')} value={profile.email || ''} />
         <ReadField icon={IdCard} label={t('rider.profile.licenseNumber')} value={profile.license_number || ''} />

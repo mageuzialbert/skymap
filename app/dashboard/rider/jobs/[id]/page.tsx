@@ -4,6 +4,10 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
+import Alert from '@/components/common/Alert';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
+import { usePoll } from '@/lib/usePoll';
+import { pageTitle } from '@/lib/ui';
 import DeliveryDetails from '@/components/rider/DeliveryDetails';
 import Link from 'next/link';
 import { useT } from '@/lib/i18n';
@@ -60,21 +64,19 @@ export default function RiderJobDetailsPage() {
   const [delivery, setDelivery] = useState<Delivery | null>(null);
   const [events, setEvents] = useState<DeliveryEvent[]>([]);
   const [error, setError] = useState('');
+  const [declining, setDeclining] = useState(false);
 
   const loadDeliveryDetails = useCallback(async () => {
     try {
-      // Load all deliveries and find the one we need
-      const deliveryResponse = await fetch(`/api/rider/deliveries?limit=1000`);
+      const deliveryResponse = await fetch(`/api/rider/deliveries/${deliveryId}`);
       if (deliveryResponse.ok) {
-        const deliveries = await deliveryResponse.json();
-        const foundDelivery = deliveries.find((d: Delivery) => d.id === deliveryId);
-        if (foundDelivery) {
-          setDelivery(foundDelivery);
-        } else {
-          setError(t('rider.jobDetail.notFound'));
-        }
+        setDelivery(await deliveryResponse.json());
       } else {
-        setError(t('rider.jobDetail.failedLoad'));
+        setError(
+          deliveryResponse.status === 404
+            ? t('rider.jobDetail.notFound')
+            : t('rider.jobDetail.failedLoad')
+        );
       }
 
       // Load delivery events
@@ -103,6 +105,9 @@ export default function RiderJobDetailsPage() {
     }
     checkRole();
   }, [router, deliveryId, loadDeliveryDetails]);
+
+  // A status a dispatcher changes should appear without a reload.
+  usePoll(loadDeliveryDetails, 30_000, role === 'RIDER' && !updating);
 
   async function handleStatusUpdate(status: string, note: string) {
     setUpdating(true);
@@ -148,7 +153,7 @@ export default function RiderJobDetailsPage() {
   }
 
   async function handleDecline() {
-    if (!confirm(t('rider.jobDetail.declineConfirm'))) return;
+    setDeclining(false);
     setUpdating(true);
     setError('');
     try {
@@ -170,20 +175,21 @@ export default function RiderJobDetailsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
 
   if (error && !delivery) {
     return (
-      <div className="text-center py-8">
-        <p className="text-red-600 mb-4">{error}</p>
+      <div className="space-y-4">
+        <Alert tone="error">{error}</Alert>
         <Link
           href="/dashboard/rider/jobs"
-          className="text-primary hover:text-primary-dark"
+          className="-ml-1 inline-flex min-h-[2.75rem] items-center gap-2 px-1 text-[15px] font-medium text-primary"
         >
+          <ArrowLeft className="h-5 w-5" />
           {t('rider.jobDetail.backToJobs')}
         </Link>
       </div>
@@ -195,33 +201,41 @@ export default function RiderJobDetailsPage() {
   }
 
   return (
-    <div className="pb-20">
-      <div className="mb-6 flex items-center gap-4">
-        <Link
-          href="/dashboard/rider/jobs"
-          className="text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('rider.jobDetail.title')}</h1>
-          <p className="text-gray-600 mt-1">{t('rider.jobDetail.idLabel', { id: delivery.id.slice(0, 8) })}</p>
-        </div>
+    <div>
+      <Link
+        href="/dashboard/rider/jobs"
+        className="-ml-1 mb-3 inline-flex min-h-[2.75rem] items-center gap-2 px-1 text-[15px] font-medium text-gray-500 transition-colors active:text-gray-900"
+      >
+        <ArrowLeft className="h-5 w-5" />
+        {t('rider.jobDetail.backToJobs')}
+      </Link>
+      <div className="mb-5">
+        <h1 className={pageTitle}>{t('rider.jobDetail.title')}</h1>
+        <p className="mt-1 text-[13px] text-gray-500">
+          {t('rider.jobDetail.idLabel', { id: delivery.id.slice(0, 8) })}
+        </p>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
+      {error && <Alert tone="error" className="mb-4">{error}</Alert>}
 
       <DeliveryDetails
         delivery={delivery}
         events={events}
         onStatusUpdate={handleStatusUpdate}
         onConfirm={handleConfirm}
-        onDecline={handleDecline}
+        onDecline={() => setDeclining(true)}
         loading={updating}
+      />
+
+      <ConfirmDialog
+        isOpen={declining}
+        tone="warning"
+        title={t('rider.jobDetail.declineTitle')}
+        message={t('rider.jobDetail.declineConfirm')}
+        confirmLabel={t('rider.details.decline')}
+        loading={updating}
+        onConfirm={handleDecline}
+        onCancel={() => setDeclining(false)}
       />
     </div>
   );
