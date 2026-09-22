@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
 import ServiceIcon from '@/components/common/ServiceIcon';
 import { statusBucket, statusLabelKey, BUCKET_DOT, BUCKET_TEXT } from '@/lib/deliveryStatus';
-import { cardClass, pillPrimary, pageTitle } from '@/lib/ui';
+import { cardClass, chipCount, chipTrack, filterChip, pageTitle, pillPrimary, stickyFilterBar } from '@/lib/ui';
 
 interface Ride {
   id: string;
@@ -212,24 +212,18 @@ export default function RidesHistoryPage() {
 
       {/* Status chips stay in reach while the list scrolls. They carry the
           counts too, which is all the old stat grid was really saying. */}
-      <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center gap-2 bg-gray-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6">
-        <div className="-mx-1 flex flex-1 gap-2 overflow-x-auto px-1 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className={`${stickyFilterBar} flex items-center gap-2`}>
+        <div className={`${chipTrack} flex-1`}>
           {chips.map((c) => (
             <button
               key={c.key}
               type="button"
               onClick={() => setBucket(c.key)}
               aria-pressed={bucket === c.key}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors ${
-                bucket === c.key
-                  ? 'bg-gray-900 text-white'
-                  : 'border border-gray-200 bg-white text-gray-700 active:bg-gray-100'
-              }`}
+              className={filterChip(bucket === c.key)}
             >
               {c.label}
-              <span className={bucket === c.key ? 'text-white/60' : 'text-gray-400'}>
-                {counts[c.key]}
-              </span>
+              <span className={chipCount(bucket === c.key)}>{counts[c.key]}</span>
             </button>
           ))}
         </div>

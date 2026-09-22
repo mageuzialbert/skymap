@@ -55,3 +55,27 @@ const STATUS_KEYS: Record<string, string> = {
 export function statusLabelKey(status: string): string {
   return `business.rides.status.${STATUS_KEYS[status] || 'created'}`;
 }
+
+/**
+ * Which statuses a rider may move a job to next.
+ *
+ * The server enforces this in `app/api/rider/deliveries/[id]/status/route.ts`,
+ * which imports the same table - the client had its own copy, so the two could
+ * disagree about whether a transition was legal.
+ *
+ * PENDING_CONFIRMATION is not a rider transition: only staff/admin can confirm,
+ * via the separate confirm endpoint.
+ */
+export const RIDER_TRANSITIONS: Record<string, string[]> = {
+  PENDING_CONFIRMATION: [],
+  ASSIGNED: ['PICKED_UP', 'FAILED'],
+  PICKED_UP: ['IN_TRANSIT', 'FAILED'],
+  IN_TRANSIT: ['DELIVERED', 'FAILED'],
+  DELIVERED: [],
+  FAILED: [],
+  REJECTED: [],
+};
+
+export function nextStatusesFor(status: string): string[] {
+  return RIDER_TRANSITIONS[status] || [];
+}

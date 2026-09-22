@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser, supabaseAdmin } from '@/lib/auth-server';
 import { requirePermission } from '@/lib/permissions-server';
-
-// Valid status transitions for riders
-// Note: PENDING_CONFIRMATION can only be changed by staff/admin via the confirm endpoint
-const validTransitions: Record<string, string[]> = {
-  PENDING_CONFIRMATION: [], // Riders cannot change this - must be confirmed by staff/admin
-  ASSIGNED: ['PICKED_UP', 'FAILED'],
-  PICKED_UP: ['IN_TRANSIT', 'FAILED'],
-  IN_TRANSIT: ['DELIVERED', 'FAILED'],
-  DELIVERED: [], // Final state
-  FAILED: [], // Final state
-  REJECTED: [], // Final state
-};
+// Shared with the rider UI so the two cannot disagree about what is legal.
+import { RIDER_TRANSITIONS as validTransitions } from '@/lib/deliveryStatus';
 
 // PUT - Update delivery status
 export async function PUT(

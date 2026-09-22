@@ -6,7 +6,7 @@ import { CheckCircle, XCircle, Loader2, Send, Mail, Phone, Pencil } from 'lucide
 import Link from 'next/link';
 import { useT } from '@/lib/i18n';
 import Alert from '@/components/common/Alert';
-import { cardClass, inputClass, pageTitle, pillGhost, pillPrimary, sectionTitle } from '@/lib/ui';
+import { cardClass, inputClass, inputReadOnly, pageTitle, pillGhost, pillPrimary, sectionTitle } from '@/lib/ui';
 
 export default function BusinessVerifyPage() {
   const t = useT();
@@ -318,7 +318,7 @@ export default function BusinessVerifyPage() {
                 type="tel"
                 value={phone}
                 disabled
-                className={`${inputClass} bg-gray-50 text-gray-500`}
+                className={inputReadOnly}
               />
             </div>
 
@@ -441,7 +441,7 @@ export default function BusinessVerifyPage() {
                       type="email"
                       value={email}
                       disabled
-                      className={`${inputClass} flex-1 bg-gray-50 text-gray-500`}
+                      className={`${inputReadOnly} flex-1`}
                     />
                     <button
                       onClick={() => {

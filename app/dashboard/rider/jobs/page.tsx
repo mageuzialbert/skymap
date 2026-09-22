@@ -7,7 +7,7 @@ import { getUserRole } from '@/lib/roles';
 import DeliveryCard from '@/components/rider/DeliveryCard';
 import { useT } from '@/lib/i18n';
 import { statusBucket } from '@/lib/deliveryStatus';
-import { cardClass, pageTitle } from '@/lib/ui';
+import { cardClass, chipCount, chipTrack, filterChip, pageTitle, stickyFilterBar } from '@/lib/ui';
 
 interface Delivery {
   id: string;
@@ -112,24 +112,18 @@ export default function RiderJobsPage() {
       </div>
 
       {/* Chips stay in reach while the job list scrolls. */}
-      <div className="sticky top-0 z-10 -mx-4 mb-4 bg-gray-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6">
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className={stickyFilterBar}>
+        <div className={chipTrack}>
           {chips.map((c) => (
             <button
               key={c.key}
               type="button"
               onClick={() => setBucket(c.key)}
               aria-pressed={bucket === c.key}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors ${
-                bucket === c.key
-                  ? 'bg-gray-900 text-white'
-                  : 'border border-gray-200 bg-white text-gray-700 active:bg-gray-100'
-              }`}
+              className={filterChip(bucket === c.key)}
             >
               {c.label}
-              <span className={bucket === c.key ? 'text-white/60' : 'text-gray-400'}>
-                {counts[c.key]}
-              </span>
+              <span className={chipCount(bucket === c.key)}>{counts[c.key]}</span>
             </button>
           ))}
         </div>

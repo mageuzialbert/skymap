@@ -7,7 +7,7 @@ import { resetPassword } from '@/lib/auth';
 import { Save, Loader2, Upload, X, Lock } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import Alert from '@/components/common/Alert';
-import { cardClass, inputClass, pageTitle, pillPrimary, sectionTitle } from '@/lib/ui';
+import { cardClass, inputClass, inputReadOnly, pageTitle, pillPrimary, sectionTitle } from '@/lib/ui';
 import LocationPicker from '@/components/common/LocationPicker';
 
 interface BusinessProfile {
@@ -514,7 +514,7 @@ export default function BusinessProfilePage() {
                 type="tel"
                 value={profile.phone}
                 disabled
-                className={`${inputClass} bg-gray-50 text-gray-500`}
+                className={inputReadOnly}
               />
               <p className="text-xs text-gray-500 mt-1">
                 {t('business.profile.phoneHint')}
@@ -529,7 +529,7 @@ export default function BusinessProfilePage() {
                 type="email"
                 value={profile.email}
                 disabled
-                className={`${inputClass} bg-gray-50 text-gray-500`}
+                className={inputReadOnly}
               />
               <p className="text-xs text-gray-500 mt-1">
                 {t('business.profile.emailHint')}

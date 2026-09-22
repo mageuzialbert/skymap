@@ -32,8 +32,14 @@ export const sectionTitle = 'font-display text-lg font-bold text-gray-900';
 /** Brand-tinted icon chip. */
 export const chipClass = 'flex items-center justify-center rounded-2xl bg-primary/10 text-primary';
 
-/** Modal backdrop. */
-export const overlayClass = 'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm';
+/**
+ * Read-only / prefilled field.
+ *
+ * Built by swapping the token's background, not by appending `bg-gray-50`:
+ * Tailwind emits `.bg-gray-50` *before* `.bg-white`, so a composed grey would
+ * silently lose to the white already in `inputClass`.
+ */
+export const inputReadOnly = `${inputClass.replace('bg-white', 'bg-gray-50')} text-gray-500`;
 
 /** Multi-line input. Inherits the token's 16px so iOS does not zoom the page
  *  on focus - the reason `text-sm` was dropped from `inputClass`. */
@@ -74,3 +80,40 @@ export const Z = {
   camera: 'z-[120]',
   dialog: 'z-[130]',
 } as const;
+
+/* ---------------------------------------------------------------------------
+   Filter chips and sticky bars, shared by every list screen.
+   --------------------------------------------------------------------------- */
+
+/** The strip a chip row sits in, stuck to the top of the scroll area. */
+export const stickyFilterBar =
+  'sticky top-0 z-10 -mx-4 mb-4 bg-gray-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6';
+
+/** Horizontally scrolling chip track, with the scrollbar hidden. */
+export const chipTrack =
+  '-mx-1 flex gap-2 overflow-x-auto px-1 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden';
+
+/** One filter chip. Selected is near-black, not brand teal: the chips say what
+ *  you are looking at, they are not the page's primary action. */
+export function filterChip(active: boolean): string {
+  return `inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+    active
+      ? 'bg-gray-900 text-white'
+      : 'border border-gray-200 bg-white text-gray-700 active:bg-gray-100'
+  }`;
+}
+
+/** Count shown inside a chip, dimmed against whichever background it sits on. */
+export function chipCount(active: boolean): string {
+  return active ? 'text-white/60' : 'text-gray-400';
+}
+
+/**
+ * A bar of actions pinned to the bottom of the scroll area.
+ *
+ * `sticky`, never `fixed`: the dashboard shell is `h-[100dvh] flex flex-col`
+ * with the tab bar as a normal-flow sibling, so a `fixed` bar paints straight
+ * over the navigation. Sticky inside <main> lands exactly above it.
+ */
+export const actionBar =
+  'sticky bottom-0 -mx-4 mt-6 border-t border-gray-100 bg-gray-50/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:-mx-6 sm:px-6';
