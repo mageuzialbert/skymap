@@ -2,7 +2,6 @@
   "admin": {
     "hireVehicles": {
       "title": "Magari ya Kukodi",
-      "cardDesc": "Simamia magari ya kukodi (abiria na mizigo), madereva na namba",
       "subtitle": "Simamia magari yanayopatikana kwa Kukodi Gari (abiria na mizigo).",
       "add": "Ongeza Gari",
       "addTitle": "Ongeza Gari la Kukodi",
@@ -39,23 +38,6 @@
     "dashboard": {
       "title": "Dashibodi ya Msimamizi",
       "subtitle": "Simamia mfumo wako wa usafirishaji"
-    },
-    "cards": {
-      "businesses": { "title": "Simamia Wateja", "desc": "Tazama na simamia wateja wote waliosajiliwa" },
-      "users": { "title": "Simamia Watumiaji", "desc": "Tazama na simamia watumiaji wote wa mfumo" },
-      "deliveryPackages": { "title": "Vifurushi vya Usafirishaji", "desc": "Simamia vifurushi vya ada za usafirishaji" },
-      "hireVehicles": { "title": "Magari ya Kukodi", "desc": "Simamia magari ya kukodi (abiria na mizigo), madereva na namba" },
-      "expenseCategories": { "title": "Makundi ya Matumizi", "desc": "Simamia makundi ya matumizi" },
-      "expenses": { "title": "Matumizi", "desc": "Fuatilia na simamia matumizi ya mfumo" },
-      "operations": { "title": "Uendeshaji", "desc": "Tazama dashibodi ya uendeshaji na takwimu" },
-      "financial": { "title": "Uchambuzi wa Kifedha", "desc": "Tazama mapato, matumizi, faida na data ya kifedha" },
-      "sliders": { "title": "CMS - Slaidi", "desc": "Simamia picha za slaidi za ukurasa wa mwanzo" },
-      "content": { "title": "CMS - Maudhui", "desc": "Hariri Kuhusu Sisi na maudhui mengine ya CMS" },
-      "companyProfile": { "title": "Wasifu wa Kampuni", "desc": "Simamia nembo, taarifa za mawasiliano na maelezo ya kampuni" },
-      "invoices": { "title": "Usimamizi wa Ankara", "desc": "Tazama, tengeneza na simamia ankara na ankara za awali" },
-      "paymentInstructions": { "title": "Maelekezo ya Malipo", "desc": "Sanidi maelekezo ya malipo kwa ankara" },
-      "smsTemplates": { "title": "Violezo vya SMS", "desc": "Simamia violezo vya SMS vilivyowekwa tayari kwa matukio" },
-      "sendSms": { "title": "Tuma SMS", "desc": "Tuma SMS maalum kwa wateja" }
     },
     "users": {
       "title": "Waendesha Bodaboda na Wafanyakazi",
@@ -99,7 +81,8 @@
       "feeError": "Ada ya usafirishaji lazima iwe namba chanya",
       "errUpdate": "Imeshindwa kusasisha mteja",
       "errCreate": "Imeshindwa kutengeneza mteja",
-      "errSave": "Imeshindwa kuhifadhi mteja"
+      "errSave": "Imeshindwa kuhifadhi mteja",
+      "noneFound": "Hakuna wateja waliopatikana"
     },
     "vehicles": {
       "title": "Njia za Usafiri",
@@ -352,7 +335,7 @@
         "colOrder": "Mpangilio",
         "colImage": "Picha",
         "colCaption": "Manukuu",
-        "empty": "Hakuna slaidi zilizopatikana. Ongeza slaidi yako ya kwanza!",
+        "empty": "Hakuna slaidi bado",
         "noCaption": "Hakuna manukuu",
         "errLoad": "Imeshindwa kupakia slaidi",
         "errSave": "Imeshindwa kuhifadhi slaidi",
@@ -431,6 +414,42 @@
       "notFound": "Ankara haijapatikana",
       "goBack": "Rudi nyuma",
       "print": "Chapisha / Hifadhi kama PDF"
+    },
+    "clients": {
+      "name": "Jina",
+      "phone": "Simu",
+      "email": "Barua pepe",
+      "usedForLogin": "Hutumika kuingia",
+      "password": "Nenosiri",
+      "passwordPlaceholder": "Angalau herufi 6",
+      "deliveryFee": "Ada ya usafirishaji (TZS)",
+      "deliveryFeeHint": "Acha wazi kutumia bei ya kawaida",
+      "active": "Inatumika",
+      "location": "Eneo la biashara",
+      "address": "Anwani ya biashara",
+      "addressPlaceholder": "Weka anwani ya biashara",
+      "loadingMaps": "Inapakia ramani…",
+      "region": "Mkoa",
+      "selectRegion": "Chagua mkoa",
+      "district": "Wilaya",
+      "selectDistrict": "Chagua wilaya",
+      "selectRegionFirst": "Chagua mkoa kwanza",
+      "mapsError": "Ramani haikupakia. Bado unaweza kuweka anwani mwenyewe.",
+      "update": "Sasisha mteja",
+      "create": "Sajili mteja",
+      "emailPlaceholder": "mteja@mfano.com",
+      "feePlaceholder": "0.00",
+      "notSet": "Haijawekwa",
+      "viewDetails": "Angalia maelezo",
+      "editClient": "Hariri mteja",
+      "disableClient": "Zima mteja",
+      "enableClient": "Washa mteja",
+      "detailsTitle": "Maelezo ya mteja",
+      "clientInfo": "Taarifa za mteja",
+      "userAccount": "Akaunti ya mtumiaji",
+      "created": "Iliundwa",
+      "status": "Hali",
+      "role": "Wajibu"
     }
   }
 }

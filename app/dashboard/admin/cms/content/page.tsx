@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2, Save } from 'lucide-react';
 import { useT } from '@/lib/i18n';
+import { cardClass, fieldLabel, inputClass } from '@/lib/ui';
 
 interface CMSContent {
   id: string;
@@ -101,11 +102,11 @@ export default function AdminContentPage() {
       )}
 
       {/* About Us Section */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+      <div className={`${cardClass} p-6 mb-6`}>
         <h2 className="text-xl font-semibold mb-4">{t('admin.cms.content.aboutHeading')}</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={fieldLabel}>
               {t('admin.cms.content.titleLabel')}
             </label>
             <input
@@ -126,11 +127,11 @@ export default function AdminContentPage() {
                   updateContent('about_us', 'title', e.target.value);
                 }
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={inputClass}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={fieldLabel}>
               {t('admin.cms.content.descriptionLabel')}
             </label>
             <textarea
@@ -151,11 +152,11 @@ export default function AdminContentPage() {
                 }
               }}
               rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={inputClass}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={fieldLabel}>
               {t('admin.cms.content.featuresLabel')}
             </label>
             <textarea
@@ -182,7 +183,7 @@ export default function AdminContentPage() {
               }}
               rows={6}
               placeholder={t('admin.cms.content.featuresPlaceholder')}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={inputClass}
             />
           </div>
           <button

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2, Save, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { useT } from '@/lib/i18n';
+import { cardClass, fieldLabel, inputClass } from '@/lib/ui';
 
 interface CompanyProfile {
   id: string;
@@ -216,11 +217,11 @@ export default function AdminCompanyProfilePage() {
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Company Logo */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <h2 className="text-xl font-semibold mb-4">{t('admin.companyProfile.logoHeading')}</h2>
           <div className="flex items-start gap-6">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={fieldLabel}>
                 {t('admin.companyProfile.logoImageLabel')}
               </label>
               <div className="flex items-center gap-4">
@@ -264,11 +265,11 @@ export default function AdminCompanyProfilePage() {
         </div>
 
         {/* Favicon */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <h2 className="text-xl font-semibold mb-4">{t('admin.companyProfile.faviconHeading')}</h2>
           <div className="flex items-start gap-6">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={fieldLabel}>
                 {t('admin.companyProfile.faviconFileLabel')}
               </label>
               <div className="flex items-center gap-4">
@@ -312,11 +313,11 @@ export default function AdminCompanyProfilePage() {
         </div>
 
         {/* Company Information */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <h2 className="text-xl font-semibold mb-4">{t('admin.companyProfile.infoHeading')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.companyProfile.companyName')}
               </label>
               <input
@@ -324,77 +325,77 @@ export default function AdminCompanyProfilePage() {
                 value={formData.company_name}
                 onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('common.phone')}
               </label>
               <input
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('common.email')}
               </label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.companyProfile.addressLabel')}
               </label>
               <input
                 type="text"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.companyProfile.cityLabel')}
               </label>
               <input
                 type="text"
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.companyProfile.regionLabel')}
               </label>
               <input
                 type="text"
                 value={formData.region}
                 onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.companyProfile.postalCode')}
               </label>
               <input
                 type="text"
                 value={formData.postal_code}
                 onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.companyProfile.websiteLabel')}
               </label>
               <input
@@ -402,18 +403,18 @@ export default function AdminCompanyProfilePage() {
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                 placeholder="https://example.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.companyProfile.taxId')}
               </label>
               <input
                 type="text"
                 value={formData.tax_id}
                 onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('admin.companyProfile.taxIdPlaceholder')}
               />
             </div>

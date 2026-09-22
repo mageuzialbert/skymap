@@ -3,8 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUserRole } from '@/lib/roles';
-import { Loader2, Plus, Edit, Trash2, Star, StarOff } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, Star, StarOff, FolderOpen } from 'lucide-react';
+import FormSheet from '@/components/common/FormSheet';
+import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
 import { useT } from '@/lib/i18n';
+import { activeDot, activeLabelKey, activeText } from '@/lib/userStatus';
+import { fieldLabel, inputClass } from '@/lib/ui';
 
 interface DeliveryPackage {
   id: string;
@@ -97,8 +101,8 @@ export default function AdminDeliveryPackagesPage() {
     setShowForm(true);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     setSubmitting(true);
     setError('');
 
@@ -219,122 +223,67 @@ export default function AdminDeliveryPackagesPage() {
         </div>
       )}
 
-      {/* Packages Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('common.name')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.common.description')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.deliveryPackages.feePerDelivery')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('common.status')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.deliveryPackages.default')}
-              </th>
-              {role === 'ADMIN' && (
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('common.actions')}
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {packages.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  {t('admin.deliveryPackages.empty')}
-                </td>
-              </tr>
-            ) : (
-              packages.map((pkg) => (
-                <tr key={pkg.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{pkg.name}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-500">{pkg.description || '-'}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {formatCurrency(pkg.fee_per_delivery)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        pkg.active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {pkg.active ? t('admin.common.active') : t('admin.common.inactive')}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {pkg.is_default ? (
-                      <span className="inline-flex items-center gap-1 text-yellow-600">
-                        <Star className="w-4 h-4 fill-current" />
-                        <span className="text-sm font-medium">{t('admin.deliveryPackages.default')}</span>
-                      </span>
-                    ) : (
-                      <span className="text-sm text-gray-400">-</span>
+      {packages.length === 0 ? (
+        <EmptyState icon={FolderOpen} title={t('admin.deliveryPackages.empty')} />
+      ) : (
+        <RecordList>
+          {packages.map((pkg) => (
+            <RecordRow
+              key={pkg.id}
+              title={pkg.name}
+              trailing={formatCurrency(pkg.fee_per_delivery)}
+              subtitle={pkg.description || '—'}
+              meta={
+                pkg.is_default ? (
+                  <span className="inline-flex items-center gap-1 text-amber-600">
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    {t('admin.deliveryPackages.default')}
+                  </span>
+                ) : undefined
+              }
+              status={{
+                dot: activeDot(pkg.active),
+                text: activeText(pkg.active),
+                label: t(activeLabelKey(pkg.active)),
+              }}
+              actions={
+                role === 'ADMIN' && (
+                  <>
+                    {!pkg.is_default && (
+                      <PackageAction onClick={() => handleSetDefault(pkg)}>
+                        {t('admin.deliveryPackages.setAsDefault')}
+                      </PackageAction>
                     )}
-                  </td>
-                  {role === 'ADMIN' && (
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        {!pkg.is_default && (
-                          <button
-                            onClick={() => handleSetDefault(pkg)}
-                            className="text-yellow-600 hover:text-yellow-800"
-                            title={t('admin.deliveryPackages.setAsDefault')}
-                          >
-                            <StarOff className="w-4 h-4" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleEdit(pkg)}
-                          className="text-blue-600 hover:text-blue-800"
-                          title={t('common.edit')}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(pkg)}
-                          className="text-red-600 hover:text-red-800"
-                          title={t('common.delete')}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    <PackageAction onClick={() => handleEdit(pkg)}>{t('common.edit')}</PackageAction>
+                    <PackageAction onClick={() => handleDelete(pkg)} tone="danger">
+                      {t('common.delete')}
+                    </PackageAction>
+                  </>
+                )
+              }
+            />
+          ))}
+        </RecordList>
+      )}
 
-      {/* Create/Edit Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {editingPackage ? t('admin.deliveryPackages.editTitle') : t('admin.deliveryPackages.newTitle')}
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <FormSheet
+        open={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setEditingPackage(null);
+          setError('');
+        }}
+        onSubmit={() => handleSubmit()}
+        submitting={submitting}
+        error={error}
+        title={
+          editingPackage
+            ? t('admin.deliveryPackages.editTitle')
+            : t('admin.deliveryPackages.newTitle')
+        }
+      >
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.deliveryPackages.nameLabel')}
                 </label>
                 <input
@@ -342,26 +291,26 @@ export default function AdminDeliveryPackagesPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                   placeholder={t('admin.deliveryPackages.namePlaceholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.common.description')}
                 </label>
                 <input
                   type="text"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                   placeholder={t('admin.deliveryPackages.descriptionPlaceholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.deliveryPackages.feeLabel')}
                 </label>
                 <input
@@ -371,7 +320,7 @@ export default function AdminDeliveryPackagesPage() {
                   required
                   step="0.01"
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                   placeholder={t('admin.deliveryPackages.feePlaceholder')}
                 />
               </div>
@@ -402,32 +351,32 @@ export default function AdminDeliveryPackagesPage() {
                 </label>
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingPackage(null);
-                    setError('');
-                  }}
-                  disabled={submitting}
-                  className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {submitting ? t('common.saving') : editingPackage ? t('admin.deliveryPackages.update') : t('admin.deliveryPackages.create')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      </FormSheet>
     </div>
+  );
+}
+
+/** A small secondary action under a package row. */
+function PackageAction({
+  children,
+  onClick,
+  tone,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  tone?: 'danger';
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[2.25rem] items-center rounded-full border px-3 text-[13px] font-semibold transition-colors ${
+        tone === 'danger'
+          ? 'border-red-200 text-red-600 active:bg-red-50'
+          : 'border-gray-200 text-gray-700 active:bg-gray-100'
+      }`}
+    >
+      {children}
+    </button>
   );
 }

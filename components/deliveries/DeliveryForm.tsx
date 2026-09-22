@@ -16,8 +16,10 @@ import {
   DollarSign,
   Calendar,
 } from "lucide-react";
+import Alert from "@/components/common/Alert";
 import LocationPicker from "@/components/common/LocationPicker";
 import { useT } from "@/lib/i18n";
+import { cardClass, fieldLabel as labelClass, inputClass, sectionTitle } from "@/lib/ui";
 
 interface Region {
   id: number;
@@ -340,25 +342,20 @@ export default function DeliveryForm({
     onSubmit(formData);
   }
 
-  const inputClass =
-    "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all";
-  const labelClass = "block text-sm font-medium text-gray-700 mb-1.5";
-  const sectionHeaderClass =
-    "flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200";
+  // The section header is the only string this form still owns; inputs and
+  // labels come from the shared tokens above.
+  const sectionHeaderClass = `flex items-center gap-2 ${sectionTitle} mb-4 pb-2 border-b border-gray-100`;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+        <Alert tone="error">
           {error}
-        </div>
+        </Alert>
       )}
 
       {loadError && (
-        <div className="p-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-sm flex items-center gap-2">
-          <AlertCircle className="w-4 h-4" />
-          <span>{t("components.deliveryForm.mapsFailed")}</span>
-        </div>
+        <Alert tone="warning">{t("components.deliveryForm.mapsFailed")}</Alert>
       )}
 
       {!isLoaded && !loadError && (
@@ -370,7 +367,7 @@ export default function DeliveryForm({
 
       {/* Business Selector */}
       {showBusinessSelector && (
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="rounded-xl bg-gray-50 p-4">
           <label className={labelClass}>
             <span className="flex items-center gap-1.5">
               <Building2 className="w-4 h-4 text-gray-400" />
@@ -403,13 +400,13 @@ export default function DeliveryForm({
       {/* Pickup and Dropoff - Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pickup Details - Left Column */}
-        <div className="bg-green-50/50 rounded-xl p-5 border border-green-100">
+        <div className={`${cardClass} p-4 sm:p-5`}>
           <button
             type="button"
             onClick={() => setPickupCollapsed(!pickupCollapsed)}
             className={`${sectionHeaderClass} w-full cursor-pointer hover:opacity-80 transition-opacity`}
           >
-            <div className="p-2 bg-green-100 rounded-lg">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-100">
               <MapPin className="w-5 h-5 text-green-600" />
             </div>
             <span className="flex-1 text-left">{t("components.deliveryDetails.pickupDetails")}</span>
@@ -430,7 +427,7 @@ export default function DeliveryForm({
 
           {/* Collapsed Summary (mobile only) */}
           {pickupCollapsed && pickupPreFilled && (
-            <div className="lg:hidden bg-green-100/50 rounded-lg p-3 mb-2 text-sm">
+            <div className="lg:hidden mb-2 rounded-xl bg-gray-50 p-3 text-[13px]">
               <p className="font-medium text-green-800">
                 {formData.pickup_name}
               </p>
@@ -593,9 +590,9 @@ export default function DeliveryForm({
         </div>
 
         {/* Dropoff Details - Right Column */}
-        <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100">
+        <div className={`${cardClass} p-4 sm:p-5`}>
           <div className={sectionHeaderClass}>
-            <div className="p-2 bg-blue-100 rounded-lg">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100">
               <MapPin className="w-5 h-5 text-blue-600" />
             </div>
             <span>Drop-off Details</span>
@@ -737,9 +734,9 @@ export default function DeliveryForm({
       </div>
 
       {/* Special Instructions */}
-      <div className="bg-amber-50/50 rounded-xl p-5 border border-amber-100">
+      <div className={`${cardClass} p-4 sm:p-5`}>
         <div className={sectionHeaderClass}>
-          <div className="p-2 bg-amber-100 rounded-lg">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100">
             <Package className="w-5 h-5 text-amber-600" />
           </div>
           <span>
@@ -762,7 +759,7 @@ export default function DeliveryForm({
       {showDeliveryFee && (
         <div className="bg-purple-50/50 rounded-xl p-5 border border-purple-100">
           <div className={sectionHeaderClass}>
-            <div className="p-2 bg-purple-100 rounded-lg">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-100">
               <DollarSign className="w-5 h-5 text-purple-600" />
             </div>
             <span>{t("components.deliveryForm.deliveryFee")}</span>
@@ -799,7 +796,7 @@ export default function DeliveryForm({
       {showDeliveryFee && (
         <div className="bg-gray-50/50 rounded-xl p-5 border border-gray-200">
           <div className={sectionHeaderClass}>
-            <div className="p-2 bg-gray-100 rounded-lg">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100">
               <Calendar className="w-5 h-5 text-gray-600" />
             </div>
             <span>{t("components.deliveryForm.deliveryDateTime")}</span>

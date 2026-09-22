@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, X, Loader2, Truck, Users } from 'lucide-react';
+import FormSheet from '@/components/common/FormSheet';
 import { useT } from '@/lib/i18n';
+import { cardClass, fieldLabel, inputClass, pageTitle } from '@/lib/ui';
 
 interface HireVehicle {
   id: string;
@@ -97,8 +99,8 @@ export default function AdminHireVehiclesPage() {
     setShowForm(true);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     setError('');
     setSubmitting(true);
     try {
@@ -160,13 +162,13 @@ export default function AdminHireVehiclesPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('admin.hireVehicles.title')}</h1>
+          <h1 className={pageTitle}>{t('admin.hireVehicles.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">{t('admin.hireVehicles.subtitle')}</p>
         </div>
-        {!showForm && (
+        {(
           <button
             onClick={() => {
               resetForm();
@@ -184,21 +186,16 @@ export default function AdminHireVehiclesPage() {
         <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>
       )}
 
-      {showForm && (
-        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold">
-              {editing ? t('admin.hireVehicles.editTitle') : t('admin.hireVehicles.addTitle')}
-            </h2>
-            <button onClick={resetForm} className="text-gray-500 hover:text-gray-700 p-2 -mr-2">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+      <FormSheet
+        open={showForm}
+        onClose={resetForm}
+        onSubmit={() => handleSubmit()}
+        submitting={submitting}
+        title={editing ? t('admin.hireVehicles.editTitle') : t('admin.hireVehicles.newTitle')}
+      >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.hireVehicles.category')}
                 </label>
                 <select
@@ -218,7 +215,7 @@ export default function AdminHireVehiclesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.hireVehicles.nameLabel')}
                 </label>
                 <input
@@ -233,7 +230,7 @@ export default function AdminHireVehiclesPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.hireVehicles.capacity')}
                 </label>
                 <input
@@ -247,7 +244,7 @@ export default function AdminHireVehiclesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.hireVehicles.capacityUnit')}
                 </label>
                 <input
@@ -259,7 +256,7 @@ export default function AdminHireVehiclesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.hireVehicles.displayOrder')}
                 </label>
                 <input
@@ -274,7 +271,7 @@ export default function AdminHireVehiclesPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.hireVehicles.plateNumber')}
                 </label>
                 <input
@@ -286,7 +283,7 @@ export default function AdminHireVehiclesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.hireVehicles.color')}
                 </label>
                 <input
@@ -301,7 +298,7 @@ export default function AdminHireVehiclesPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.hireVehicles.driverName')}
                 </label>
                 <input
@@ -312,7 +309,7 @@ export default function AdminHireVehiclesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.hireVehicles.driverPhone')}
                 </label>
                 <input
@@ -326,7 +323,7 @@ export default function AdminHireVehiclesPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.hireVehicles.imageUrl')}
               </label>
               <input
@@ -339,7 +336,7 @@ export default function AdminHireVehiclesPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.hireVehicles.description')}
               </label>
               <textarea
@@ -363,28 +360,9 @@ export default function AdminHireVehiclesPage() {
               </label>
             </div>
 
-            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2.5 rounded-full hover:bg-gray-200 transition-colors font-medium"
-              >
-                {t('common.cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={submitting || !formData.name}
-                className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
-              >
-                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                {t('common.save')}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      </FormSheet>
 
-      <div className="bg-white rounded-xl shadow-md divide-y divide-gray-200">
+      <div className={`${cardClass} divide-y divide-gray-100 overflow-hidden`}>
         {vehicles.length === 0 ? (
           <div className="px-4 py-12 text-center">
             <Truck className="w-12 h-12 mx-auto text-gray-300 mb-3" />

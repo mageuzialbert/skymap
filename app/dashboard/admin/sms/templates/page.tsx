@@ -18,6 +18,8 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import Link from 'next/link';
+import FormSheet from '@/components/common/FormSheet';
+import { fieldLabel, textareaClass } from '@/lib/ui';
 import { useT } from '@/lib/i18n';
 
 interface SmsTemplate {
@@ -283,41 +285,39 @@ export default function SmsTemplatesPage() {
       })}
 
       {/* Edit Modal */}
-      {editingTemplate && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('admin.sms.templates.editModalTitle', { name: editingTemplate.name })}
-              </h3>
-              <button
-                onClick={() => setEditingTemplate(null)}
-                className="p-1 hover:bg-gray-100 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      <FormSheet
+        open={editingTemplate !== null}
+        onClose={() => setEditingTemplate(null)}
+        onSubmit={saveTemplate}
+        submitting={saving}
+        submitLabel={t('admin.sms.templates.saveChanges')}
+        title={
+          editingTemplate
+            ? t('admin.sms.templates.editModalTitle', { name: editingTemplate.name })
+            : ''
+        }
+      >
 
             <div className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.sms.templates.templateBody')}
                 </label>
                 <textarea
                   value={editBody}
                   onChange={(e) => setEditBody(e.target.value)}
                   rows={5}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-mono"
+                  className={`${textareaClass} font-mono`}
                 />
               </div>
 
-              {editingTemplate.tags.length > 0 && (
+              {editingTemplate && editingTemplate.tags.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className={fieldLabel}>
                     {t('admin.sms.templates.availableTags')}
                   </label>
                   <div className="flex gap-2 flex-wrap">
-                    {editingTemplate.tags.map((tag) => (
+                    {editingTemplate?.tags.map((tag) => (
                       <button
                         key={tag}
                         onClick={() => setEditBody((prev) => prev + `{{${tag}}}`)}
@@ -330,30 +330,7 @@ export default function SmsTemplatesPage() {
                 </div>
               )}
             </div>
-
-            <div className="flex justify-end gap-3 p-4 border-t border-gray-200">
-              <button
-                onClick={() => setEditingTemplate(null)}
-                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                {t('common.cancel')}
-              </button>
-              <button
-                onClick={saveTemplate}
-                disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                {saving ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
-                {t('admin.sms.templates.saveChanges')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </FormSheet>
     </div>
   );
 }

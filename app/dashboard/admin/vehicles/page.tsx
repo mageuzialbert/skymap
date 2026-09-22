@@ -3,7 +3,10 @@
 import { useEffect, useState } from 'react';
 import { Plus, X, Loader2, Motorbike, Car, Zap } from 'lucide-react';
 import Bajaj from '@/components/common/BajajIcon';
+import Alert from '@/components/common/Alert';
+import FormSheet from '@/components/common/FormSheet';
 import { useT } from '@/lib/i18n';
+import { cardClass, fieldLabel, inputClass, pageTitle, pillPrimary } from '@/lib/ui';
 
 interface VehicleType {
   id: string;
@@ -85,8 +88,8 @@ export default function AdminVehiclesPage() {
     setShowForm(true);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     setError('');
     setSubmitting(true);
     try {
@@ -139,21 +142,21 @@ export default function AdminVehiclesPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('admin.vehicles.title')}</h1>
+          <h1 className={pageTitle}>{t('admin.vehicles.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
             {t('admin.vehicles.subtitle')}
           </p>
         </div>
-        {!showForm && (
+        {(
           <button
             onClick={() => {
               resetForm();
               setShowForm(true);
             }}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-full hover:bg-primary-dark transition-colors w-full sm:w-auto justify-center"
+            className={pillPrimary}
           >
             <Plus className="w-5 h-5" />
             {t('admin.vehicles.add')}
@@ -161,35 +164,32 @@ export default function AdminVehiclesPage() {
         )}
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>
+      {error && !showForm && (
+        <Alert tone="error" className="mb-4">
+          {error}
+        </Alert>
       )}
 
-      {showForm && (
-        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold">
-              {editing ? t('admin.vehicles.editTitle') : t('admin.vehicles.addTitle')}
-            </h2>
-            <button onClick={resetForm} className="text-gray-500 hover:text-gray-700 p-2 -mr-2">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+      <FormSheet
+        open={showForm}
+        onClose={resetForm}
+        onSubmit={() => handleSubmit()}
+        submitting={submitting}
+        title={editing ? t('admin.vehicles.editTitle') : t('admin.vehicles.newTitle')}
+      >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.vehicles.nameLabel')}</label>
+                <label className={fieldLabel}>{t('admin.vehicles.nameLabel')}</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder={t('admin.vehicles.namePlaceholder')}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {editing ? t('admin.vehicles.keyReadonly') : t('admin.vehicles.keyOptional')}
                 </label>
                 <input
@@ -198,14 +198,14 @@ export default function AdminVehiclesPage() {
                   disabled={!!editing}
                   onChange={(e) => setFormData({ ...formData, key: e.target.value })}
                   placeholder="boda"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100"
+                  className={`${inputClass} disabled:bg-gray-100`}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.vehicles.priceLabel')}
                 </label>
                 <input
@@ -215,29 +215,29 @@ export default function AdminVehiclesPage() {
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   placeholder={t('common.optional')}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.vehicles.displayOrder')}</label>
+                <label className={fieldLabel}>{t('admin.vehicles.displayOrder')}</label>
                 <input
                   type="number"
                   min={0}
                   value={formData.sort_order}
                   onChange={(e) => setFormData({ ...formData, sort_order: Number(e.target.value) })}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.vehicles.iconUrl')}</label>
+              <label className={fieldLabel}>{t('admin.vehicles.iconUrl')}</label>
               <input
                 type="url"
                 value={formData.icon_url}
                 onChange={(e) => setFormData({ ...formData, icon_url: e.target.value })}
                 placeholder="https://"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
 
@@ -254,28 +254,9 @@ export default function AdminVehiclesPage() {
               </label>
             </div>
 
-            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2.5 rounded-full hover:bg-gray-200 transition-colors font-medium"
-              >
-                {t('common.cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={submitting || !formData.name}
-                className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
-              >
-                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                {t('common.save')}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      </FormSheet>
 
-      <div className="bg-white rounded-xl shadow-md divide-y divide-gray-200">
+      <div className={`${cardClass} divide-y divide-gray-100 overflow-hidden`}>
         {vehicles.length === 0 ? (
           <div className="px-4 py-12 text-center">
             <Motorbike className="w-12 h-12 mx-auto text-gray-300 mb-3" />

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useT } from '@/lib/i18n';
+import { cardClass, fieldLabel } from '@/lib/ui';
 
 interface Business {
   id: string;
@@ -197,8 +198,8 @@ export default function SmsSendPage() {
         )}
 
         {/* Subject (optional) */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className={`${cardClass} p-4`}>
+          <label className={fieldLabel}>
             {t('admin.sms.send.subjectLabel')}
           </label>
           <input
@@ -211,8 +212,8 @@ export default function SmsSendPage() {
         </div>
 
         {/* Message */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className={`${cardClass} p-4`}>
+          <label className={fieldLabel}>
             {t('admin.sms.send.messageLabel')} <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -228,7 +229,7 @@ export default function SmsSendPage() {
         </div>
 
         {/* Recipient Type */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className={`${cardClass} p-4`}>
           <label className="block text-sm font-medium text-gray-700 mb-3">
             {t('admin.sms.send.recipients')}
           </label>

@@ -3,7 +3,11 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Plus, X, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
+import FormSheet from '@/components/common/FormSheet';
 import { useT } from '@/lib/i18n';
+import { fieldLabel } from '@/lib/ui';
+import { activeDot, activeLabelKey, activeText } from '@/lib/userStatus';
 
 interface Slider {
   id: string;
@@ -150,7 +154,7 @@ export default function AdminSlidersPage() {
   };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
+    e?.preventDefault();
     setIsDragging(true);
   }, []);
 
@@ -195,8 +199,8 @@ export default function AdminSlidersPage() {
     setPendingFiles([]);
   };
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     setError('');
     setSubmitting(true);
 
@@ -328,7 +332,7 @@ export default function AdminSlidersPage() {
     <div className="max-w-4xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('admin.cms.sliders.title')}</h1>
-        {!showForm && (
+        {(
           <button
             onClick={() => {
               resetForm();
@@ -348,23 +352,16 @@ export default function AdminSlidersPage() {
         </div>
       )}
 
-      {showForm && (
-        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold">
-              {editingSlider ? t('admin.cms.sliders.editTitle') : t('admin.cms.sliders.addTitle')}
-            </h2>
-            <button
-              onClick={resetForm}
-              className="text-gray-500 hover:text-gray-700 p-2 -mr-2"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-6">
+      <FormSheet
+        open={showForm}
+        onClose={resetForm}
+        onSubmit={() => handleSubmit()}
+        submitting={submitting}
+        title={isEditMode ? t('admin.cms.sliders.editTitle') : t('admin.cms.sliders.newTitle')}
+      >
             {/* Image Upload Section */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={fieldLabel}>
                 {isEditMode ? t('admin.cms.sliders.imageLabelOne') : t('admin.cms.sliders.imageLabelMany')}
               </label>
 
@@ -525,7 +522,7 @@ export default function AdminSlidersPage() {
             {/* Caption - single-image only */}
             {!isBatchMode && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.cms.sliders.caption')}</label>
+                <label className={fieldLabel}>{t('admin.cms.sliders.caption')}</label>
                 <input
                   type="text"
                   value={formData.caption}
@@ -540,7 +537,7 @@ export default function AdminSlidersPage() {
             {!isBatchMode && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className={fieldLabel}>
                     {t('admin.cms.sliders.ctaText')}
                   </label>
                   <input
@@ -552,7 +549,7 @@ export default function AdminSlidersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className={fieldLabel}>
                     {t('admin.cms.sliders.ctaLink')}
                   </label>
                   <input
@@ -569,7 +566,7 @@ export default function AdminSlidersPage() {
             {/* Order and Active */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {isBatchMode ? t('admin.cms.sliders.startingOrder') : t('admin.cms.sliders.displayOrder')}
                 </label>
                 <input
@@ -598,163 +595,69 @@ export default function AdminSlidersPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2.5 rounded-full hover:bg-gray-200 transition-colors font-medium"
-              >
-                {t('common.cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={
-                  submitting ||
-                  uploading ||
-                  (!editingSlider && pendingFiles.length === 0) ||
-                  (editingSlider !== null && pendingFiles.length === 0 && !formData.image_url)
-                }
-                className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
-              >
-                {(submitting || uploading) && <Loader2 className="w-4 h-4 animate-spin" />}
-                {uploading
-                  ? t('admin.cms.sliders.uploadingBtn', { current: uploadProgress.current, total: uploadProgress.total })
-                  : submitting
-                  ? t('common.saving')
-                  : isBatchMode
-                  ? t('admin.cms.sliders.saveBatch', { count: pendingFiles.length })
-                  : t('admin.cms.sliders.saveSlider')}
-              </button>
-            </div>
-          </form>
-        </div>
+      </FormSheet>
+
+      {/* One list at every width: the table and this card list were the same
+          rows twice, and only phones ever saw the cards. */}
+      {sliders.length === 0 ? (
+        <EmptyState icon={ImageIcon} title={t('admin.cms.sliders.empty')} />
+      ) : (
+        <RecordList>
+          {sliders.map((slider) => (
+            <RecordRow
+              key={slider.id}
+              leading={
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={slider.image_url}
+                  alt=""
+                  className="h-12 w-20 shrink-0 rounded-lg object-cover"
+                />
+              }
+              title={slider.caption || t('admin.cms.sliders.noCaption')}
+              trailing={`#${slider.order_index}`}
+              status={{
+                dot: activeDot(slider.active),
+                text: activeText(slider.active),
+                label: t(activeLabelKey(slider.active)),
+              }}
+              actions={
+                <>
+                  <SliderAction onClick={() => startEdit(slider)}>{t('common.edit')}</SliderAction>
+                  <SliderAction onClick={() => handleDelete(slider.id)} tone="danger">
+                    {t('common.delete')}
+                  </SliderAction>
+                </>
+              }
+            />
+          ))}
+        </RecordList>
       )}
-
-      {/* Slider List - Card layout for mobile, table for desktop */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        {/* Desktop Table View */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin.cms.sliders.colOrder')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin.cms.sliders.colImage')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin.cms.sliders.colCaption')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('common.status')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('common.actions')}</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {sliders.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
-                    <ImageIcon className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                    <p className="text-gray-500">{t('admin.cms.sliders.empty')}</p>
-                  </td>
-                </tr>
-              ) : (
-                sliders.map((slider) => (
-                  <tr key={slider.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                      #{slider.order_index}
-                    </td>
-                    <td className="px-6 py-4">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={slider.image_url}
-                        alt={slider.caption || 'Slider'}
-                        className="w-28 h-16 object-cover rounded-lg"
-                      />
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
-                      {slider.caption || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                          slider.active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {slider.active ? t('admin.common.active') : t('admin.common.inactive')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => startEdit(slider)}
-                        className="text-primary hover:text-primary-dark mr-4 transition-colors"
-                      >
-                        {t('common.edit')}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(slider.id)}
-                        className="text-red-600 hover:text-red-800 transition-colors"
-                      >
-                        {t('common.delete')}
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile Card View */}
-        <div className="md:hidden divide-y divide-gray-200">
-          {sliders.length === 0 ? (
-            <div className="px-4 py-12 text-center">
-              <ImageIcon className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-              <p className="text-gray-500">No sliders found. Add your first slider!</p>
-            </div>
-          ) : (
-            sliders.map((slider) => (
-              <div key={slider.id} className="p-4">
-                <div className="flex gap-4">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={slider.image_url}
-                    alt={slider.caption || 'Slider'}
-                    className="w-24 h-16 object-cover rounded-lg flex-shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-gray-500">#{slider.order_index}</span>
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                          slider.active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {slider.active ? t('admin.common.active') : t('admin.common.inactive')}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-900 truncate">
-                      {slider.caption || t('admin.cms.sliders.noCaption')}
-                    </p>
-                    <div className="flex gap-4 mt-2">
-                      <button
-                        onClick={() => startEdit(slider)}
-                        className="text-sm text-primary hover:text-primary-dark font-medium transition-colors"
-                      >
-                        {t('common.edit')}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(slider.id)}
-                        className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
-                      >
-                        {t('common.delete')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
     </div>
+  );
+}
+
+/** A small secondary action under a slider row. */
+function SliderAction({
+  children,
+  onClick,
+  tone,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  tone?: 'danger';
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[2.25rem] items-center rounded-full border px-3 text-[13px] font-semibold transition-colors ${
+        tone === 'danger'
+          ? 'border-red-200 text-red-600 active:bg-red-50'
+          : 'border-gray-200 text-gray-700 active:bg-gray-100'
+      }`}
+    >
+      {children}
+    </button>
   );
 }

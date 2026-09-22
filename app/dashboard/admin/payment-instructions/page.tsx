@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2, Save } from 'lucide-react';
 import { useT } from '@/lib/i18n';
+import { cardClass, fieldLabel, inputClass } from '@/lib/ui';
 
 interface PaymentInstructions {
   id: string;
@@ -124,11 +125,11 @@ export default function AdminPaymentInstructionsPage() {
       )}
 
       <form onSubmit={handleSave} className="space-y-6">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <h2 className="text-xl font-semibold mb-4">{t('admin.paymentInstructions.detailsHeading')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.paymentInstructions.titleLabel')}
               </label>
               <input
@@ -136,12 +137,12 @@ export default function AdminPaymentInstructionsPage() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('admin.paymentInstructions.titlePlaceholder')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.paymentInstructions.instructionsLabel')}
               </label>
               <textarea
@@ -149,7 +150,7 @@ export default function AdminPaymentInstructionsPage() {
                 onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                 required
                 rows={6}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('admin.paymentInstructions.instructionsPlaceholder')}
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -159,73 +160,73 @@ export default function AdminPaymentInstructionsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <h2 className="text-xl font-semibold mb-4">{t('admin.paymentInstructions.bankHeading')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.paymentInstructions.bankName')}
               </label>
               <input
                 type="text"
                 value={formData.bank_name}
                 onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('admin.paymentInstructions.bankName')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.paymentInstructions.accountName')}
               </label>
               <input
                 type="text"
                 value={formData.account_name}
                 onChange={(e) => setFormData({ ...formData, account_name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('admin.paymentInstructions.accountNamePlaceholder')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.paymentInstructions.accountNumber')}
               </label>
               <input
                 type="text"
                 value={formData.account_number}
                 onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('admin.paymentInstructions.accountNumber')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.paymentInstructions.swiftCode')}
               </label>
               <input
                 type="text"
                 value={formData.swift_code}
                 onChange={(e) => setFormData({ ...formData, swift_code: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('admin.paymentInstructions.swiftPlaceholder')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('admin.paymentInstructions.branch')}
               </label>
               <input
                 type="text"
                 value={formData.branch}
                 onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('admin.paymentInstructions.branchPlaceholder')}
               />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -241,7 +242,7 @@ export default function AdminPaymentInstructionsPage() {
         </div>
 
         {/* Preview */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <h2 className="text-xl font-semibold mb-4">{t('admin.paymentInstructions.preview')}</h2>
           <div className="border-2 border-gray-200 rounded-lg p-6 bg-gray-50">
             <h3 className="font-semibold text-gray-900 mb-2">{formData.title}</h3>

@@ -2,7 +2,6 @@
   "admin": {
     "hireVehicles": {
       "title": "Hire Vehicles",
-      "cardDesc": "Manage the hire fleet (people & load), drivers and plates",
       "subtitle": "Manage the fleet available for Vehicle Hire (people and load).",
       "add": "Add Vehicle",
       "addTitle": "Add Hire Vehicle",
@@ -39,23 +38,6 @@
     "dashboard": {
       "title": "Admin Dashboard",
       "subtitle": "Manage your logistics platform"
-    },
-    "cards": {
-      "businesses": { "title": "Manage Businesses", "desc": "View and manage all registered businesses" },
-      "users": { "title": "Manage Users", "desc": "View and manage all system users" },
-      "deliveryPackages": { "title": "Delivery Packages", "desc": "Manage delivery fee packages" },
-      "hireVehicles": { "title": "Hire Vehicles", "desc": "Manage the hire fleet (people & load), drivers and plates" },
-      "expenseCategories": { "title": "Expense Categories", "desc": "Manage expense categories" },
-      "expenses": { "title": "Expenses", "desc": "Track and manage platform expenses" },
-      "operations": { "title": "Operations", "desc": "View operations dashboard and metrics" },
-      "financial": { "title": "Financial Analytics", "desc": "View revenue, expenses, profit, and financial data" },
-      "sliders": { "title": "CMS - Sliders", "desc": "Manage landing page slider images" },
-      "content": { "title": "CMS - Content", "desc": "Edit About Us and other CMS content" },
-      "companyProfile": { "title": "Company Profile", "desc": "Manage company logo, contact info, and details" },
-      "invoices": { "title": "Invoice Management", "desc": "View, create, and manage invoices and proforma invoices" },
-      "paymentInstructions": { "title": "Payment Instructions", "desc": "Configure payment instructions for invoices" },
-      "smsTemplates": { "title": "SMS Templates", "desc": "Manage predefined SMS templates for events" },
-      "sendSms": { "title": "Send SMS", "desc": "Send custom SMS to clients" }
     },
     "users": {
       "title": "Riders & Staff",
@@ -99,7 +81,8 @@
       "feeError": "Delivery fee must be a positive number",
       "errUpdate": "Failed to update business",
       "errCreate": "Failed to create business",
-      "errSave": "Failed to save business"
+      "errSave": "Failed to save business",
+      "noneFound": "No clients found"
     },
     "vehicles": {
       "title": "Means of Transport",
@@ -352,7 +335,7 @@
         "colOrder": "Order",
         "colImage": "Image",
         "colCaption": "Caption",
-        "empty": "No sliders found. Add your first slider!",
+        "empty": "No sliders yet",
         "noCaption": "No caption",
         "errLoad": "Failed to load sliders",
         "errSave": "Failed to save slider",
@@ -431,6 +414,42 @@
       "notFound": "Invoice not found",
       "goBack": "Go back",
       "print": "Print / Save as PDF"
+    },
+    "clients": {
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "usedForLogin": "Used for login",
+      "password": "Password",
+      "passwordPlaceholder": "Minimum 6 characters",
+      "deliveryFee": "Delivery fee (TZS)",
+      "deliveryFeeHint": "Leave empty to use default pricing",
+      "active": "Active",
+      "location": "Business location",
+      "address": "Business address",
+      "addressPlaceholder": "Enter business address",
+      "loadingMaps": "Loading maps…",
+      "region": "Region",
+      "selectRegion": "Select region",
+      "district": "District",
+      "selectDistrict": "Select district",
+      "selectRegionFirst": "Select a region first",
+      "mapsError": "Google Maps failed to load. You can still enter addresses manually.",
+      "update": "Update client",
+      "create": "Create client",
+      "emailPlaceholder": "client@example.com",
+      "feePlaceholder": "0.00",
+      "notSet": "Not set",
+      "viewDetails": "View details",
+      "editClient": "Edit client",
+      "disableClient": "Disable client",
+      "enableClient": "Enable client",
+      "detailsTitle": "Client details",
+      "clientInfo": "Client information",
+      "userAccount": "Associated user account",
+      "created": "Created",
+      "status": "Status",
+      "role": "Role"
     }
   }
 }
