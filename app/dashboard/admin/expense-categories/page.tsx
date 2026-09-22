@@ -3,8 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUserRole } from '@/lib/roles';
-import { Loader2, Plus, Edit, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, FolderOpen } from 'lucide-react';
+import FormSheet from '@/components/common/FormSheet';
+import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
 import { useT } from '@/lib/i18n';
+import { activeDot, activeLabelKey, activeText } from '@/lib/userStatus';
+import { fieldLabel, inputClass } from '@/lib/ui';
 
 interface ExpenseCategory {
   id: string;
@@ -87,8 +91,8 @@ export default function AdminExpenseCategoriesPage() {
     setShowForm(true);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     setSubmitting(true);
     setError('');
 
@@ -180,92 +184,55 @@ export default function AdminExpenseCategoriesPage() {
         </div>
       )}
 
-      {/* Categories Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('common.name')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.common.description')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('common.status')}
-              </th>
-              {role === 'ADMIN' && (
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('common.actions')}
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {categories.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                  {t('admin.expenseCategories.empty')}
-                </td>
-              </tr>
-            ) : (
-              categories.map((category) => (
-                <tr key={category.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{category.name}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-500">{category.description || '-'}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        category.active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {category.active ? t('admin.common.active') : t('admin.common.inactive')}
-                    </span>
-                  </td>
-                  {role === 'ADMIN' && (
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleEdit(category)}
-                          className="text-blue-600 hover:text-blue-800"
-                          title={t('common.edit')}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(category)}
-                          className="text-red-600 hover:text-red-800"
-                          title={t('common.delete')}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {categories.length === 0 ? (
+        <EmptyState icon={FolderOpen} title={t('admin.expenseCategories.empty')} />
+      ) : (
+        <RecordList>
+          {categories.map((category) => (
+            <RecordRow
+              key={category.id}
+              title={category.name}
+              subtitle={category.description || '—'}
+              status={{
+                dot: activeDot(category.active),
+                text: activeText(category.active),
+                label: t(activeLabelKey(category.active)),
+              }}
+              actions={
+                role === 'ADMIN' && (
+                  <>
+                    <CategoryAction onClick={() => handleEdit(category)}>
+                      {t('common.edit')}
+                    </CategoryAction>
+                    <CategoryAction onClick={() => handleDelete(category)} tone="danger">
+                      {t('common.delete')}
+                    </CategoryAction>
+                  </>
+                )
+              }
+            />
+          ))}
+        </RecordList>
+      )}
 
-      {/* Create/Edit Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {editingCategory ? t('admin.expenseCategories.editTitle') : t('admin.expenseCategories.newTitle')}
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <FormSheet
+        open={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setEditingCategory(null);
+          setError('');
+        }}
+        onSubmit={() => handleSubmit()}
+        submitting={submitting}
+        error={error}
+        title={
+          editingCategory
+            ? t('admin.expenseCategories.editTitle')
+            : t('admin.expenseCategories.newTitle')
+        }
+      >
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.expenseCategories.nameLabel')}
                 </label>
                 <input
@@ -273,20 +240,20 @@ export default function AdminExpenseCategoriesPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                   placeholder={t('admin.expenseCategories.namePlaceholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.common.description')}
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                   placeholder={t('admin.expenseCategories.descriptionPlaceholder')}
                 />
               </div>
@@ -304,32 +271,32 @@ export default function AdminExpenseCategoriesPage() {
                 </label>
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingCategory(null);
-                    setError('');
-                  }}
-                  disabled={submitting}
-                  className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {submitting ? t('common.saving') : editingCategory ? t('admin.expenseCategories.update') : t('admin.expenseCategories.create')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      </FormSheet>
     </div>
+  );
+}
+
+/** A small secondary action under a category row. */
+function CategoryAction({
+  children,
+  onClick,
+  tone,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  tone?: 'danger';
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[2.25rem] items-center rounded-full border px-3 text-[13px] font-semibold transition-colors ${
+        tone === 'danger'
+          ? 'border-red-200 text-red-600 active:bg-red-50'
+          : 'border-gray-200 text-gray-700 active:bg-gray-100'
+      }`}
+    >
+      {children}
+    </button>
   );
 }

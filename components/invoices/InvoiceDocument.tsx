@@ -1,6 +1,7 @@
 'use client';
 
 import { useT } from '@/lib/i18n';
+import { INVOICE_TEXT, invoiceStatusLabelKey, invoiceTone } from '@/lib/invoiceStatus';
 
 interface CompanyProfile {
   company_name: string;
@@ -72,14 +73,6 @@ interface InvoiceDocumentProps {
   onPrint?: () => void;
 }
 
-const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-800',
-  PROFORMA: 'bg-purple-100 text-purple-800',
-  SENT: 'bg-blue-100 text-blue-800',
-  PAID: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-800',
-};
-
 export default function InvoiceDocument({
   invoice,
   invoiceItems,
@@ -91,7 +84,7 @@ export default function InvoiceDocument({
 }: InvoiceDocumentProps) {
   const t = useT();
   return (
-    <div className="bg-white p-8 max-w-4xl mx-auto">
+    <div className="bg-white p-5 sm:p-8 print:p-8 max-w-4xl mx-auto">
       {/* Header Section */}
       <div className="mb-8 pb-6 border-b-2 border-gray-300">
         <div className="flex justify-between items-start">
@@ -138,7 +131,7 @@ export default function InvoiceDocument({
               </p>
               <p>
                 <span className="font-semibold">{t('common.date')}:</span>{' '}
-                {new Date(invoice.generated_at).toLocaleDateString('en-US', {
+                {new Date(invoice.generated_at).toLocaleDateString(undefined, {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -147,7 +140,7 @@ export default function InvoiceDocument({
               {invoice.due_date && (
                 <p>
                   <span className="font-semibold">{t('components.invoice.dueDate')}:</span>{' '}
-                  {new Date(invoice.due_date).toLocaleDateString('en-US', {
+                  {new Date(invoice.due_date).toLocaleDateString(undefined, {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -157,11 +150,9 @@ export default function InvoiceDocument({
               <p>
                 <span className="font-semibold">{t('common.status')}:</span>{' '}
                 <span
-                  className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    statusColors[invoice.status] || statusColors.DRAFT
-                  }`}
+                  className={`inline-flex items-center gap-1.5 text-xs font-semibold ${INVOICE_TEXT[invoiceTone(invoice.status)]}`}
                 >
-                  {invoice.status}
+                  {t(invoiceStatusLabelKey(invoice.status))}
                 </span>
               </p>
             </div>
@@ -190,13 +181,13 @@ export default function InvoiceDocument({
             <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">{t('components.invoice.period')}</h3>
             <div className="text-gray-900">
               <p className="text-sm">
-                {new Date(invoice.week_start).toLocaleDateString('en-US', {
+                {new Date(invoice.week_start).toLocaleDateString(undefined, {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
                 })}{' '}
                 -{' '}
-                {new Date(invoice.week_end).toLocaleDateString('en-US', {
+                {new Date(invoice.week_end).toLocaleDateString(undefined, {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -208,7 +199,7 @@ export default function InvoiceDocument({
       )}
 
       {/* Invoice Items Table */}
-      <div className="mb-8">
+      <div className="mb-8 overflow-x-auto print:overflow-visible">
         <table className="min-w-full border-collapse">
           <thead>
             <tr className="bg-primary text-white">

@@ -1,7 +1,9 @@
 'use client';
 
 import { DollarSign, TrendingUp, FileText, AlertCircle, TrendingDown, Calculator } from 'lucide-react';
+import { RecordList, RecordRow } from '@/components/common/RecordList';
 import { useT } from '@/lib/i18n';
+import { cardClass } from '@/lib/ui';
 
 interface FinancialData {
   revenue: {
@@ -71,7 +73,7 @@ function formatCurrency(amount: number): string {
 }
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(dateString).toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
   });
@@ -87,7 +89,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
     <div className="space-y-6">
       {/* Revenue, Expenses, and Profit Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">
@@ -101,7 +103,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.financial.totalExpenses')}</p>
@@ -113,7 +115,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.financial.profit')}</p>
@@ -128,7 +130,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.financial.thisMonthRevenue')}</p>
@@ -153,7 +155,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
       )}
 
       {/* Invoices Overview */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className={`${cardClass} p-6`}>
         <h3 className="text-lg font-semibold mb-4">{t('components.financial.invoicesOverview')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div className="text-center">
@@ -190,147 +192,81 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
       </div>
 
       {/* Top Businesses */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className={`${cardClass} p-6`}>
         <h3 className="text-lg font-semibold mb-4">{t('components.financial.topBusinesses')}</h3>
         {data.topBusinesses.length === 0 ? (
           <p className="text-gray-500 text-center py-4">{t('components.financial.noBusinessRevenue')}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.financial.rank')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.operations.business')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.financial.revenue')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {data.topBusinesses.map((business, index) => (
-                  <tr key={business.businessId} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-900">#{index + 1}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                      {business.businessName}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">
-                      {formatCurrency(business.revenue)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RecordList>
+            {data.topBusinesses.map((business, index) => (
+              <RecordRow
+                key={business.businessId}
+                leading={
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 text-[13px] font-bold text-gray-600">
+                    {index + 1}
+                  </span>
+                }
+                title={business.businessName}
+                trailing={formatCurrency(business.revenue)}
+              />
+            ))}
+          </RecordList>
         )}
       </div>
 
       {/* Recent Charges */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className={`${cardClass} p-6`}>
         <h3 className="text-lg font-semibold mb-4">{t('components.financial.recentCharges')}</h3>
         {data.chargesBreakdown.length === 0 ? (
           <p className="text-gray-500 text-center py-4">{t('components.financial.noRecentCharges')}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('common.date')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.operations.business')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.financial.description')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.financial.amount')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {data.chargesBreakdown.slice(0, 20).map((charge) => (
-                  <tr key={charge.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {formatDate(charge.created_at)}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">
-                      {charge.businesses?.name || t('components.deliveries.unknown')}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {charge.description || '-'}
-                    </td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                      {formatCurrency(charge.amount)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RecordList>
+            {data.chargesBreakdown.slice(0, 20).map((charge) => (
+              <RecordRow
+                key={charge.id}
+                title={charge.businesses?.name || t('components.deliveries.unknown')}
+                trailing={formatCurrency(charge.amount)}
+                subtitle={charge.description || '—'}
+                meta={formatDate(charge.created_at)}
+              />
+            ))}
+          </RecordList>
         )}
       </div>
 
       {/* Expense Breakdown by Category */}
       {data.expenses.breakdown.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <h3 className="text-lg font-semibold mb-4">{t('components.financial.expensesByCategory')}</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.financial.category')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.financial.amount')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.financial.percentage')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {data.expenses.breakdown.map((item, index) => {
-                  const percentage = data.expenses.total > 0 
-                    ? (item.amount / data.expenses.total) * 100 
-                    : 0;
-                  return (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                        {item.categoryName}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {formatCurrency(item.amount)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-24 bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-red-500 h-2 rounded-full"
-                              style={{ width: `${percentage}%` }}
-                            />
-                          </div>
-                          <span className="text-sm text-gray-600 w-12">
-                            {percentage.toFixed(1)}%
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+            <RecordList>
+              {data.expenses.breakdown.map((item, index) => {
+                const percentage =
+                  data.expenses.total > 0 ? (item.amount / data.expenses.total) * 100 : 0;
+                return (
+                  <RecordRow
+                    key={index}
+                    title={item.categoryName}
+                    trailing={formatCurrency(item.amount)}
+                    subtitle={
+                      <span className="flex items-center gap-2">
+                        <span className="h-1.5 w-20 rounded-full bg-gray-200">
+                          <span
+                            className="block h-1.5 rounded-full bg-red-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </span>
+                        {percentage.toFixed(1)}%
+                      </span>
+                    }
+                  />
+                );
+              })}
+            </RecordList>
         </div>
       )}
 
       {/* Revenue vs Expenses Comparison */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className={`${cardClass} p-6`}>
         <h3 className="text-lg font-semibold mb-4">{t('components.financial.revenueVsExpenses')}</h3>
         <div className="space-y-4">
           <div>
@@ -366,7 +302,7 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
 
       {/* Revenue Trends */}
       {data.revenueTrends.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <h3 className="text-lg font-semibold mb-4">{t('components.financial.revenueTrends')}</h3>
           <div className="space-y-2">
             {data.revenueTrends.map((trend) => (

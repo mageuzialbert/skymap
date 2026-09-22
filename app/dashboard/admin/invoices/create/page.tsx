@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Save, Calendar, FileText } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useT } from "@/lib/i18n";
+import { cardClass, inputClass } from "@/lib/ui";
 
 interface Business {
   id: string;
@@ -231,7 +232,7 @@ export default function CreateInvoicePage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <h2 className="text-xl font-semibold mb-4">{t("admin.invoiceCreate.detailsHeading")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -244,7 +245,7 @@ export default function CreateInvoicePage() {
                   setFormData({ ...formData, business_id: e.target.value })
                 }
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               >
                 <option value="">{t("admin.invoiceCreate.selectBusiness")}</option>
                 {businesses.map((business) => (
@@ -265,7 +266,7 @@ export default function CreateInvoicePage() {
                   setFormData({ ...formData, invoice_type: e.target.value })
                 }
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               >
                 <option value="INVOICE">{t("admin.invoiceCreate.optInvoice")}</option>
                 <option value="PROFORMA">{t("admin.invoiceCreate.optProforma")}</option>
@@ -283,7 +284,7 @@ export default function CreateInvoicePage() {
                   setFormData({ ...formData, start_date: e.target.value })
                 }
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
 
@@ -298,7 +299,7 @@ export default function CreateInvoicePage() {
                   setFormData({ ...formData, end_date: e.target.value })
                 }
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
 
@@ -312,7 +313,7 @@ export default function CreateInvoicePage() {
                 onChange={(e) =>
                   setFormData({ ...formData, due_date: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
           </div>
@@ -327,7 +328,7 @@ export default function CreateInvoicePage() {
                 setFormData({ ...formData, notes: e.target.value })
               }
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={inputClass}
               placeholder={t("admin.invoiceCreate.notesPlaceholder")}
             />
           </div>
@@ -335,7 +336,7 @@ export default function CreateInvoicePage() {
 
         {/* Charges Preview */}
         {formData.business_id && formData.start_date && formData.end_date && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className={`${cardClass} p-6`}>
             <h2 className="text-xl font-semibold mb-4">{t("admin.invoiceCreate.chargesPreview")}</h2>
             {loadingCharges ? (
               <div className="flex items-center justify-center py-8">

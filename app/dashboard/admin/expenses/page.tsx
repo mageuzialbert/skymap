@@ -3,8 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUserRole } from '@/lib/roles';
-import { Loader2, Plus, Edit, Trash2, Filter } from 'lucide-react';
+import { Filter, Loader2, Plus, Receipt } from 'lucide-react';
+import Alert from '@/components/common/Alert';
+import FormSheet from '@/components/common/FormSheet';
+import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
 import { useT } from '@/lib/i18n';
+import { cardClass, fieldLabel, inputClass } from '@/lib/ui';
 
 interface Expense {
   id: string;
@@ -143,8 +147,8 @@ export default function AdminExpensesPage() {
     setShowForm(true);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     setSubmitting(true);
     setError('');
 
@@ -220,7 +224,7 @@ export default function AdminExpensesPage() {
   }
 
   function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -254,7 +258,7 @@ export default function AdminExpensesPage() {
       </div>
 
       {/* Summary Card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+      <div className={`${cardClass} p-6 mb-6`}>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600">{t('admin.expenses.total')}</p>
@@ -271,7 +275,7 @@ export default function AdminExpensesPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
+      <div className={`${cardClass} p-4 mb-6`}>
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-500" />
@@ -280,7 +284,7 @@ export default function AdminExpensesPage() {
           <select
             value={filters.category_id}
             onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
-            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+            className={inputClass}
           >
             <option value="">{t('admin.expenses.allCategories')}</option>
             {categories.map((cat) => (
@@ -294,14 +298,14 @@ export default function AdminExpensesPage() {
             value={filters.start_date}
             onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
             placeholder={t('admin.expenses.startDate')}
-            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+            className={inputClass}
           />
           <input
             type="date"
             value={filters.end_date}
             onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
             placeholder={t('admin.expenses.endDate')}
-            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+            className={inputClass}
           />
           {(filters.category_id || filters.start_date || filters.end_date) && (
             <button
@@ -314,119 +318,61 @@ export default function AdminExpensesPage() {
         </div>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+      {error && !showForm && (
+        <Alert tone="error" className="mb-4">
           {error}
-        </div>
+        </Alert>
       )}
 
       {/* Expenses Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.expenses.colDate')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.expenses.colCategory')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.common.description')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.expenses.colSupplier')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.expenses.colAmount')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('admin.expenses.colCreatedBy')}
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('common.actions')}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {expenses.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                  {t('admin.expenses.empty')}
-                </td>
-              </tr>
-            ) : (
-              expenses.map((expense) => (
-                <tr key={expense.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{formatDate(expense.expense_date)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {expense.expense_categories?.name || t('admin.common.unknown')}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-500">{expense.description || '-'}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{expense.supplier || '-'}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {formatCurrency(parseFloat(expense.amount.toString()))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">
-                      {expense.users?.name || t('admin.common.unknown')}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleEdit(expense)}
-                        className="text-blue-600 hover:text-blue-800"
-                        title={t('common.edit')}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      {role === 'ADMIN' && (
-                        <button
-                          onClick={() => handleDelete(expense)}
-                          className="text-red-600 hover:text-red-800"
-                          title={t('common.delete')}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {expenses.length === 0 ? (
+        <EmptyState icon={Receipt} title={t('admin.expenses.empty')} />
+      ) : (
+        <RecordList>
+          {expenses.map((expense) => (
+            <RecordRow
+              key={expense.id}
+              title={expense.expense_categories?.name || t('admin.common.unknown')}
+              trailing={formatCurrency(parseFloat(expense.amount.toString()))}
+              subtitle={expense.description || expense.supplier || '—'}
+              meta={formatDate(expense.expense_date)}
+              actions={
+                <>
+                  <ExpenseAction onClick={() => handleEdit(expense)}>
+                    {t('common.edit')}
+                  </ExpenseAction>
+                  {role === 'ADMIN' && (
+                    <ExpenseAction onClick={() => handleDelete(expense)} tone="danger">
+                      {t('common.delete')}
+                    </ExpenseAction>
+                  )}
+                </>
+              }
+            />
+          ))}
+        </RecordList>
+      )}
 
-      {/* Create/Edit Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {editingExpense ? t('admin.expenses.editTitle') : t('admin.expenses.newTitle')}
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <FormSheet
+        open={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setEditingExpense(null);
+          setError('');
+        }}
+        onSubmit={() => handleSubmit()}
+        submitting={submitting}
+        error={error}
+        title={editingExpense ? t('admin.expenses.editTitle') : t('admin.expenses.newTitle')}
+        submitLabel={editingExpense ? t('admin.expenses.update') : t('admin.expenses.create')}
+      >
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('admin.expenses.categoryLabel')}
-                </label>
+                <label className={fieldLabel}>{t('admin.expenses.categoryLabel')}</label>
                 <select
                   value={formData.category_id}
                   onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                 >
                   <option value="">{t('admin.expenses.selectCategory')}</option>
                   {categories.map((cat) => (
@@ -438,7 +384,7 @@ export default function AdminExpensesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.expenses.amountLabel')}
                 </label>
                 <input
@@ -448,39 +394,39 @@ export default function AdminExpensesPage() {
                   required
                   step="0.01"
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                   placeholder="0.00"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.common.description')}
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                   placeholder={t('admin.expenses.descriptionPlaceholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.expenses.supplierLabel')}
                 </label>
                 <input
                   type="text"
                   value={formData.supplier}
                   onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                   placeholder={t('admin.expenses.supplierPlaceholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={fieldLabel}>
                   {t('admin.expenses.expenseDate')}
                 </label>
                 <input
@@ -488,36 +434,36 @@ export default function AdminExpensesPage() {
                   value={formData.expense_date}
                   onChange={(e) => setFormData({ ...formData, expense_date: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingExpense(null);
-                    setError('');
-                  }}
-                  disabled={submitting}
-                  className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {submitting ? t('common.saving') : editingExpense ? t('admin.expenses.update') : t('admin.expenses.create')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      </FormSheet>
     </div>
+  );
+}
+
+/** A small secondary action under an expense row. */
+function ExpenseAction({
+  children,
+  onClick,
+  tone,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  tone?: 'danger';
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[2.25rem] items-center rounded-full border px-3 text-[13px] font-semibold transition-colors ${
+        tone === 'danger'
+          ? 'border-red-200 text-red-600 active:bg-red-50'
+          : 'border-gray-200 text-gray-700 active:bg-gray-100'
+      }`}
+    >
+      {children}
+    </button>
   );
 }
