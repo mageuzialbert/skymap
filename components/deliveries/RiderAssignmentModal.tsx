@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, User } from 'lucide-react';
+import { Loader2, Shield, User } from 'lucide-react';
 import Alert from '@/components/common/Alert';
 import Sheet from '@/components/common/Sheet';
 import { OptionGroup, OptionRow } from '@/components/wizard/OptionGroup';
@@ -38,6 +38,7 @@ export default function RiderAssignmentModal({
 }: RiderAssignmentModalProps) {
   const t = useT();
   const [allRiders, setAllRiders] = useState<Rider[]>([]);
+  const [admins, setAdmins] = useState<Rider[]>([]);
   const [selectedRiderId, setSelectedRiderId] = useState<string>('');
   const [loadingRiders, setLoadingRiders] = useState(true);
   const [error, setError] = useState('');
@@ -53,6 +54,11 @@ export default function RiderAssignmentModal({
     ? allRiders.filter((r) => r.vehicle_type_id === vehicleTypeId)
     : allRiders;
 
+  // No rider owns this vehicle type, so the job would be unassignable. Admins
+  // double as riders, so offer them rather than showing an empty list with no
+  // way out. They stay a clearly-labelled fallback, never merged in with riders.
+  const showAdminFallback = riders.length === 0 && admins.length > 0;
+
   async function loadRiders() {
     setLoadingRiders(true);
     setError('');
@@ -61,6 +67,12 @@ export default function RiderAssignmentModal({
       if (!response.ok) throw new Error(t('components.riderAssignment.loadFailed'));
       const data = await response.json();
       setAllRiders(data);
+
+      // Fetched unconditionally: whether the fallback is needed depends on the
+      // vehicle filter applied to the riders we just got, and a second awaited
+      // round-trip after that would leave the sheet blank for longer.
+      const adminRes = await fetch('/api/admin/users?role=ADMIN&active=true');
+      if (adminRes.ok) setAdmins(await adminRes.json());
     } catch (err) {
       setError(err instanceof Error ? err.message : t('components.riderAssignment.loadFailed'));
     } finally {
@@ -116,7 +128,7 @@ export default function RiderAssignmentModal({
       <div className="space-y-4 p-4">
         {error && <Alert tone="error">{error}</Alert>}
 
-        {vehicleLabel && (
+        {vehicleLabel && !showAdminFallback && (
           <Alert tone="info">
             {t('components.riderAssignment.requestedVehicle')}:{' '}
             <span className="font-semibold">{vehicleLabel}</span> —{' '}
@@ -128,6 +140,38 @@ export default function RiderAssignmentModal({
           <div className="flex items-center justify-center py-10">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
+        ) : showAdminFallback ? (
+          <>
+            <Alert tone="warning">
+              {vehicleLabel ? (
+                <>
+                  {t('components.riderAssignment.requestedVehicle')}:{' '}
+                  <span className="font-semibold">{vehicleLabel}</span>.{' '}
+                </>
+              ) : null}
+              {vehicleTypeId
+                ? t('components.riderAssignment.noRidersForVehicle')
+                : t('components.riderAssignment.noRiders')}
+              {'. '}
+              {t('components.riderAssignment.adminFallbackHint')}
+            </Alert>
+            <OptionGroup label={t('components.riderAssignment.selectAdmin')}>
+              {admins.map((admin) => (
+                <OptionRow
+                  key={admin.id}
+                  selected={selectedRiderId === admin.id}
+                  onSelect={() => {
+                    setSelectedRiderId(admin.id);
+                    setError('');
+                  }}
+                  disabled={loading}
+                  icon={<Shield className="h-5 w-5" />}
+                  title={admin.name}
+                  subtitle={admin.phone}
+                />
+              ))}
+            </OptionGroup>
+          </>
         ) : riders.length === 0 ? (
           <p className="py-10 text-center text-[15px] text-gray-500">
             {vehicleTypeId

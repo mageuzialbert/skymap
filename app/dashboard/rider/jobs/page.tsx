@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Package } from 'lucide-react';
-import { getUserRole } from '@/lib/roles';
+import { canWorkRiderJobs, getUserRole } from '@/lib/roles';
 import { EmptyState, ListToolbar, RecordList, RecordRow } from '@/components/common/RecordList';
 import ServiceIcon from '@/components/common/ServiceIcon';
 import { useT } from '@/lib/i18n';
@@ -57,7 +57,7 @@ export default function RiderJobsPage() {
   useEffect(() => {
     async function checkRole() {
       const userRole = await getUserRole();
-      if (userRole !== 'RIDER') {
+      if (!canWorkRiderJobs(userRole)) {
         router.push('/dashboard/business');
         return;
       }
@@ -67,11 +67,11 @@ export default function RiderJobsPage() {
   }, [router]);
 
   useEffect(() => {
-    if (role === 'RIDER') loadDeliveries();
+    if (canWorkRiderJobs(role)) loadDeliveries();
   }, [role, loadDeliveries]);
 
   // A job assigned while the app is open should appear without a reload.
-  usePoll(loadDeliveries, 30_000, role === 'RIDER');
+  usePoll(loadDeliveries, 30_000, canWorkRiderJobs(role));
 
   const counts = useMemo(() => {
     const c = { ALL: deliveries.length, ACTIVE: 0, DONE: 0, FAILED: 0 };

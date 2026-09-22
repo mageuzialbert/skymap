@@ -21,10 +21,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // STAFF can only query RIDER users (for assignment purposes)
-    // ADMIN can query all users
+    // STAFF can only query the people they may assign work to: riders, plus
+    // admins, who double as riders when no rider owns the required vehicle.
+    // ADMIN can query all users.
     if (role === 'STAFF') {
-      if (userRole !== 'RIDER') {
+      if (userRole !== 'RIDER' && userRole !== 'ADMIN') {
         return NextResponse.json(
           { error: 'Staff can only query riders' },
           { status: 403 }

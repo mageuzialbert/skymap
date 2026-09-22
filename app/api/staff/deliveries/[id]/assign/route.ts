@@ -39,7 +39,10 @@ export async function PUT(
       return NextResponse.json({ error: "Rider not found" }, { status: 404 });
     }
 
-    if (rider.role !== "RIDER") {
+    // Admins double as riders. When no rider owns the vehicle a job needs, the
+    // job would otherwise be unassignable, so an admin can pick it up instead.
+    const isAdminRider = rider.role === "ADMIN";
+    if (rider.role !== "RIDER" && !isAdminRider) {
       return NextResponse.json(
         { error: "User is not a rider" },
         { status: 400 },
@@ -107,8 +110,10 @@ export async function PUT(
       );
     }
 
-    // The rider's vehicle must match the requested means of transport.
-    if (delivery.vehicle_type_id && rider.vehicle_type_id !== delivery.vehicle_type_id) {
+    // The rider's vehicle must match the requested means of transport. Admins
+    // carry no vehicle_type_id, so holding them to this check would reject the
+    // very fallback it exists to allow.
+    if (!isAdminRider && delivery.vehicle_type_id && rider.vehicle_type_id !== delivery.vehicle_type_id) {
       return NextResponse.json(
         { error: "This rider's vehicle type does not match the requested means of transport." },
         { status: 400 },

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { getUserRole } from '@/lib/roles';
+import { canWorkRiderJobs, getUserRole } from '@/lib/roles';
 import Alert from '@/components/common/Alert';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import { usePoll } from '@/lib/usePoll';
@@ -96,7 +96,7 @@ export default function RiderJobDetailsPage() {
   useEffect(() => {
     async function checkRole() {
       const userRole = await getUserRole();
-      if (userRole !== 'RIDER') {
+      if (!canWorkRiderJobs(userRole)) {
         router.push('/dashboard/business');
         return;
       }
@@ -107,7 +107,7 @@ export default function RiderJobDetailsPage() {
   }, [router, deliveryId, loadDeliveryDetails]);
 
   // A status a dispatcher changes should appear without a reload.
-  usePoll(loadDeliveryDetails, 30_000, role === 'RIDER' && !updating);
+  usePoll(loadDeliveryDetails, 30_000, canWorkRiderJobs(role) && !updating);
 
   async function handleStatusUpdate(status: string, note: string) {
     setUpdating(true);

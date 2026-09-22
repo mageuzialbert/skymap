@@ -8,7 +8,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (role !== 'RIDER') {
+    // Admins double as riders (see the assign route), so they must be able to
+    // work a job they were assigned as the no-rider-available fallback.
+    if (role !== 'RIDER' && role !== 'ADMIN') {
       return NextResponse.json({ error: 'Only riders can confirm rides' }, { status: 403 });
     }
 

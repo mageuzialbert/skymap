@@ -189,7 +189,9 @@
       "pleaseSelect": "Tafadhali chagua dereva",
       "requestedVehicle": "Gari lililoombwa",
       "selectRider": "Chagua Dereva",
-      "title": "Panga Dereva"
+      "title": "Panga Dereva",
+      "adminFallbackHint": "Mkabidhi msimamizi badala yake — wasimamizi wanaweza kuchukua kazi pasipo dereva.",
+      "selectAdmin": "Mkabidhi msimamizi"
     },
     "orderProgress": {
       "complete": "Kamili",

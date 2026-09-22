@@ -44,6 +44,18 @@ const LEGACY_TO_NEW_PERMISSION_MAP: Record<string, string> = {
   'update_delivery_status': 'deliveries.update_status',
 };
 
+/**
+ * Who may open and work the rider job screens.
+ *
+ * Admins double as riders: when no RIDER owns the vehicle a delivery asks for,
+ * the assignment picker offers admins as a fallback, and the assign/confirm/
+ * decline routes accept them. Gating the rider UI on RIDER alone would hand an
+ * admin a job they could never open, so the two must agree.
+ */
+export function canWorkRiderJobs(role: UserRole | string | null | undefined): boolean {
+  return role === 'RIDER' || role === 'ADMIN';
+}
+
 export async function getUserRole(): Promise<UserRole | null> {
   const {
     data: { user },

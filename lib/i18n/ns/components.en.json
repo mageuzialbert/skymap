@@ -189,7 +189,9 @@
       "pleaseSelect": "Please select a rider",
       "requestedVehicle": "Requested vehicle",
       "selectRider": "Select Rider",
-      "title": "Assign Rider"
+      "title": "Assign Rider",
+      "adminFallbackHint": "Assign an admin instead — admins can take jobs when no rider is available.",
+      "selectAdmin": "Assign an admin"
     },
     "orderProgress": {
       "complete": "Complete",

@@ -8,7 +8,7 @@ import Alert from '@/components/common/Alert';
 import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
 import ServiceIcon from '@/components/common/ServiceIcon';
 import StatStrip from '@/components/common/StatStrip';
-import { getUserRole } from '@/lib/roles';
+import { canWorkRiderJobs, getUserRole } from '@/lib/roles';
 import { splitAddress } from '@/lib/address';
 import { BUCKET_DOT, BUCKET_TEXT, statusBucket, statusLabelKey } from '@/lib/deliveryStatus';
 import { useT } from '@/lib/i18n';
@@ -66,7 +66,7 @@ export default function RiderDashboard() {
   useEffect(() => {
     (async () => {
       const userRole = await getUserRole();
-      if (userRole !== 'RIDER') {
+      if (!canWorkRiderJobs(userRole)) {
         router.push('/dashboard/business');
         return;
       }
@@ -75,7 +75,7 @@ export default function RiderDashboard() {
     })();
   }, [router, load]);
 
-  usePoll(load, 30_000, role === 'RIDER');
+  usePoll(load, 30_000, canWorkRiderJobs(role));
 
   if (loading) {
     return (
