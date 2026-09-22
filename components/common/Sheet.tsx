@@ -3,7 +3,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { useT } from '@/lib/i18n';
-import { overlayClass, Z } from '@/lib/ui';
+import { Z } from '@/lib/ui';
 
 type Variant = 'sheet' | 'fullscreen';
 type Layer = keyof typeof Z;
@@ -96,7 +96,10 @@ export default function Sheet({
         aria-hidden
         tabIndex={-1}
         onClick={onClose}
-        className={`${overlayClass} z-0 ${fullscreen ? 'hidden' : ''}`}
+        // Not `overlayClass`: that token carries its own `fixed inset-0 z-50`,
+        // and Tailwind emits .z-50 after .z-0, so composing the two put the
+        // scrim *above* the panel - veiling the sheet and swallowing taps.
+        className={`absolute inset-0 bg-black/50 backdrop-blur-sm ${fullscreen ? 'hidden' : ''}`}
       />
       <div
         ref={panelRef}
