@@ -19,6 +19,40 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+/* ---------------------------------------------------------------------------
+   Mobile foundations
+   --------------------------------------------------------------------------- */
+
+/* Keep iOS from inflating text when a phone is turned to landscape. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  /* A single stray wide element shouldn't let the whole page slide sideways.
+     This contains the damage; individual overflows are still fixed at source. */
+  overflow-x: clip;
+  /* Long unbroken strings (tracking codes, emails, pasted URLs) are common in
+     this app and are the usual cause of a phone-width layout blowing out. */
+  overflow-wrap: break-word;
+}
+
+/* Touch targets: WCAG 2.5.8 AA asks for 24x24 CSS px. Applied only for coarse
+   pointers so mouse-driven dense UI is untouched, and as a minimum (not a
+   fixed size) so content can still grow a control. */
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  a[href],
+  label[for],
+  select,
+  summary {
+    min-block-size: 24px;
+    min-inline-size: 24px;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

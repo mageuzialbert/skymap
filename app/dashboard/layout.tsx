@@ -15,8 +15,7 @@ import {
   FileText,
   BarChart3,
   Image,
-  Menu,
-  X,
+  Home,
   Building2,
   Settings,
   CreditCard,
@@ -35,32 +34,9 @@ import { getCurrentUser, logout } from "@/lib/auth";
 import { getUserRole } from "@/lib/roles";
 import { PermissionsProvider, usePermissions } from "@/lib/permissions-context";
 import { useT } from "@/lib/i18n";
+import { useNavItems } from "@/lib/navItems";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
-// Distinct colored chip per sidebar item (cycled by position).
-const NAV_TINTS = [
-  "bg-primary/10 text-primary",
-  "bg-amber-100 text-amber-700",
-  "bg-blue-100 text-blue-700",
-  "bg-emerald-100 text-emerald-700",
-  "bg-purple-100 text-purple-700",
-  "bg-rose-100 text-rose-700",
-  "bg-cyan-100 text-cyan-700",
-  "bg-indigo-100 text-indigo-700",
-  "bg-orange-100 text-orange-700",
-  "bg-fuchsia-100 text-fuchsia-700",
-  "bg-lime-100 text-lime-700",
-  "bg-sky-100 text-sky-700",
-];
-
-// Navigation item interface with permission requirements
-interface NavItem {
-  href: string;
-  label: string;
-  icon: any;
-  permissions?: string[]; // Required permissions (any of these)
-  modules?: string[]; // Required module access (any of these)
-}
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -69,7 +45,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const {
     hasPermission,
@@ -77,6 +52,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     hasAnyPermission,
     loading: permissionsLoading,
   } = usePermissions();
+
+  // Hooks must run on every render, so this sits above the loading early-return
+  // below. It returns [] until the role resolves.
+  const navItems = useNavItems(role);
 
   useEffect(() => {
     async function checkAuth() {
@@ -132,205 +111,51 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const businessNavItems: NavItem[] = [
-    { href: "/dashboard/business/request-ride", label: t("nav.orderDelivery"), icon: PackagePlus },
+
+  // The whole of navigation, in three destinations. Activity is each role's
+  // "what's happening" list; everything else is reached through Account.
+  const activityHref =
+    role === "BUSINESS"
+      ? "/dashboard/business/rides"
+      : role === "RIDER"
+        ? "/dashboard/rider/jobs"
+        : "/dashboard/staff/deliveries";
+  const homeHref = getDashboardBase();
+
+  // Prefix matching, not equality: a detail route like /rides/[id] has to keep
+  // its tab lit, and anything not under Home or Activity belongs to Account.
+  const onHome = pathname === homeHref;
+  const onActivity = pathname.startsWith(activityHref);
+  const tabs = [
+    { key: "home", href: homeHref, label: t("nav.home"), icon: Home, active: onHome },
     {
-      href: "/dashboard/business/rides",
-      label: t("nav.ridesHistory"),
+      key: "activity",
+      href: activityHref,
+      label: t("nav.activity"),
       icon: History,
-    },
-    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageCircle },
-    { href: "/dashboard/business/invoices", label: t("nav.invoices"), icon: ReceiptText },
-    { href: "/dashboard/business/profile", label: t("nav.profile"), icon: CircleUser },
-    { href: "/dashboard/business/verify", label: t("nav.verify"), icon: BadgeCheck },
-  ];
-
-  // Admin has access to all items - no permission filtering needed
-  const adminNavItems: NavItem[] = [
-    { href: "/dashboard/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
-    { href: "/dashboard/admin/businesses", label: t("nav.clients"), icon: Building2 },
-    { href: "/dashboard/admin/users", label: t("nav.users"), icon: User },
-    { href: "/dashboard/staff/deliveries", label: t("nav.deliveries"), icon: Package },
-    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageSquare },
-    {
-      href: "/dashboard/staff/operations",
-      label: t("nav.operations"),
-      icon: BarChart3,
-    },
-    { href: "/dashboard/staff/financial", label: t("nav.financial"), icon: Receipt },
-    { href: "/dashboard/admin/vehicles", label: t("nav.vehicles"), icon: Bike },
-    { href: "/dashboard/admin/hire-vehicles", label: t("nav.hireVehicles"), icon: Truck },
-    { href: "/dashboard/admin/cms/sliders", label: t("nav.cmsSliders"), icon: Image },
-    {
-      href: "/dashboard/admin/cms/content",
-      label: t("nav.cmsContent"),
-      icon: FileText,
-    },
-    { href: "/dashboard/admin/sms/templates", label: t("nav.sms"), icon: MessageSquare },
-  ];
-
-  // Staff nav items with permission requirements
-  const staffNavItems: NavItem[] = [
-    { href: "/dashboard/staff", label: t("nav.dashboard"), icon: LayoutDashboard },
-    {
-      href: "/dashboard/staff/deliveries",
-      label: t("nav.deliveries"),
-      icon: Package,
-      modules: ["deliveries"],
-    },
-    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageSquare },
-    {
-      href: "/dashboard/admin/businesses",
-      label: t("nav.clients"),
-      icon: Building2,
-      modules: ["businesses"],
+      active: onActivity,
     },
     {
-      href: "/dashboard/admin/users",
-      label: t("nav.users"),
-      icon: User,
-      modules: ["users"],
-    },
-    {
-      href: "/dashboard/staff/operations",
-      label: t("nav.operations"),
-      icon: BarChart3,
-      modules: ["operations"],
-    },
-    {
-      href: "/dashboard/staff/financial",
-      label: t("nav.financial"),
-      icon: Receipt,
-      modules: ["financial"],
-    },
-    {
-      href: "/dashboard/admin/invoices",
-      label: t("nav.invoices"),
-      icon: FileText,
-      modules: ["invoices"],
-    },
-    {
-      href: "/dashboard/admin/expenses",
-      label: t("nav.expenses"),
-      icon: BarChart3,
-      modules: ["expenses"],
-    },
-    {
-      href: "/dashboard/admin/delivery-packages",
-      label: t("nav.packages"),
-      icon: FolderOpen,
-      modules: ["delivery_packages"],
-    },
-    {
-      href: "/dashboard/admin/vehicles",
-      label: t("nav.vehicles"),
-      icon: Bike,
-      modules: ["vehicles"],
-    },
-    {
-      href: "/dashboard/admin/cms/sliders",
-      label: t("nav.cmsSliders"),
-      icon: Image,
-      modules: ["cms_sliders"],
-    },
-    {
-      href: "/dashboard/admin/cms/content",
-      label: t("nav.cmsContent"),
-      icon: FileText,
-      modules: ["cms_content"],
-    },
-    {
-      href: "/dashboard/admin/company-profile",
-      label: t("nav.company"),
-      icon: Settings,
-      modules: ["company_profile"],
-    },
-    {
-      href: "/dashboard/admin/payment-instructions",
-      label: t("nav.payments"),
-      icon: CreditCard,
-      modules: ["payment_instructions"],
+      key: "account",
+      href: "/dashboard/account",
+      label: t("nav.account"),
+      icon: CircleUser,
+      active: !onHome && !onActivity,
     },
   ];
-
-  // Rider nav items with permission requirements
-  const riderNavItems: NavItem[] = [
-    { href: "/dashboard/rider", label: t("nav.dashboard"), icon: LayoutDashboard },
-    {
-      href: "/dashboard/rider/jobs",
-      label: t("nav.myJobs"),
-      icon: Package,
-      permissions: ["deliveries.view_assigned"],
-    },
-    { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageSquare },
-    { href: "/dashboard/rider/profile", label: t("nav.profile"), icon: User },
-    {
-      href: "/dashboard/rider/create-delivery",
-      label: t("nav.createDelivery"),
-      icon: Package,
-      permissions: ["deliveries.create"],
-    },
-    {
-      href: "/dashboard/rider/register-business",
-      label: t("nav.registerBusiness"),
-      icon: Building2,
-      permissions: ["businesses.create"],
-    },
-  ];
-
-  // Filter nav items based on permissions
-  const filterNavItems = (items: NavItem[]): NavItem[] => {
-    return items.filter((item) => {
-      // Always show items without permission requirements
-      if (!item.permissions && !item.modules) return true;
-
-      // Check module access
-      if (item.modules) {
-        for (const mod of item.modules) {
-          if (hasModuleAccess(mod)) return true;
-        }
-      }
-
-      // Check specific permissions
-      if (item.permissions) {
-        if (hasAnyPermission(item.permissions)) return true;
-      }
-
-      return false;
-    });
-  };
-
-  const getNavItems = (): NavItem[] => {
-    if (role === "BUSINESS") return businessNavItems;
-    if (role === "ADMIN") return adminNavItems;
-    if (role === "STAFF") return filterNavItems(staffNavItems);
-    if (role === "RIDER") return filterNavItems(riderNavItems);
-    return [];
-  };
-
-  const navItems = getNavItems();
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-gray-50">
-      {/* Top Navigation Bar */}
-      <nav className="shrink-0 bg-white border-b border-gray-200">
+      {/* Top bar - desktop only. It carries the three tabs there; on a phone
+          the tab bar does that job, and Account already holds the language
+          switcher and logout, so the bar was pure chrome. */}
+      <nav className="hidden lg:block shrink-0 bg-white border-b border-gray-200 pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              {/* Mobile menu button */}
-              {navItems.length > 0 && (
-                <button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden mr-3 p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  aria-label={t("nav.toggleSidebar")}
-                >
-                  {sidebarOpen ? (
-                    <X className="w-6 h-6" />
-                  ) : (
-                    <Menu className="w-6 h-6" />
-                  )}
-                </button>
-              )}
+              {/* No hamburger on mobile: the bottom bar's "More" tab opens the same
+                  drawer, and when a role has four or fewer destinations they all fit
+                  in the bar, so there is nothing left for a drawer to show. */}
               <Link href={getDashboardBase()} className="flex items-center">
                 <NextImage
                   src="/logo-cropped.webp"
@@ -342,6 +167,26 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 />
               </Link>
             </div>
+            {/* Desktop: the same three tabs, in the header. A bottom bar
+                stretched across a wide display reads as a phone UI. */}
+            <div className="hidden lg:flex items-stretch gap-1">
+              {tabs.map((tab) => (
+                <Link
+                  key={tab.key}
+                  href={tab.href}
+                  aria-current={tab.active ? "page" : undefined}
+                  className={`inline-flex items-center gap-2 border-b-2 px-4 text-sm transition-colors ${
+                    tab.active
+                      ? "border-gray-900 font-semibold text-gray-900"
+                      : "border-transparent font-medium text-gray-500 hover:text-gray-900"
+                  }`}
+                >
+                  <tab.icon className="h-4 w-4" strokeWidth={tab.active ? 2.5 : 2} />
+                  {tab.label}
+                </Link>
+              ))}
+            </div>
+
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600 hidden sm:inline">
                 {user?.user_metadata?.business_name || user?.email}
@@ -359,62 +204,40 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      <div className="flex relative flex-1 min-h-0 overflow-hidden">
-        {/* Mobile Overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
+      {/* Main content - the only scrollable region. With no side column it
+          gets a centred measure so text does not run the full width of a
+          desktop display. */}
+      <main className="flex-1 w-full min-w-0 overflow-auto overscroll-contain pt-[env(safe-area-inset-top)] lg:pt-0">
+        <div className="mx-auto w-full max-w-3xl p-4 sm:p-6">{children}</div>
+      </main>
 
-        {/* Sidebar Navigation */}
-        {navItems.length > 0 && (
-          <aside
-            className={`
-              fixed lg:static
-              top-16 left-0 bottom-0
-              w-64 bg-white border-r border-gray-200
-              lg:h-full overflow-y-auto
-              z-50 lg:z-auto
-              transform transition-transform duration-300 ease-in-out
-              ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-            `}
-          >
-            <nav className="p-4 space-y-2">
-              {navItems.map((item, i) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
-                      isActive
-                        ? "bg-primary text-white shadow-md shadow-primary/25"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl shrink-0 ${
-                        isActive ? "bg-white/20 text-white" : NAV_TINTS[i % NAV_TINTS.length]
-                      }`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                    </span>
-                    <span className="font-medium">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </aside>
-        )}
-
-        {/* Main Content - the only scrollable region */}
-        <main className="flex-1 p-6 w-full lg:w-auto min-w-0 h-full overflow-auto">
-          {children}
-        </main>
-      </div>
+      {/* Bottom tab bar - three destinations, every screen size. There is no
+          sidebar: everything else lives behind the Account tab. */}
+      {role && (
+        <nav className="lg:hidden shrink-0 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+          <div className="mx-auto flex max-w-3xl items-stretch">
+            {tabs.map((tab) => (
+              <Link
+                key={tab.key}
+                href={tab.href}
+                aria-current={tab.active ? "page" : undefined}
+                className={`flex min-h-[3.5rem] flex-1 flex-col items-center justify-center gap-1 px-1 py-2 transition-colors ${
+                  tab.active ? "text-gray-900" : "text-gray-500 hover:text-gray-900"
+                }`}
+              >
+                <tab.icon className="h-5 w-5 shrink-0" strokeWidth={tab.active ? 2.5 : 2} />
+                <span
+                  className={`w-full truncate text-center text-[11px] leading-none ${
+                    tab.active ? "font-semibold" : "font-medium"
+                  }`}
+                >
+                  {tab.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
     </div>
   );
 }

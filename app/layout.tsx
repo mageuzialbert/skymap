@@ -46,8 +46,9 @@ export const viewport: Viewport = {
   themeColor: '#0b5a54',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Pinch-zoom stays enabled: capping the scale fails WCAG 1.4.4 and takes
+  // away the main way people read small print on a phone. Form controls are
+  // all >=16px, so iOS has no reason to auto-zoom on focus anyway.
   viewportFit: 'cover',
 };
 
