@@ -10,7 +10,7 @@ ALTER TABLE deliveries ADD COLUMN IF NOT EXISTS service_type TEXT NOT NULL DEFAU
 -- NULL = "As soon as possible"; otherwise the customer's chosen pickup/start time.
 ALTER TABLE deliveries ADD COLUMN IF NOT EXISTS scheduled_pickup_at TIMESTAMP WITH TIME ZONE;
 
--- Multipurpose free text: ride note / hire duration + plan / errand shopping list + budget.
+-- Multipurpose free text: ride note / hire duration + plan / errand instructions.
 ALTER TABLE deliveries ADD COLUMN IF NOT EXISTS service_details TEXT;
 
 -- Constrain service_type to the four built-in services (guarded so re-runs don't error).
