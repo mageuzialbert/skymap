@@ -3,19 +3,19 @@
     "serviceTypes": {
       "errand": {
         "label": "Tuma Mtu",
-        "desc": "Tuma mtumaji aende mahali kununua, kuchukua au kukabidhi kitu kwa niaba yako."
+        "tagline": "Nunua au chukua"
       },
       "delivery": {
         "label": "Usafirishaji wa Kifurushi",
-        "desc": "Tuma kifurushi kutoka sehemu moja kwenda kwa mpokeaji sehemu nyingine."
+        "tagline": "Tuma kifurushi"
       },
       "ride": {
         "label": "Safari",
-        "desc": "Chukuliwa na ufikishwe unakoenda."
+        "tagline": "Pata usafiri"
       },
       "hire": {
         "label": "Kukodi Gari",
-        "desc": "Kodisha gari zima kwa abiria au mizigo - njia na muda vinaweza kutofautiana."
+        "tagline": "Kodisha gari"
       }
     },
     "camera": {
@@ -230,96 +230,122 @@
       "capacity": "{{value}} {{unit}}"
     },
     "rideWizard": {
-      "chooseHireVehicle": "Chagua gari la kukodi",
       "choosePeopleOrLoad": "Kwanza chagua unachobeba, kisha chagua gari",
       "carryPeople": "Kubeba Abiria",
       "carryLoads": "Kubeba Mizigo",
-      "tripRoute": "Njia",
-      "peopleInfo": "Maelezo ya safari",
-      "loadInfo": "Maelezo ya mzigo",
-      "helpsPlan": "Inatusaidia kupanga gari na dereva sahihi.",
       "passengers": "Idadi ya abiria",
       "tripPurpose": "Madhumuni ya safari",
       "tripPurposePlaceholder": "mf. Harusi, tukio la kikazi, safari ya shule",
-      "travelWhen": "Tarehe na muda wa safari",
-      "travelWhenPlaceholder": "mf. Tarehe 12 Agosti, kuondoka saa 1 asubuhi",
       "loadDescription": "Unasafirisha nini?",
       "loadDescriptionPlaceholder": "mf. Mifuko ya saruji, samani, vifaa vya ujenzi",
       "approxWeight": "Uzito / idadi takriban",
       "approxWeightPlaceholder": "mf. Tani 5, mifuko 200",
-      "additionalInfo": "Taarifa za ziada",
-      "errandTitle": "Tuma Mtu",
-      "errandSubtitle": "Tuambie aende wapi na ufanye nini.",
       "errandWhereGo": "Mtumaji aende wapi?",
-      "errandWhereGoPlaceholder": "mf. Stendi ya Ubungo",
       "errandReason": "Afanye nini huko?",
       "errandReasonPlaceholder": "mf. Kutuma kifurushi, kuchukua hati, kununua kitu",
-      "errandContact": "Simu ya mtu wa mahali hapo",
-      "errandYourLocation": "Mahali ulipo",
-      "errandNotesPlaceholder": "Kitu kingine chochote mtumaji anapaswa kujua",
       "useCurrentLocation": "Tumia mahali nilipo sasa",
       "locationUnavailable": "Mahali hapapatikani kwenye kifaa hiki.",
       "locationDenied": "Imeshindwa kupata mahali ulipo. Tafadhali ruhusu ufikiaji wa mahali.",
       "asap": "Haraka iwezekanavyo",
-      "asapHint": "Dereva anapangwa mara moja.",
-      "camera": "Kamera",
-      "chooseService": "Unahitaji nini?",
-      "chooseVehicle": "Chagua gari - chaguo zote zinapatikana.",
-      "chooseWhen": "Chagua sasa au panga kwa baadaye.",
-      "deliverTo": "Fikisha kwa",
       "destination": "Marudio",
-      "details": "Maelezo",
       "dropoffLocation": "Eneo la kufikisha",
-      "durationPlan": "Muda na mpango",
-      "encryptedNote": "Imesimbwa na kutumwa kwa usalama.",
-      "errandPlaceholder": "mf. Nunua mifuko 2 ya saruji kutoka duka la vifaa vya ujenzi. Bajeti ~TZS 50,000.",
       "fromGallery": "Kutoka ghala",
-      "gallery": "Ghala",
       "hirePlaceholder": "mf. Nahitaji gari kwa takribani saa 5 kufanya shughuli mbalimbali mjini.",
       "imageTooLarge": "Ukubwa wa picha ni mkubwa mno (kiwango cha juu MB 50)",
-      "meansOfTransport": "Njia ya usafiri",
       "packageDetails": "Maelezo ya kifurushi",
       "packagePlaceholder": "mf. Hati, vifaa vidogo vya elektroniki",
       "photoAttached": "Picha imeambatishwa",
-      "pickDateTime": "Chagua tarehe na saa.",
-      "pickupDateTime": "Tarehe na saa ya kuchukua",
-      "pickupDropoff": "Kuchukua na kufikisha",
       "pickupLocation": "Eneo la kuchukua",
-      "recipient": "Mpokeaji",
       "recipientName": "Jina la mpokeaji",
       "recipientPhone": "Simu ya mpokeaji",
       "removePhoto": "Ondoa picha",
-      "review": "Kagua",
       "scheduleLater": "Panga kwa baadaye",
       "selectDestination": "Chagua marudio",
       "selectLocation": "Chagua eneo",
-      "service": "Huduma",
-      "start": "Anza",
-      "startLocation": "Eneo la kuanzia",
-      "stepDetails": "Maelezo",
-      "stepPurpose": "Madhumuni",
-      "stepTime": "Muda",
-      "stepTransport": "Usafiri",
       "submitFailed": "Imeshindwa kuwasilisha ombi",
       "submitRequest": "Wasilisha ombi",
       "submitted": "Ombi limewasilishwa! Inaelekeza…",
       "submitting": "Inawasilisha…",
-      "suggestedDestinations": "Marudio yaliyopendekezwa",
       "suggestedPlaces": "Maeneo yaliyopendekezwa",
-      "suggestions": "Mapendekezo (kituo cha basi, uwanja wa ndege, hospitali…)",
       "takePhoto": "Piga picha",
-      "transport": "Usafiri",
-      "tripNotes": "Madokezo ya safari",
       "tripPlaceholder": "mf. Abiria 2, mizigo kidogo.",
       "typeOrPickMap": "Andika anwani au chagua kwenye ramani",
       "uploadFailed": "Imeshindwa kupakia picha",
-      "whatNeed": "Unahitaji nini?",
-      "when": "Lini?",
-      "whereDeliver": "Wapi pa kufikisha",
-      "whereStart": "Wapi pa kuanzia",
       "yourContact": "Mawasiliano yako (kutoka wasifu wako)",
-      "yourLocationDeliver": "Eneo lako (fikisha kwa)",
-      "yourTrip": "Safari yako"
+      "stepOf": "Hatua {{n}} kati ya {{total}}",
+      "noVehicles": "Hakuna magari yaliyowekwa bado. Tafadhali wasiliana nasi.",
+      "mapGettingAddress": "Inatafuta anwani…",
+      "mapMoveToSelect": "Sogeza ramani ili kuweka alama.",
+      "mapConfirm": "Tumia eneo hili",
+      "searchPlaceholder": "Tafuta eneo",
+      "searchNoResults": "Hakuna eneo linalolingana.",
+      "pickOnMap": "Chagua kwenye ramani",
+      "steps": {
+        "where": "Wapi",
+        "details": "Maelezo",
+        "confirm": "Thibitisha"
+      },
+      "svc": {
+        "errand": {
+          "whereTitle": "Dereva aende wapi?",
+          "whereSubtitle": "Tuambie aende wapi na ufanye nini."
+        },
+        "delivery": {
+          "whereTitle": "Kifurushi kinakwenda wapi?",
+          "whereSubtitle": "Mahali pa kuchukua, kufikisha na anayepokea.",
+          "detailsTitle": "Tunatuma nini?",
+          "detailsSubtitle": "Chagua chombo na ueleze kifurushi."
+        },
+        "ride": {
+          "whereTitle": "Unakwenda wapi?",
+          "whereSubtitle": "Tutatuma dereva mahali unapoanzia.",
+          "detailsTitle": "Ungependa kusafiri vipi?",
+          "detailsSubtitle": "Chagua chombo cha safari."
+        },
+        "hire": {
+          "whereTitle": "Safari ni ya wapi?",
+          "whereSubtitle": "Gari linaanzia wapi na linakwenda wapi.",
+          "detailsTitle": "Unabeba nini?",
+          "detailsSubtitle": "Chagua gari na utuambie kuhusu safari."
+        }
+      },
+      "confirmTitle": "Kagua na tuma",
+      "confirmSubtitle": "Thibitisha maelezo, kisha tutatafuta dereva.",
+      "group": {
+        "pickup": "Kuchukua",
+        "dropoff": "Kufikisha",
+        "destination": "Unakoenda",
+        "recipient": "Mpokeaji",
+        "vehicle": "Chombo",
+        "package": "Kifurushi",
+        "notes": "Maelezo ya ziada",
+        "errand": "Kazi",
+        "people": "Maelezo ya safari",
+        "load": "Maelezo ya mzigo",
+        "schedule": "Lini",
+        "summary": "Muhtasari",
+        "sendingFrom": "Unatuma kutoka"
+      },
+      "errors": {
+        "pickupRequired": "Weka mahali pa kuchukua ili kuendelea.",
+        "dropoffRequired": "Weka unakoenda ili kuendelea.",
+        "errandDestinationRequired": "Tuambie dereva aende wapi.",
+        "errandReasonRequired": "Tuambie dereva afanye nini huko.",
+        "recipientPhoneRequired": "Weka namba ya simu ya mpokeaji.",
+        "vehicleRequired": "Chagua chombo ili kuendelea.",
+        "hireCategoryRequired": "Chagua unachobeba.",
+        "hireVehicleRequired": "Chagua gari la kukodi.",
+        "passengersRequired": "Abiria wangapi?",
+        "loadRequired": "Eleza unachosafirisha.",
+        "scheduleTimeRequired": "Chagua tarehe na muda.",
+        "scheduleTimePast": "Chagua muda ujao."
+      },
+      "serverErrors": {
+        "UNAUTHORIZED": "Tafadhali ingia tena.",
+        "NO_BUSINESS": "Hakuna wasifu wa biashara uliounganishwa na akaunti hii. Tafadhali wasiliana nasi.",
+        "INTERNAL": "Kuna hitilafu imetokea. Tafadhali jaribu tena."
+      },
+      "editStep": "Hariri"
     },
     "permissions": {
       "accessPermissions": "Ruhusa za Ufikiaji",

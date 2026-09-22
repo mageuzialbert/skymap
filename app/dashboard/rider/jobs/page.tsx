@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Filter, Loader2, Package } from 'lucide-react';
+import { Loader2, Package } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import DeliveryCard from '@/components/rider/DeliveryCard';
 import { useT } from '@/lib/i18n';
+import { statusBucket } from '@/lib/deliveryStatus';
+import { cardClass, pageTitle } from '@/lib/ui';
 
 interface Delivery {
   id: string;
@@ -30,21 +32,23 @@ interface Delivery {
   };
 }
 
+/** Same buckets the client's Activity list uses, so a rider filters with one
+ *  tap instead of picking an exact status. */
+type Bucket = 'ALL' | 'ACTIVE' | 'DONE' | 'FAILED';
+
 export default function RiderJobsPage() {
   const t = useT();
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [bucket, setBucket] = useState<Bucket>('ALL');
 
+  // One fetch, filtered in the browser: switching buckets is instant and the
+  // counts on the chips stay honest.
   const loadDeliveries = useCallback(async () => {
     try {
-      const url = statusFilter === 'ALL' 
-        ? '/api/rider/deliveries?limit=1000'
-        : `/api/rider/deliveries?status=${statusFilter}&limit=1000`;
-      
-      const response = await fetch(url);
+      const response = await fetch('/api/rider/deliveries?limit=1000');
       if (response.ok) {
         const data = await response.json();
         setDeliveries(data);
@@ -54,7 +58,7 @@ export default function RiderJobsPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, []);
 
   useEffect(() => {
     async function checkRole() {
@@ -72,55 +76,76 @@ export default function RiderJobsPage() {
     if (role === 'RIDER') {
       loadDeliveries();
     }
-  }, [statusFilter, role, loadDeliveries]);
+  }, [role, loadDeliveries]);
+
+  const counts = useMemo(() => {
+    const c = { ALL: deliveries.length, ACTIVE: 0, DONE: 0, FAILED: 0 };
+    deliveries.forEach((d) => (c[statusBucket(d.status)] += 1));
+    return c;
+  }, [deliveries]);
+
+  const filtered = useMemo(
+    () => (bucket === 'ALL' ? deliveries : deliveries.filter((d) => statusBucket(d.status) === bucket)),
+    [deliveries, bucket]
+  );
+
+  const chips: { key: Bucket; label: string }[] = [
+    { key: 'ALL', label: t('rider.jobs.buckets.all') },
+    { key: 'ACTIVE', label: t('rider.jobs.buckets.active') },
+    { key: 'DONE', label: t('rider.jobs.buckets.delivered') },
+    { key: 'FAILED', label: t('rider.jobs.buckets.failed') },
+  ];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="pb-20">
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('rider.jobs.title')}</h1>
-        <p className="text-gray-600 mt-1">{t('rider.jobs.subtitle')}</p>
+    <div>
+      <div className="mb-4">
+        <h1 className={pageTitle}>{t('rider.jobs.title')}</h1>
+        <p className="mt-1 text-gray-600">{t('rider.jobs.subtitle')}</p>
       </div>
 
-      {/* Filter */}
-      <div className="mb-4 flex items-center gap-3">
-        <Filter className="w-5 h-5 text-gray-500" />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-        >
-          <option value="ALL">{t('rider.jobs.allStatuses')}</option>
-          <option value="PENDING_CONFIRMATION">{t('rider.status.PENDING_CONFIRMATION')}</option>
-          <option value="ASSIGNED">{t('rider.status.ASSIGNED')}</option>
-          <option value="PICKED_UP">{t('rider.status.PICKED_UP')}</option>
-          <option value="IN_TRANSIT">{t('rider.status.IN_TRANSIT')}</option>
-          <option value="DELIVERED">{t('rider.status.DELIVERED')}</option>
-          <option value="FAILED">{t('rider.status.FAILED')}</option>
-        </select>
+      {/* Chips stay in reach while the job list scrolls. */}
+      <div className="sticky top-0 z-10 -mx-4 mb-4 bg-gray-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6">
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {chips.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              onClick={() => setBucket(c.key)}
+              aria-pressed={bucket === c.key}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+                bucket === c.key
+                  ? 'bg-gray-900 text-white'
+                  : 'border border-gray-200 bg-white text-gray-700 active:bg-gray-100'
+              }`}
+            >
+              {c.label}
+              <span className={bucket === c.key ? 'text-white/60' : 'text-gray-400'}>
+                {counts[c.key]}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Deliveries List */}
-      {deliveries.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
-          <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <p className="text-gray-500 text-lg mb-2">{t('rider.jobs.noneFound')}</p>
-          <p className="text-gray-400 text-sm">
-            {statusFilter === 'ALL'
-              ? t('rider.jobs.noneAssigned')
-              : t('rider.jobs.noneWithStatus', { status: statusFilter })}
+      {filtered.length === 0 ? (
+        <div className={`${cardClass} px-6 py-12 text-center`}>
+          <Package className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+          <p className="text-base font-semibold text-gray-900">{t('rider.jobs.noneFound')}</p>
+          <p className="mx-auto mt-1 max-w-xs text-sm text-gray-500">
+            {bucket === 'ALL' ? t('rider.jobs.noneAssigned') : t('rider.jobs.noneFiltered')}
           </p>
         </div>
       ) : (
         <div>
-          {deliveries.map((delivery) => (
+          {filtered.map((delivery) => (
             <DeliveryCard key={delivery.id} delivery={delivery} />
           ))}
         </div>

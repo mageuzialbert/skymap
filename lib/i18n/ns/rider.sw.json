@@ -32,7 +32,14 @@
       "allStatuses": "Hali Zote",
       "noneFound": "Hakuna usafirishaji uliopatikana",
       "noneAssigned": "Huna usafirishaji wowote uliopangiwa bado.",
-      "noneWithStatus": "Hakuna usafirishaji wenye hali \"{{status}}\""
+      "noneWithStatus": "Hakuna usafirishaji wenye hali \"{{status}}\"",
+      "buckets": {
+        "all": "Zote",
+        "active": "Inaendelea",
+        "delivered": "Imefikishwa",
+        "failed": "Imeshindwa"
+      },
+      "noneFiltered": "Hakuna kazi zinazolingana na kichujio hiki."
     },
     "jobDetail": {
       "title": "Maelezo ya Usafirishaji",

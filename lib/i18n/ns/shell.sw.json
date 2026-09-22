@@ -1,13 +1,12 @@
 {
   "nav": {
-    "overview": "Muhtasari",
+    "home": "Nyumbani",
     "orderDelivery": "Agiza Uwasilishaji",
     "ridesHistory": "Historia ya Safari",
     "messages": "Ujumbe",
     "invoices": "Ankara",
     "profile": "Wasifu",
     "verify": "Thibitisha",
-    "dashboard": "Dashibodi",
     "clients": "Wateja",
     "users": "Watumiaji",
     "deliveries": "Uwasilishaji",
@@ -25,6 +24,25 @@
     "myJobs": "Kazi Zangu",
     "createDelivery": "Tengeneza Uwasilishaji",
     "registerBusiness": "Sajili Biashara",
-    "toggleSidebar": "Fungua au funga menyu"
+    "account": "Akaunti",
+    "activity": "Shughuli"
+  },
+  "account": {
+    "roles": {
+      "BUSINESS": "Akaunti ya biashara",
+      "RIDER": "Dereva",
+      "STAFF": "Mfanyakazi",
+      "ADMIN": "Msimamizi"
+    },
+    "groups": {
+      "work": "Uendeshaji",
+      "money": "Fedha",
+      "people": "Watu",
+      "content": "Maudhui",
+      "settings": "Mipangilio",
+      "account": "Akaunti yako"
+    },
+    "signOutTitle": "Toka kwenye akaunti?",
+    "signOutMessage": "Utahitaji kuingia tena ili kuagiza au kufuatilia safari."
   }
 }

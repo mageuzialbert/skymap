@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase';
 import { CheckCircle, XCircle, Loader2, Send, Mail, Phone, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useT } from '@/lib/i18n';
+import Alert from '@/components/common/Alert';
+import { cardClass, inputClass, pageTitle, pillGhost, pillPrimary, sectionTitle } from '@/lib/ui';
 
 export default function BusinessVerifyPage() {
   const t = useT();
@@ -280,7 +282,7 @@ export default function BusinessVerifyPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">{t('business.verify.title')}</h1>
+        <h1 className={pageTitle}>{t('business.verify.title')}</h1>
         <p className="text-gray-600 mt-2">
           {t('business.verify.subtitle')}
         </p>
@@ -288,11 +290,11 @@ export default function BusinessVerifyPage() {
 
       <div className="space-y-6">
         {/* Phone Verification */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-4 sm:p-6`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <Phone className="w-6 h-6 text-gray-700" />
-              <h2 className="text-xl font-semibold text-gray-900">{t('business.verify.phoneVerification')}</h2>
+              <h2 className={sectionTitle}>{t('business.verify.phoneVerification')}</h2>
             </div>
             {phoneVerified ? (
               <div className="flex items-center space-x-2 text-green-600">
@@ -316,7 +318,7 @@ export default function BusinessVerifyPage() {
                 type="tel"
                 value={phone}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-50 text-gray-500"
+                className={`${inputClass} bg-gray-50 text-gray-500`}
               />
             </div>
 
@@ -326,7 +328,7 @@ export default function BusinessVerifyPage() {
                   <button
                     onClick={handleSendPhoneOTP}
                     disabled={phoneSending || !phone}
-                    className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    className={pillPrimary}
                   >
                     {phoneSending ? (
                       <>
@@ -352,14 +354,14 @@ export default function BusinessVerifyPage() {
                         onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         placeholder="000000"
                         maxLength={6}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className={inputClass}
                       />
                     </div>
                     <div className="flex gap-3">
                       <button
                         onClick={handleVerifyPhone}
                         disabled={phoneOtp.length !== 6 || phoneVerifying}
-                        className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
+                        className={pillPrimary}
                       >
                         {phoneVerifying ? (
                           <>
@@ -379,7 +381,7 @@ export default function BusinessVerifyPage() {
                           setPhoneOtp('');
                           setPhoneError('');
                         }}
-                        className="bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors font-medium"
+                        className={pillGhost}
                       >
                         {t('common.cancel')}
                       </button>
@@ -388,14 +390,10 @@ export default function BusinessVerifyPage() {
                 )}
 
                 {phoneSuccess && (
-                  <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
-                    {phoneSuccess}
-                  </div>
+                  <Alert tone="success">{phoneSuccess}</Alert>
                 )}
                 {phoneError && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-                    {phoneError}
-                  </div>
+                  <Alert tone="error">{phoneError}</Alert>
                 )}
               </>
             )}
@@ -403,11 +401,11 @@ export default function BusinessVerifyPage() {
         </div>
 
         {/* Email Verification */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-4 sm:p-6`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <Mail className="w-6 h-6 text-gray-700" />
-              <h2 className="text-xl font-semibold text-gray-900">{t('business.verify.emailVerification')}</h2>
+              <h2 className={sectionTitle}>{t('business.verify.emailVerification')}</h2>
             </div>
             {emailVerified && !emailEditing ? (
               <div className="flex items-center space-x-2 text-green-600">
@@ -424,12 +422,12 @@ export default function BusinessVerifyPage() {
 
           <div className="space-y-4">
             {((!emailVerified && email.endsWith('@kasicourier.local')) || emailEditing) && (
-              <div className="p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl text-sm">
+              <Alert tone="warning">
                 {emailEditing
                   ? t('business.verify.emailChangeWarning')
                   : t('business.verify.placeholderEmailWarning')
                 }
-              </div>
+              </Alert>
             )}
             
             <div>
@@ -443,7 +441,7 @@ export default function BusinessVerifyPage() {
                       type="email"
                       value={email}
                       disabled
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-xl bg-gray-50 text-gray-500"
+                      className={`${inputClass} flex-1 bg-gray-50 text-gray-500`}
                     />
                     <button
                       onClick={() => {
@@ -452,7 +450,7 @@ export default function BusinessVerifyPage() {
                         setEmailError('');
                         setEmailSuccess('');
                       }}
-                      className="flex items-center space-x-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors font-medium"
+                      className={pillGhost}
                     >
                       <Pencil className="w-4 h-4" />
                       <span>{t('common.edit')}</span>
@@ -465,7 +463,7 @@ export default function BusinessVerifyPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={t('business.verify.enterEmail')}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className={`${inputClass} flex-1`}
                     />
                     {emailEditing && (
                       <button
@@ -475,7 +473,7 @@ export default function BusinessVerifyPage() {
                           setEmailError('');
                           setEmailSuccess('');
                         }}
-                        className="bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors font-medium"
+                        className={pillGhost}
                       >
                         {t('common.cancel')}
                       </button>
@@ -496,7 +494,7 @@ export default function BusinessVerifyPage() {
                     }
                   }}
                   disabled={emailSending || !email || email.endsWith('@kasicourier.local')}
-                  className="flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 font-medium"
+                  className={pillPrimary}
                 >
                   {emailSending ? (
                     <>
@@ -512,15 +510,11 @@ export default function BusinessVerifyPage() {
                 </button>
 
                 {emailError && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-                    {emailError}
-                  </div>
+                  <Alert tone="error">{emailError}</Alert>
                 )}
 
                 {emailSuccess && (
-                  <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
-                    {emailSuccess}
-                  </div>
+                  <Alert tone="success">{emailSuccess}</Alert>
                 )}
               </>
             )}

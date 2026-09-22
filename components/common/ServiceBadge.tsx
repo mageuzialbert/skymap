@@ -1,9 +1,7 @@
 'use client';
 
-import { Package, UserRound, Clock, ShoppingBag } from 'lucide-react';
+import ServiceIcon from '@/components/common/ServiceIcon';
 import { getServiceType } from '@/lib/serviceTypes';
-
-const ICONS: Record<string, any> = { Package, UserRound, Clock, ShoppingBag };
 
 /**
  * Small pill showing a request's service type (delivery / ride / hire / errand).
@@ -17,12 +15,11 @@ export default function ServiceBadge({
   className?: string;
 }) {
   const def = getServiceType(serviceType);
-  const Icon = ICONS[def.icon] || Package;
   return (
     <span
       className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${def.badgeClass} ${className}`}
     >
-      <Icon className="w-3.5 h-3.5" />
+      <ServiceIcon serviceType={serviceType} className="w-3.5 h-3.5" />
       {def.label}
     </span>
   );

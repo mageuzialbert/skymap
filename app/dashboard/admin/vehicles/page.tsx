@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, X, Loader2, Bike, Car, Truck, Zap } from 'lucide-react';
+import { Plus, X, Loader2, Motorbike, Car, Zap } from 'lucide-react';
+import Bajaj from '@/components/common/BajajIcon';
 import { useT } from '@/lib/i18n';
 
 interface VehicleType {
@@ -15,8 +16,8 @@ interface VehicleType {
 }
 
 const ICON_BY_KEY: Record<string, any> = {
-  boda: Bike,
-  bajaj: Truck,
+  boda: Motorbike,
+  bajaj: Bajaj,
   electric: Zap,
   car: Car,
 };
@@ -277,7 +278,7 @@ export default function AdminVehiclesPage() {
       <div className="bg-white rounded-xl shadow-md divide-y divide-gray-200">
         {vehicles.length === 0 ? (
           <div className="px-4 py-12 text-center">
-            <Bike className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+            <Motorbike className="w-12 h-12 mx-auto text-gray-300 mb-3" />
             <p className="text-gray-500">{t('admin.vehicles.empty')}</p>
           </div>
         ) : (

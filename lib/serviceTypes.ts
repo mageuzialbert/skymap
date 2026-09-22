@@ -4,19 +4,41 @@
 
 export type ServiceTypeKey = 'delivery' | 'ride' | 'hire' | 'errand';
 
+/**
+ * A service's identity colour. Accent marks *which flow you are in*; it never
+ * marks what is tappable - every interactive affordance stays brand teal, so a
+ * customer learns the controls once instead of per service.
+ *
+ * It is allowed in exactly three places: the step header chip, the filled
+ * segments of the step indicator, and the service badge on review / success.
+ */
+export interface ServiceAccent {
+  /** Chip background. */
+  bg: string;
+  /** Chip icon and the one accented word. */
+  text: string;
+  /** Filled step-indicator segments. */
+  bar: string;
+}
+
 export interface ServiceTypeDef {
   key: ServiceTypeKey;
   /** Lucide icon name (import the icon where rendered). */
-  icon: 'Package' | 'UserRound' | 'Clock' | 'ShoppingBag' | 'Send';
+  icon: 'Package' | 'UserRound' | 'Clock' | 'ShoppingBag' | 'Motorbike' | 'Bajaj' | 'Lorry';
   label: string;
   /** i18n key for the label (components.serviceTypes.<key>.label). */
   labelKey: string;
-  /** One-line description shown on the purpose-selection card. */
-  description: string;
-  /** i18n key for the description (components.serviceTypes.<key>.desc). */
-  descriptionKey: string;
+  /** i18n key for the 2-3 word benefit line under the label on the home tiles
+   *  (components.serviceTypes.<key>.tagline). Deliberately short - the old
+   *  full-sentence descriptions were removed. */
+  taglineKey: string;
+  /** Self-hosted 256x256 thumbnail (see scripts/gen-service-images.js).
+   *  Used by the public landing tiles; the signed-in home uses the icon. */
+  image: string;
   /** Tailwind classes for a small badge. */
   badgeClass: string;
+  /** Identity colour - see ServiceAccent for where it may appear. */
+  accent: ServiceAccent;
 }
 
 // Order matters — the client wizard renders them in this order. "Send a Rider"
@@ -24,39 +46,43 @@ export interface ServiceTypeDef {
 export const SERVICE_TYPES: ServiceTypeDef[] = [
   {
     key: 'errand',
-    icon: 'Send',
+    icon: 'Motorbike',
     label: 'Send a Rider',
     labelKey: 'components.serviceTypes.errand.label',
-    description: 'Send a rider to a place to buy, collect or hand over something for you.',
-    descriptionKey: 'components.serviceTypes.errand.desc',
+    taglineKey: 'components.serviceTypes.errand.tagline',
+    image: '/services/errand.webp',
     badgeClass: 'bg-amber-100 text-amber-800 border border-amber-200',
+    accent: { bg: 'bg-amber-50', text: 'text-amber-700', bar: 'bg-amber-500' },
   },
   {
     key: 'delivery',
     icon: 'Package',
     label: 'Package Delivery',
     labelKey: 'components.serviceTypes.delivery.label',
-    description: 'Send a parcel from one place to a recipient at another.',
-    descriptionKey: 'components.serviceTypes.delivery.desc',
+    taglineKey: 'components.serviceTypes.delivery.tagline',
+    image: '/services/delivery.webp',
     badgeClass: 'bg-primary/10 text-primary border border-primary/20',
+    accent: { bg: 'bg-primary/10', text: 'text-primary', bar: 'bg-primary' },
   },
   {
     key: 'ride',
-    icon: 'UserRound',
+    icon: 'Bajaj',
     label: 'Ride',
     labelKey: 'components.serviceTypes.ride.label',
-    description: 'Get picked up and taken to your destination.',
-    descriptionKey: 'components.serviceTypes.ride.desc',
+    taglineKey: 'components.serviceTypes.ride.tagline',
+    image: '/services/ride.webp',
     badgeClass: 'bg-blue-100 text-blue-800 border border-blue-200',
+    accent: { bg: 'bg-blue-50', text: 'text-blue-700', bar: 'bg-blue-500' },
   },
   {
     key: 'hire',
-    icon: 'Clock',
+    icon: 'Lorry',
     label: 'Vehicle Hire',
     labelKey: 'components.serviceTypes.hire.label',
-    description: 'Book a whole vehicle for people or loads - route and time may vary.',
-    descriptionKey: 'components.serviceTypes.hire.desc',
+    taglineKey: 'components.serviceTypes.hire.tagline',
+    image: '/services/hire.webp',
     badgeClass: 'bg-purple-100 text-purple-800 border border-purple-200',
+    accent: { bg: 'bg-purple-50', text: 'text-purple-700', bar: 'bg-purple-500' },
   },
 ];
 

@@ -63,7 +63,14 @@
       },
       "empty": "Hakuna ankara zilizopatikana. Ankara hutengenezwa kila wiki kwa usafirishaji uliokamilika.",
       "details": "Taarifa za Ankara",
-      "printPdf": "Chapisha / PDF"
+      "printPdf": "Chapisha / PDF",
+      "status": {
+        "draft": "Rasimu",
+        "proforma": "Proforma",
+        "sent": "Imetumwa",
+        "paid": "Imelipwa",
+        "cancelled": "Imeghairiwa"
+      }
     },
     "invoicePrint": {
       "notFound": "Ankara haikupatikana",
@@ -173,7 +180,9 @@
         "inTransit": "Njiani",
         "delivered": "Imefikishwa",
         "failed": "Imeshindwa",
-        "rejected": "Imekataliwa"
+        "rejected": "Imekataliwa",
+        "pendingConfirmation": "Inasubiri uthibitisho",
+        "active": "Inaendelea"
       },
       "showingCount": "Inaonyesha {{shown}} kati ya {{total}} safari",
       "col": {
@@ -186,12 +195,38 @@
         "cost": "Gharama"
       },
       "noRequests": "Hakuna maombi yaliyopatikana.",
-      "noRides": "Hakuna safari zilizopatikana."
+      "noRides": "Hakuna safari zilizopatikana.",
+      "today": "Leo",
+      "yesterday": "Jana",
+      "from": "kutoka",
+      "moreFilters": "Vichujio zaidi",
+      "unpaidInvoices": "Ankara ambazo hazijalipwa",
+      "emptyTitle": "Bado hakuna safari",
+      "emptyBody": "Maombi yako yataonekana hapa ukishaagiza.",
+      "emptyFiltered": "Hakuna safari zinazolingana na vichujio hivi."
     },
     "requestRide": {
       "title": "Ombi Jipya",
       "subtitle": "Chagua huduma na utuambie maelezo - tutashughulikia mengine.",
       "mapsNotConfigured": "Google Maps haijasanidiwa. Uchaguzi wa anuani unaihitaji. Tafadhali wasiliana na msaada."
+    },
+    "home": {
+      "heading": "Safirisha chochote, popote.",
+      "whereTo": "Unaenda wapi?",
+      "later": "Baadaye",
+      "recent": "Za hivi karibuni",
+      "activeNow": "Inaendelea sasa",
+      "track": "Fuatilia"
+    }
+  },
+  "account": {
+    "groups": {
+      "work": "Kazi",
+      "money": "Fedha",
+      "people": "Watu",
+      "content": "Maudhui",
+      "settings": "Mipangilio",
+      "account": "Akaunti"
     }
   }
 }

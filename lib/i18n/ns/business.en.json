@@ -63,7 +63,14 @@
       },
       "empty": "No invoices found. Invoices are generated weekly for completed deliveries.",
       "details": "Invoice Details",
-      "printPdf": "Print / PDF"
+      "printPdf": "Print / PDF",
+      "status": {
+        "draft": "Draft",
+        "proforma": "Proforma",
+        "sent": "Sent",
+        "paid": "Paid",
+        "cancelled": "Cancelled"
+      }
     },
     "invoicePrint": {
       "notFound": "Invoice not found",
@@ -173,7 +180,9 @@
         "inTransit": "In transit",
         "delivered": "Delivered",
         "failed": "Failed",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "pendingConfirmation": "Awaiting confirmation",
+        "active": "Active"
       },
       "showingCount": "Showing {{shown}} of {{total}} rides",
       "col": {
@@ -186,12 +195,38 @@
         "cost": "Cost"
       },
       "noRequests": "No requests found.",
-      "noRides": "No rides found."
+      "noRides": "No rides found.",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "from": "from",
+      "moreFilters": "More filters",
+      "unpaidInvoices": "Unpaid invoices",
+      "emptyTitle": "No rides yet",
+      "emptyBody": "Your requests will show up here once you place one.",
+      "emptyFiltered": "No rides match these filters."
     },
     "requestRide": {
       "title": "New Request",
       "subtitle": "Choose a service and tell us the details - we'll handle the rest.",
       "mapsNotConfigured": "Google Maps is not configured. Address selection requires it. Please contact support."
+    },
+    "home": {
+      "heading": "Move anything, anywhere.",
+      "whereTo": "Where to?",
+      "later": "Later",
+      "recent": "Recent",
+      "activeNow": "Happening now",
+      "track": "Track"
+    }
+  },
+  "account": {
+    "groups": {
+      "work": "Work",
+      "money": "Money",
+      "people": "People",
+      "content": "Content",
+      "settings": "Settings",
+      "account": "Account"
     }
   }
 }

@@ -2,12 +2,11 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Loader2, Filter, Bike, Plus, MapPin, X } from 'lucide-react';
+import { Loader2, Plus, SlidersHorizontal, X, Package, ChevronRight, Receipt } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
-import ServiceBadge from '@/components/common/ServiceBadge';
-import OverviewStats from '@/components/business/OverviewStats';
+import ServiceIcon from '@/components/common/ServiceIcon';
+import { statusBucket, statusLabelKey, BUCKET_DOT, BUCKET_TEXT } from '@/lib/deliveryStatus';
 import { cardClass, pillPrimary, pageTitle } from '@/lib/ui';
 
 interface Ride {
@@ -25,16 +24,8 @@ interface Ride {
   delivery_fee?: number | null;
 }
 
-const statusColors: Record<string, string> = {
-  CREATED: 'bg-gray-100 text-gray-800 border border-gray-300',
-  PENDING_CONFIRMATION: 'bg-purple-100 text-purple-800 border border-purple-300',
-  ASSIGNED: 'bg-blue-100 text-blue-800 border border-blue-300',
-  PICKED_UP: 'bg-yellow-100 text-yellow-800 border border-yellow-300',
-  IN_TRANSIT: 'bg-orange-100 text-orange-800 border border-orange-300',
-  DELIVERED: 'bg-green-100 text-green-800 border border-green-300',
-  FAILED: 'bg-red-100 text-red-800 border border-red-300',
-  REJECTED: 'bg-red-100 text-red-800 border border-red-300',
-};
+/** "All" plus the three shared status buckets, as the filter chips. */
+type Bucket = 'ALL' | 'ACTIVE' | 'DONE' | 'FAILED';
 
 function formatCurrency(v?: number | null) {
   if (v == null || v <= 0) return null;
@@ -45,24 +36,35 @@ function formatCurrency(v?: number | null) {
   }).format(v);
 }
 
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 export default function RidesHistoryPage() {
   const t = useT();
-  const router = useRouter();
   const [rides, setRides] = useState<Ride[]>([]);
   const [vehicleNames, setVehicleNames] = useState<Record<string, string>>({});
+  const [unpaidInvoices, setUnpaidInvoices] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Filters
+  // Filters. The chips carry the common case; the panel holds the date and
+  // time ranges and stays shut until asked for.
+  const [bucket, setBucket] = useState<Bucket>('ALL');
+  const [panelOpen, setPanelOpen] = useState(false);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [timeFrom, setTimeFrom] = useState('');
   const [timeTo, setTimeTo] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
     (async () => {
       try {
-        const [{ data: { user } }, vtRes] = await Promise.all([
+        const [
+          {
+            data: { user },
+          },
+          vtRes,
+        ] = await Promise.all([
           supabase.auth.getUser(),
           fetch('/api/vehicle-types').then((r) => (r.ok ? r.json() : [])),
         ]);
@@ -79,12 +81,16 @@ export default function RidesHistoryPage() {
           .single();
         if (!business) return;
 
-        const { data } = await supabase
-          .from('deliveries')
-          .select('*')
-          .eq('business_id', business.id)
-          .order('created_at', { ascending: false });
+        const [{ data }, { data: invoices }] = await Promise.all([
+          supabase
+            .from('deliveries')
+            .select('*')
+            .eq('business_id', business.id)
+            .order('created_at', { ascending: false }),
+          supabase.from('invoices').select('status').eq('business_id', business.id),
+        ]);
         setRides(data || []);
+        setUnpaidInvoices((invoices || []).filter((i: any) => i.status !== 'PAID').length);
       } catch (err) {
         console.error('Error loading rides:', err);
       } finally {
@@ -93,12 +99,17 @@ export default function RidesHistoryPage() {
     })();
   }, []);
 
-  // Apply date-range, time-range and status filters to created_at.
+  const counts = useMemo(() => {
+    const c = { ALL: rides.length, ACTIVE: 0, DONE: 0, FAILED: 0 };
+    rides.forEach((r) => (c[statusBucket(r.status)] += 1));
+    return c;
+  }, [rides]);
+
   const filtered = useMemo(() => {
     return rides.filter((r) => {
-      const d = new Date(r.created_at);
-      if (statusFilter !== 'ALL' && r.status !== statusFilter) return false;
+      if (bucket !== 'ALL' && statusBucket(r.status) !== bucket) return false;
 
+      const d = new Date(r.created_at);
       if (dateFrom && d < new Date(`${dateFrom}T00:00:00`)) return false;
       if (dateTo && d > new Date(`${dateTo}T23:59:59`)) return false;
 
@@ -115,230 +126,265 @@ export default function RidesHistoryPage() {
       }
       return true;
     });
-  }, [rides, statusFilter, dateFrom, dateTo, timeFrom, timeTo]);
+  }, [rides, bucket, dateFrom, dateTo, timeFrom, timeTo]);
 
-  const hasFilters = dateFrom || dateTo || timeFrom || timeTo || statusFilter !== 'ALL';
+  // Rides arrive newest first, so a single pass gives the day sections.
+  const days = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    const out: { key: string; label: string; rides: Ride[] }[] = [];
+    for (const r of filtered) {
+      const day = new Date(r.created_at);
+      day.setHours(0, 0, 0, 0);
+      const key = day.toDateString();
+      if (out[out.length - 1]?.key !== key) {
+        const label =
+          day.getTime() === today.getTime()
+            ? t('business.rides.today')
+            : day.getTime() === yesterday.getTime()
+              ? t('business.rides.yesterday')
+              : day.toLocaleDateString(undefined, {
+                  day: 'numeric',
+                  month: 'short',
+                  ...(day.getFullYear() === today.getFullYear() ? {} : { year: 'numeric' }),
+                });
+        out.push({ key, label, rides: [] });
+      }
+      out[out.length - 1].rides.push(r);
+    }
+    return out;
+  }, [filtered, t]);
+
+  const rangeFilters = Boolean(dateFrom || dateTo || timeFrom || timeTo);
+  const anyFilters = rangeFilters || bucket !== 'ALL';
+
   function clearFilters() {
     setDateFrom('');
     setDateTo('');
     setTimeFrom('');
     setTimeTo('');
-    setStatusFilter('ALL');
+    setBucket('ALL');
   }
+
+  const chips: { key: Bucket; label: string }[] = [
+    { key: 'ALL', label: t('business.rides.status.all') },
+    { key: 'ACTIVE', label: t('business.rides.status.active') },
+    { key: 'DONE', label: t('business.rides.status.delivered') },
+    { key: 'FAILED', label: t('business.rides.status.failed') },
+  ];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <h1 className={pageTitle}>{t('client.ridesHistory')}</h1>
         <Link href="/dashboard/business/request-ride" className={pillPrimary}>
-          <Plus className="w-5 h-5" />
+          <Plus className="h-5 w-5" />
           <span className="hidden sm:inline">{t('client.requestRide')}</span>
         </Link>
       </div>
 
-      <OverviewStats />
+      {unpaidInvoices > 0 && (
+        <Link
+          href="/dashboard/business/invoices"
+          className="mb-4 flex min-h-[3.25rem] items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 text-amber-900 transition-colors active:bg-amber-100"
+        >
+          <Receipt className="h-5 w-5 shrink-0 text-amber-600" />
+          <span className="flex-1 truncate text-[15px] font-medium">
+            {t('business.rides.unpaidInvoices')}
+          </span>
+          <span className="shrink-0 rounded-full bg-amber-200 px-2 py-0.5 text-xs font-bold">
+            {unpaidInvoices}
+          </span>
+          <ChevronRight className="h-5 w-5 shrink-0 text-amber-400" />
+        </Link>
+      )}
 
-      {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Filter className="w-4 h-4 text-gray-500" />
-          <span className="text-sm font-semibold text-gray-700">{t('business.rides.filters')}</span>
-          {hasFilters && (
+      {/* Status chips stay in reach while the list scrolls. They carry the
+          counts too, which is all the old stat grid was really saying. */}
+      <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center gap-2 bg-gray-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6">
+        <div className="-mx-1 flex flex-1 gap-2 overflow-x-auto px-1 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {chips.map((c) => (
             <button
-              onClick={clearFilters}
-              className="ml-auto inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+              key={c.key}
+              type="button"
+              onClick={() => setBucket(c.key)}
+              aria-pressed={bucket === c.key}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+                bucket === c.key
+                  ? 'bg-gray-900 text-white'
+                  : 'border border-gray-200 bg-white text-gray-700 active:bg-gray-100'
+              }`}
             >
-              <X className="w-3.5 h-3.5" /> {t('business.rides.clear')}
+              {c.label}
+              <span className={bucket === c.key ? 'text-white/60' : 'text-gray-400'}>
+                {counts[c.key]}
+              </span>
             </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setPanelOpen((o) => !o)}
+          aria-expanded={panelOpen}
+          aria-label={t('business.rides.moreFilters')}
+          className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors ${
+            panelOpen || rangeFilters
+              ? 'border-gray-900 bg-gray-900 text-white'
+              : 'border-gray-200 bg-white text-gray-600'
+          }`}
+        >
+          <SlidersHorizontal className="h-[18px] w-[18px]" />
+          {rangeFilters && !panelOpen && (
+            <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-gray-50" />
           )}
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.dateFrom')}</label>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.dateTo')}</label>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.timeFrom')}</label>
-            <input
-              type="time"
-              value={timeFrom}
-              onChange={(e) => setTimeFrom(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.timeTo')}</label>
-            <input
-              type="time"
-              value={timeTo}
-              onChange={(e) => setTimeTo(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">{t('business.rides.statusLabel')}</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-            >
-              <option value="ALL">{t('business.rides.status.all')}</option>
-              <option value="CREATED">{t('business.rides.status.created')}</option>
-              <option value="ASSIGNED">{t('business.rides.status.assigned')}</option>
-              <option value="PICKED_UP">{t('business.rides.status.pickedUp')}</option>
-              <option value="IN_TRANSIT">{t('business.rides.status.inTransit')}</option>
-              <option value="DELIVERED">{t('business.rides.status.delivered')}</option>
-              <option value="FAILED">{t('business.rides.status.failed')}</option>
-              <option value="REJECTED">{t('business.rides.status.rejected')}</option>
-            </select>
-          </div>
-        </div>
-        <p className="text-xs text-gray-500 mt-2">
-          {t('business.rides.showingCount', { shown: filtered.length, total: rides.length })}
-        </p>
+        </button>
       </div>
 
-      {/* Desktop table */}
-      <div className={`hidden md:block overflow-hidden ${cardClass}`}>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.service')}</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.route')}</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.vehicle')}</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.date')}</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.time')}</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.status')}</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('business.rides.col.cost')}</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
-                    {t('business.rides.noRequests')}
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((r) => (
-                  <tr
-                    key={r.id}
-                    onClick={() => router.push(`/dashboard/business/deliveries/${r.id}`)}
-                    className="hover:bg-gray-50 cursor-pointer"
-                  >
-                    <td className="px-5 py-4">
-                      <ServiceBadge serviceType={r.service_type} />
-                    </td>
-                    <td className="px-5 py-4 text-sm text-gray-900">
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                        <span className="truncate max-w-[220px]">{r.pickup_address}</span>
-                      </div>
-                      {r.dropoff_address && (
-                        <div className="flex items-center gap-1.5 text-gray-500 mt-0.5">
-                          <MapPin className="w-3.5 h-3.5 text-secondary-dark shrink-0" />
-                          <span className="truncate max-w-[220px]">{r.dropoff_address}</span>
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-gray-700">
-                      {r.vehicle_type_id ? vehicleNames[r.vehicle_type_id] || '-' : '-'}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-gray-500">
-                      {new Date(r.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-gray-500">
-                      {new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full ${
-                          statusColors[r.status] || statusColors.CREATED
-                        }`}
-                      >
-                        {r.status.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-sm font-medium text-gray-900">
-                      {formatCurrency(r.delivery_fee) || <span className="text-gray-400">-</span>}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {panelOpen && (
+        <div className={`${cardClass} mb-4 p-4`}>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <span className="text-sm font-semibold text-gray-700">
+              {t('business.rides.moreFilters')}
+            </span>
+            {anyFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 active:text-gray-900"
+              >
+                <X className="h-3.5 w-3.5" /> {t('business.rides.clear')}
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: t('business.rides.dateFrom'), type: 'date', value: dateFrom, set: setDateFrom },
+              { label: t('business.rides.dateTo'), type: 'date', value: dateTo, set: setDateTo },
+              { label: t('business.rides.timeFrom'), type: 'time', value: timeFrom, set: setTimeFrom },
+              { label: t('business.rides.timeTo'), type: 'time', value: timeTo, set: setTimeTo },
+            ].map((f) => (
+              <label key={f.label} className="block">
+                <span className="mb-1 block text-xs font-medium text-gray-600">{f.label}</span>
+                <input
+                  type={f.type}
+                  value={f.value}
+                  onChange={(e) => f.set(e.target.value)}
+                  className="h-11 w-full rounded-xl border border-gray-300 px-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
+                />
+              </label>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-gray-500">
+            {t('business.rides.showingCount', { shown: filtered.length, total: rides.length })}
+          </p>
         </div>
-      </div>
+      )}
 
-      {/* Mobile cards */}
-      <div className="md:hidden space-y-3">
-        {filtered.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">{t('business.rides.noRides')}</div>
-        ) : (
-          filtered.map((r) => (
-            <Link
-              key={r.id}
-              href={`/dashboard/business/deliveries/${r.id}`}
-              className="block bg-white rounded-xl shadow-sm border border-gray-100 p-4"
-            >
-              <div className="flex items-center justify-between mb-2 gap-2">
-                <ServiceBadge serviceType={r.service_type} />
-                <span
-                  className={`inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full ${
-                    statusColors[r.status] || statusColors.CREATED
-                  }`}
-                >
-                  {r.status.replace(/_/g, ' ')}
-                </span>
+      {days.length === 0 ? (
+        <div className={`${cardClass} px-6 py-12 text-center`}>
+          <Package className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+          <p className="text-base font-semibold text-gray-900">
+            {anyFilters ? t('business.rides.emptyFiltered') : t('business.rides.emptyTitle')}
+          </p>
+          {!anyFilters && (
+            <p className="mx-auto mt-1 max-w-xs text-sm text-gray-500">
+              {t('business.rides.emptyBody')}
+            </p>
+          )}
+          <div className="mt-5">
+            {anyFilters ? (
+              <button type="button" onClick={clearFilters} className={pillPrimary}>
+                {t('business.rides.clear')}
+              </button>
+            ) : (
+              <Link href="/dashboard/business/request-ride" className={pillPrimary}>
+                <Plus className="h-5 w-5" />
+                {t('client.requestRide')}
+              </Link>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {days.map((day) => (
+            <section key={day.key}>
+              <h2 className="mb-2 ml-1 text-[13px] font-semibold text-gray-500">{day.label}</h2>
+              <div className={`${cardClass} overflow-hidden`}>
+                <ul>
+                  {day.rides.map((r, i) => {
+                    const tone = statusBucket(r.status);
+                    const destination =
+                      r.dropoff_name || r.dropoff_address || r.pickup_name || r.pickup_address;
+                    const origin = r.pickup_name || r.pickup_address;
+                    const vehicle = r.vehicle_type_id ? vehicleNames[r.vehicle_type_id] : '';
+                    const fee = formatCurrency(r.delivery_fee);
+                    return (
+                      <li key={r.id}>
+                        <Link
+                          href={`/dashboard/business/deliveries/${r.id}`}
+                          className="flex gap-3 px-4 py-3.5 transition-colors hover:bg-gray-50 active:bg-gray-100"
+                        >
+                          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
+                            <ServiceIcon
+                              serviceType={r.service_type}
+                              className="h-[18px] w-[18px]"
+                            />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-baseline gap-2">
+                              <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-gray-900">
+                                {destination}
+                              </span>
+                              <span className="shrink-0 text-xs text-gray-400">
+                                {formatTime(r.created_at)}
+                              </span>
+                            </span>
+                            <span className="mt-0.5 block truncate text-[13px] text-gray-500">
+                              {t('business.rides.from')} {origin}
+                            </span>
+                            <span className="mt-1.5 flex items-center gap-3">
+                              <span
+                                className={`inline-flex shrink-0 items-center gap-1.5 text-xs font-medium ${BUCKET_TEXT[tone]}`}
+                              >
+                                <span className={`h-1.5 w-1.5 rounded-full ${BUCKET_DOT[tone]}`} />
+                                {t(statusLabelKey(r.status))}
+                              </span>
+                              {vehicle && (
+                                <span className="min-w-0 truncate text-xs text-gray-400">
+                                  {vehicle}
+                                </span>
+                              )}
+                              {fee && (
+                                <span className="ml-auto shrink-0 text-xs font-semibold text-gray-900">
+                                  {fee}
+                                </span>
+                              )}
+                            </span>
+                          </span>
+                        </Link>
+                        {i < day.rides.length - 1 && (
+                          <span className="ml-[3.25rem] block h-px bg-gray-100" />
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-              <div className="flex items-center gap-1.5 text-sm text-gray-900">
-                <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                <span className="truncate">{r.pickup_address}</span>
-              </div>
-              {r.dropoff_address && (
-                <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5 text-secondary-dark shrink-0" />
-                  <span className="truncate">{r.dropoff_address}</span>
-                </div>
-              )}
-              <div className="text-xs text-gray-400 mt-1">
-                {new Date(r.created_at).toLocaleDateString()}{' '}
-                {new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
-              <div className="flex items-center justify-between mt-2 text-xs">
-                <span className="inline-flex items-center gap-1 text-gray-600">
-                  <Bike className="w-3.5 h-3.5" />
-                  {r.vehicle_type_id ? vehicleNames[r.vehicle_type_id] || '-' : '-'}
-                </span>
-                <span className="font-medium text-gray-900">{formatCurrency(r.delivery_fee) || '-'}</span>
-              </div>
-            </Link>
-          ))
-        )}
-      </div>
+            </section>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

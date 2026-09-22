@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { useLoadScript } from '@react-google-maps/api';
 import { supabase } from '@/lib/supabase';
 import { resetPassword } from '@/lib/auth';
-import { Save, Loader2, Upload, X, Lock, AlertCircle } from 'lucide-react';
+import { Save, Loader2, Upload, X, Lock } from 'lucide-react';
 import { useT } from '@/lib/i18n';
+import Alert from '@/components/common/Alert';
+import { cardClass, inputClass, pageTitle, pillPrimary, sectionTitle } from '@/lib/ui';
 import LocationPicker from '@/components/common/LocationPicker';
 
 interface BusinessProfile {
@@ -424,35 +426,31 @@ export default function BusinessProfilePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">{t('business.profile.title')}</h1>
+        <h1 className={pageTitle}>{t('business.profile.title')}</h1>
         <p className="text-gray-600 mt-2">
           {t('business.profile.subtitle')}
         </p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-          {error}
-        </div>
+        <Alert tone="error" className="mb-4">{error}</Alert>
       )}
 
       {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
-          {success}
-        </div>
+        <Alert tone="success" className="mb-4">{success}</Alert>
       )}
 
-      <form onSubmit={handleSave} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
+      <form onSubmit={handleSave} className={`${cardClass} space-y-6 p-4 sm:p-6`}>
         {/* Business Logo */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('business.profile.businessLogo')}</h2>
+          <h2 className={`${sectionTitle} mb-4`}>{t('business.profile.businessLogo')}</h2>
           <div className="flex items-start gap-6">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('business.profile.logoImage')}
               </label>
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors cursor-pointer disabled:opacity-50">
+                <label className={`${pillPrimary} cursor-pointer`}>
                   <Upload className="w-4 h-4" />
                   <span>{uploadingLogo ? t('business.profile.uploading') : t('business.profile.uploadLogo')}</span>
                   <input
@@ -480,7 +478,7 @@ export default function BusinessProfilePage() {
             </div>
             {profile.logo_url && (
               <div className="flex-shrink-0">
-                <div className="w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
                   <img
                     src={profile.logo_url}
                     alt={t('business.profile.logoAlt')}
@@ -493,7 +491,7 @@ export default function BusinessProfilePage() {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('business.profile.businessInfo')}</h2>
+          <h2 className={`${sectionTitle} mb-4`}>{t('business.profile.businessInfo')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -504,7 +502,7 @@ export default function BusinessProfilePage() {
                 value={profile.name}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
             </div>
 
@@ -516,7 +514,7 @@ export default function BusinessProfilePage() {
                 type="tel"
                 value={profile.phone}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-50 text-gray-500"
+                className={`${inputClass} bg-gray-50 text-gray-500`}
               />
               <p className="text-xs text-gray-500 mt-1">
                 {t('business.profile.phoneHint')}
@@ -531,7 +529,7 @@ export default function BusinessProfilePage() {
                 type="email"
                 value={profile.email}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-50 text-gray-500"
+                className={`${inputClass} bg-gray-50 text-gray-500`}
               />
               <p className="text-xs text-gray-500 mt-1">
                 {t('business.profile.emailHint')}
@@ -541,13 +539,12 @@ export default function BusinessProfilePage() {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('business.profile.addressInfo')}</h2>
+          <h2 className={`${sectionTitle} mb-4`}>{t('business.profile.addressInfo')}</h2>
 
           {loadError && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl text-sm flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
-              <span>{t('business.profile.mapsLoadError')}</span>
-            </div>
+            <Alert tone="warning" className="mb-4">
+              {t('business.profile.mapsLoadError')}
+            </Alert>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -573,7 +570,7 @@ export default function BusinessProfilePage() {
                     type="text"
                     value={profile.address || ''}
                     onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className={inputClass}
                     placeholder={t('business.profile.streetAddress')}
                   />
                 </div>
@@ -593,7 +590,7 @@ export default function BusinessProfilePage() {
                 type="text"
                 value={profile.city || ''}
                 onChange={(e) => setProfile({ ...profile, city: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('business.profile.city')}
               />
             </div>
@@ -606,7 +603,7 @@ export default function BusinessProfilePage() {
                 type="text"
                 value={profile.postal_code || ''}
                 onChange={(e) => setProfile({ ...profile, postal_code: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('business.profile.postalCode')}
               />
             </div>
@@ -628,7 +625,7 @@ export default function BusinessProfilePage() {
                     setProfile({ ...profile, district_id: null });
                   }
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               >
                 <option value="">{t('business.profile.selectRegion')}</option>
                 {regions.map(region => (
@@ -647,7 +644,7 @@ export default function BusinessProfilePage() {
                 value={profile.district_id || ''}
                 onChange={(e) => setProfile({ ...profile, district_id: e.target.value ? parseInt(e.target.value) : null })}
                 disabled={!selectedRegionId || districts.length === 0}
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className={`${inputClass} disabled:bg-gray-100 disabled:cursor-not-allowed`}
               >
                 <option value="">{t('business.profile.selectDistrict')}</option>
                 {districts.map(district => (
@@ -687,9 +684,9 @@ export default function BusinessProfilePage() {
       </form>
 
       {/* Password Reset Section */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mt-6">
+      <div className={`${cardClass} mt-6 p-4 sm:p-6`}>
         <div className="mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className={`${sectionTitle} flex items-center gap-2`}>
             <Lock className="w-5 h-5" />
             {t('business.profile.passwordSettings')}
           </h2>
@@ -699,15 +696,11 @@ export default function BusinessProfilePage() {
         </div>
 
         {passwordError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-            {passwordError}
-          </div>
+          <Alert tone="error" className="mb-4">{passwordError}</Alert>
         )}
 
         {passwordSuccess && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
-            {passwordSuccess}
-          </div>
+          <Alert tone="success" className="mb-4">{passwordSuccess}</Alert>
         )}
 
         <form onSubmit={handlePasswordReset} className="space-y-4">
@@ -722,7 +715,7 @@ export default function BusinessProfilePage() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('business.profile.enterNewPassword')}
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -740,7 +733,7 @@ export default function BusinessProfilePage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 placeholder={t('business.profile.confirmNewPassword')}
               />
             </div>

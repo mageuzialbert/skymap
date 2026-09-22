@@ -3,19 +3,19 @@
     "serviceTypes": {
       "errand": {
         "label": "Send a Rider",
-        "desc": "Send a rider to a place to buy, collect or hand over something for you."
+        "tagline": "Buy or collect"
       },
       "delivery": {
         "label": "Package Delivery",
-        "desc": "Send a parcel from one place to a recipient at another."
+        "tagline": "Send a parcel"
       },
       "ride": {
         "label": "Ride",
-        "desc": "Get picked up and taken to your destination."
+        "tagline": "Get a ride"
       },
       "hire": {
         "label": "Vehicle Hire",
-        "desc": "Book a whole vehicle for people or loads - route and time may vary."
+        "tagline": "Book a vehicle"
       }
     },
     "camera": {
@@ -230,96 +230,122 @@
       "capacity": "{{value}} {{unit}}"
     },
     "rideWizard": {
-      "chooseHireVehicle": "Choose a vehicle to hire",
       "choosePeopleOrLoad": "First pick what you're carrying, then a vehicle",
       "carryPeople": "Carrying People",
       "carryLoads": "Carrying Loads",
-      "tripRoute": "Route",
-      "peopleInfo": "Trip details",
-      "loadInfo": "Load details",
-      "helpsPlan": "Helps us match the right vehicle and driver.",
       "passengers": "Number of passengers",
       "tripPurpose": "Purpose of the trip",
       "tripPurposePlaceholder": "e.g. Wedding, corporate event, school trip",
-      "travelWhen": "Travel date & time",
-      "travelWhenPlaceholder": "e.g. 12 Aug, leaving at 7:00 AM",
       "loadDescription": "What are you transporting?",
       "loadDescriptionPlaceholder": "e.g. Cement bags, furniture, building materials",
       "approxWeight": "Approximate weight / quantity",
       "approxWeightPlaceholder": "e.g. 5 tons, 200 bags",
-      "additionalInfo": "Additional information",
-      "errandTitle": "Send a Rider",
-      "errandSubtitle": "Tell us where to go and what you need done.",
       "errandWhereGo": "Where should the rider go?",
-      "errandWhereGoPlaceholder": "e.g. Ubungo bus stand",
       "errandReason": "What should they do there?",
       "errandReasonPlaceholder": "e.g. Send a parcel, collect a document, buy something",
-      "errandContact": "Contact phone at that place",
-      "errandYourLocation": "Your location",
-      "errandNotesPlaceholder": "Anything else the rider should know",
       "useCurrentLocation": "Use my current location",
       "locationUnavailable": "Location is not available on this device.",
       "locationDenied": "Could not get your location. Please allow location access.",
       "asap": "As soon as possible",
-      "asapHint": "A rider is assigned right away.",
-      "camera": "Camera",
-      "chooseService": "What do you need?",
-      "chooseVehicle": "Choose a vehicle - all options are available.",
-      "chooseWhen": "Choose now or schedule for later.",
-      "deliverTo": "Deliver to",
       "destination": "Destination",
-      "details": "Details",
       "dropoffLocation": "Dropoff location",
-      "durationPlan": "Duration & plan",
-      "encryptedNote": "Encrypted and sent securely.",
-      "errandPlaceholder": "e.g. Buy 2 bags of cement from the hardware store. Budget ~50,000 TZS.",
       "fromGallery": "From gallery",
-      "gallery": "Gallery",
       "hirePlaceholder": "e.g. Need the vehicle for about 5 hours to run several errands around town.",
       "imageTooLarge": "Image size too large (max 50MB)",
-      "meansOfTransport": "Means of transport",
       "packageDetails": "Package details",
       "packagePlaceholder": "e.g. Documents, small electronics",
       "photoAttached": "Photo attached",
-      "pickDateTime": "Pick a date & time.",
-      "pickupDateTime": "Pickup date & time",
-      "pickupDropoff": "Pickup & dropoff",
       "pickupLocation": "Pickup location",
-      "recipient": "Recipient",
       "recipientName": "Recipient name",
       "recipientPhone": "Recipient phone",
       "removePhoto": "Remove photo",
-      "review": "Review",
       "scheduleLater": "Schedule for later",
       "selectDestination": "Select destination",
       "selectLocation": "Select location",
-      "service": "Service",
-      "start": "Start",
-      "startLocation": "Start location",
-      "stepDetails": "Details",
-      "stepPurpose": "Purpose",
-      "stepTime": "Time",
-      "stepTransport": "Transport",
       "submitFailed": "Failed to submit request",
       "submitRequest": "Submit request",
       "submitted": "Request submitted! Redirecting…",
       "submitting": "Submitting…",
-      "suggestedDestinations": "Suggested destinations",
       "suggestedPlaces": "Suggested places",
-      "suggestions": "Suggestions (bus stand, airport, hospital…)",
       "takePhoto": "Take photo",
-      "transport": "Transport",
-      "tripNotes": "Trip notes",
       "tripPlaceholder": "e.g. 2 passengers, some luggage.",
       "typeOrPickMap": "Type address or pick on map",
       "uploadFailed": "Failed to upload image",
-      "whatNeed": "What do you need?",
-      "when": "When?",
-      "whereDeliver": "Where to deliver",
-      "whereStart": "Where to start",
       "yourContact": "Your contact (from your profile)",
-      "yourLocationDeliver": "Your location (deliver to)",
-      "yourTrip": "Your trip"
+      "stepOf": "Step {{n}} of {{total}}",
+      "noVehicles": "No vehicles are set up yet. Please contact support.",
+      "mapGettingAddress": "Finding the address…",
+      "mapMoveToSelect": "Move the map to place the pin.",
+      "mapConfirm": "Use this location",
+      "searchPlaceholder": "Search for a place",
+      "searchNoResults": "No places match that.",
+      "pickOnMap": "Pick on map",
+      "steps": {
+        "where": "Where",
+        "details": "Details",
+        "confirm": "Confirm"
+      },
+      "svc": {
+        "errand": {
+          "whereTitle": "Where should the rider go?",
+          "whereSubtitle": "Tell us where to go and what you need done."
+        },
+        "delivery": {
+          "whereTitle": "Where is the parcel going?",
+          "whereSubtitle": "Pick-up, drop-off and who is receiving it.",
+          "detailsTitle": "What are we sending?",
+          "detailsSubtitle": "Choose a vehicle and describe the parcel."
+        },
+        "ride": {
+          "whereTitle": "Where are you going?",
+          "whereSubtitle": "We will send a rider to your pick-up point.",
+          "detailsTitle": "How would you like to travel?",
+          "detailsSubtitle": "Choose a vehicle for the trip."
+        },
+        "hire": {
+          "whereTitle": "Where is the trip?",
+          "whereSubtitle": "Where the vehicle starts and where it is headed.",
+          "detailsTitle": "What are you carrying?",
+          "detailsSubtitle": "Choose a vehicle and tell us about the trip."
+        }
+      },
+      "confirmTitle": "Check and send",
+      "confirmSubtitle": "Confirm the details, then we will find a rider.",
+      "group": {
+        "pickup": "Pick-up",
+        "dropoff": "Drop-off",
+        "destination": "Destination",
+        "recipient": "Recipient",
+        "vehicle": "Vehicle",
+        "package": "Package",
+        "notes": "Notes",
+        "errand": "The errand",
+        "people": "Trip details",
+        "load": "Load details",
+        "schedule": "When",
+        "summary": "Summary",
+        "sendingFrom": "Sending from"
+      },
+      "errors": {
+        "pickupRequired": "Add a pick-up location to continue.",
+        "dropoffRequired": "Add a destination to continue.",
+        "errandDestinationRequired": "Tell us where the rider should go.",
+        "errandReasonRequired": "Tell us what the rider should do there.",
+        "recipientPhoneRequired": "Add the recipient's phone number.",
+        "vehicleRequired": "Choose a vehicle to continue.",
+        "hireCategoryRequired": "Choose what you are carrying.",
+        "hireVehicleRequired": "Choose a vehicle to hire.",
+        "passengersRequired": "How many passengers?",
+        "loadRequired": "Describe what you are transporting.",
+        "scheduleTimeRequired": "Pick a date and time.",
+        "scheduleTimePast": "Choose a time in the future."
+      },
+      "serverErrors": {
+        "UNAUTHORIZED": "Please sign in again.",
+        "NO_BUSINESS": "No business profile is linked to this account. Please contact support.",
+        "INTERNAL": "Something went wrong. Please try again."
+      },
+      "editStep": "Edit"
     },
     "permissions": {
       "accessPermissions": "Access Permissions",

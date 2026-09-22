@@ -43,38 +43,38 @@ export async function POST(request: NextRequest) {
 
     // Every service needs a starting point.
     if (!pickup_address) {
-      return NextResponse.json({ error: 'Pickup/start location is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Pickup/start location is required', code: 'pickupRequired' }, { status: 400 });
     }
 
     // Per-service requirements (vehicle rules differ by service).
     if (service_type === 'delivery') {
       if (!vehicle_type_id) {
-        return NextResponse.json({ error: 'Please choose a means of transport' }, { status: 400 });
+        return NextResponse.json({ error: 'Please choose a means of transport', code: 'vehicleRequired' }, { status: 400 });
       }
       if (!dropoff_address || !dropoff_phone) {
         return NextResponse.json(
-          { error: 'Dropoff address and recipient phone are required for a delivery' },
+          { error: 'Dropoff address and recipient phone are required for a delivery', code: 'recipientPhoneRequired' },
           { status: 400 }
         );
       }
     } else if (service_type === 'ride') {
       if (!vehicle_type_id) {
-        return NextResponse.json({ error: 'Please choose a means of transport' }, { status: 400 });
+        return NextResponse.json({ error: 'Please choose a means of transport', code: 'vehicleRequired' }, { status: 400 });
       }
       if (!dropoff_address) {
-        return NextResponse.json({ error: 'Destination is required for a ride' }, { status: 400 });
+        return NextResponse.json({ error: 'Destination is required for a ride', code: 'dropoffRequired' }, { status: 400 });
       }
     } else if (service_type === 'hire') {
       if (!hire_vehicle_id) {
-        return NextResponse.json({ error: 'Please choose a vehicle to hire' }, { status: 400 });
+        return NextResponse.json({ error: 'Please choose a vehicle to hire', code: 'hireVehicleRequired' }, { status: 400 });
       }
     } else if (service_type === 'errand') {
       if (!dropoff_address) {
-        return NextResponse.json({ error: 'Please say where the rider should go' }, { status: 400 });
+        return NextResponse.json({ error: 'Please say where the rider should go', code: 'errandDestinationRequired' }, { status: 400 });
       }
       if (!service_details) {
         return NextResponse.json(
-          { error: 'Please describe what you need done' },
+          { error: 'Please describe what you need done', code: 'errandReasonRequired' },
           { status: 400 }
         );
       }
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
 
     if (!business) {
       return NextResponse.json(
-        { error: 'No business profile found for your account. Please contact support.' },
+        { error: 'No business profile found for your account. Please contact support.', code: 'NO_BUSINESS' },
         { status: 400 }
       );
     }
@@ -209,6 +209,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, deliveryId: deliveryData.id, deliveryFee });
   } catch (error) {
     console.error('Error creating ride request:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error', code: 'INTERNAL' }, { status: 500 });
   }
 }

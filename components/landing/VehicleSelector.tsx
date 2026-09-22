@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bike, Car, Truck, Zap, Loader2 } from 'lucide-react';
+import { Motorbike, Car, Zap, Loader2 } from 'lucide-react';
+import Bajaj from '@/components/common/BajajIcon';
+import { OptionRow } from '@/components/wizard/OptionGroup';
 import { useT } from '@/lib/i18n';
 
 export interface VehicleAvailability {
@@ -12,8 +14,8 @@ export interface VehicleAvailability {
 }
 
 const ICON_BY_KEY: Record<string, any> = {
-  boda: Bike,
-  bajaj: Truck,
+  boda: Motorbike,
+  bajaj: Bajaj,
   electric: Zap,
   car: Car,
 };
@@ -54,48 +56,30 @@ export default function VehicleSelector({ value, onChange, disabled }: VehicleSe
   if (loading) {
     return (
       <div className="flex items-center justify-center py-6 text-gray-400">
-        <Loader2 className="w-5 h-5 animate-spin" />
+        <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     );
   }
 
   if (types.length === 0) {
-    return (
-      <p className="text-sm text-gray-500 py-2">{t('ride.selectVehicle')} - no vehicle types configured.</p>
-    );
+    return <p className="py-2 text-[15px] text-gray-500">{t('components.rideWizard.noVehicles')}</p>;
   }
 
   return (
     <div className="flex flex-col gap-3">
       {types.map((vt) => {
         const Icon = ICON_BY_KEY[vt.key] || Car;
-        const selected = value === vt.id;
         return (
-          <button
+          <OptionRow
             key={vt.id}
-            type="button"
+            selected={value === vt.id}
+            onSelect={() => onChange(vt.id)}
             disabled={disabled}
-            onClick={() => onChange(vt.id)}
-            className={`relative flex items-center gap-3 p-3.5 rounded-2xl border-2 text-left transition-all ${
-              selected
-                ? 'border-primary bg-primary/5 shadow-sm'
-                : 'border-gray-200 hover:border-primary/50 cursor-pointer'
-            }`}
-          >
-            <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                selected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'
-              }`}
-            >
-              {vt.icon_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={vt.icon_url} alt={vt.name} className="w-6 h-6 object-contain" />
-              ) : (
-                <Icon className="w-5 h-5" />
-              )}
-            </div>
-            <span className="text-sm font-semibold text-gray-900 leading-tight">{vt.name}</span>
-          </button>
+            title={vt.name}
+            imageUrl={vt.icon_url}
+            imageFit="contain"
+            icon={<Icon className="h-5 w-5" />}
+          />
         );
       })}
     </div>

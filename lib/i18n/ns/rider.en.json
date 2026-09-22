@@ -32,7 +32,14 @@
       "allStatuses": "All Statuses",
       "noneFound": "No deliveries found",
       "noneAssigned": "You don't have any assigned deliveries yet.",
-      "noneWithStatus": "No deliveries with status \"{{status}}\""
+      "noneWithStatus": "No deliveries with status \"{{status}}\"",
+      "buckets": {
+        "all": "All",
+        "active": "Active",
+        "delivered": "Delivered",
+        "failed": "Failed"
+      },
+      "noneFiltered": "No jobs match this filter."
     },
     "jobDetail": {
       "title": "Delivery Details",

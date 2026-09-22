@@ -1,11 +1,24 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLoadScript, GoogleMap, Marker, DirectionsRenderer } from '@react-google-maps/api';
-import { Loader2, MapPin, User, Phone, Package, Calendar, AlertCircle, CalendarClock, ClipboardList } from 'lucide-react';
+import {
+  AlertCircle,
+  CalendarClock,
+  ClipboardList,
+  Loader2,
+  MapPin,
+  Navigation,
+  Package,
+  Phone,
+  User,
+} from 'lucide-react';
 import ChatLauncher from '@/components/chat/ChatLauncher';
 import ServiceBadge, { formatSchedule } from '@/components/common/ServiceBadge';
+import { splitAddress } from '@/lib/address';
+import { BUCKET_DOT, BUCKET_TEXT, statusBucket, statusLabelKey } from '@/lib/deliveryStatus';
 import { useT } from '@/lib/i18n';
+import { cardClass, sectionLabel } from '@/lib/ui';
 
 interface Delivery {
   id: string;
@@ -32,31 +45,18 @@ interface Delivery {
   } | null;
 }
 
-interface DeliveryDetailsProps {
-  delivery: Delivery;
-}
+const mapContainerStyle = { width: '100%', height: '100%' };
+const defaultCenter = { lat: -6.7924, lng: 39.2083 };
 
-const mapContainerStyle = {
-  width: '100%',
-  height: '100%',
-  borderRadius: '0.75rem',
-};
-
-const defaultCenter = {
-  lat: -6.7924,
-  lng: 39.2083,
-};
-
-const statusColors: Record<string, string> = {
-  CREATED: 'bg-gray-100 text-gray-800 border-gray-200',
-  ASSIGNED: 'bg-blue-100 text-blue-800 border-blue-200',
-  PICKED_UP: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  IN_TRANSIT: 'bg-orange-100 text-orange-800 border-orange-200',
-  DELIVERED: 'bg-green-100 text-green-800 border-green-200',
-  FAILED: 'bg-red-100 text-red-800 border-red-200',
-};
-
-export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
+/**
+ * One request, in full.
+ *
+ * Rebuilt as a single column: the old three-column grid only split at `lg`,
+ * which the dashboard's max-w-3xl measure never reaches, so it was dead
+ * responsive code that still cost a nested grid. Status now comes from the
+ * shared helper rather than a sixth private colour map.
+ */
+export default function DeliveryDetails({ delivery }: { delivery: Delivery }) {
   const t = useT();
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -64,296 +64,246 @@ export default function DeliveryDetails({ delivery }: DeliveryDetailsProps) {
 
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
 
-  // Memoize location objects to prevent re-renders
-  const pickupLocation = useMemo(() => {
-    if (delivery.pickup_latitude && delivery.pickup_longitude) {
-      return { lat: Number(delivery.pickup_latitude), lng: Number(delivery.pickup_longitude) };
-    }
-    return null;
-  }, [delivery.pickup_latitude, delivery.pickup_longitude]);
+  const pickupLocation = useMemo(
+    () =>
+      delivery.pickup_latitude && delivery.pickup_longitude
+        ? { lat: Number(delivery.pickup_latitude), lng: Number(delivery.pickup_longitude) }
+        : null,
+    [delivery.pickup_latitude, delivery.pickup_longitude]
+  );
 
-  const dropoffLocation = useMemo(() => {
-    if (delivery.dropoff_latitude && delivery.dropoff_longitude) {
-      return { lat: Number(delivery.dropoff_latitude), lng: Number(delivery.dropoff_longitude) };
-    }
-    return null;
-  }, [delivery.dropoff_latitude, delivery.dropoff_longitude]);
+  const dropoffLocation = useMemo(
+    () =>
+      delivery.dropoff_latitude && delivery.dropoff_longitude
+        ? { lat: Number(delivery.dropoff_latitude), lng: Number(delivery.dropoff_longitude) }
+        : null,
+    [delivery.dropoff_latitude, delivery.dropoff_longitude]
+  );
 
-  // Memoize the map center to prevent re-renders
-  const mapCenter = useMemo(() => {
-    return pickupLocation || defaultCenter;
-  }, [pickupLocation]);
+  const mapCenter = useMemo(() => pickupLocation || defaultCenter, [pickupLocation]);
 
   useEffect(() => {
-    if (isLoaded && pickupLocation && dropoffLocation) {
-      const directionsService = new google.maps.DirectionsService();
-      directionsService.route(
-        {
-          origin: pickupLocation,
-          destination: dropoffLocation,
-          travelMode: google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === google.maps.DirectionsStatus.OK) {
-            setDirections(result);
-          } else {
-            console.error(`Directions request failed: ${status}`);
-          }
-        }
-      );
-    }
+    if (!isLoaded || !pickupLocation || !dropoffLocation) return;
+    new google.maps.DirectionsService().route(
+      {
+        origin: pickupLocation,
+        destination: dropoffLocation,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === google.maps.DirectionsStatus.OK) setDirections(result);
+      }
+    );
   }, [isLoaded, pickupLocation, dropoffLocation]);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const tone = statusBucket(delivery.status);
+  const created = new Date(delivery.created_at).toLocaleString([], {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const isDelivery = delivery.service_type === 'delivery' || !delivery.service_type;
 
   return (
-    <div className="space-y-6">
-      {/* Header / Status */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="text-sm text-gray-500 mb-1">{t('components.deliveryDetails.requestId')}: {delivery.id}</div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('components.deliveryDetails.requestDetails')}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <ServiceBadge serviceType={delivery.service_type} />
-            <span className="inline-flex items-center gap-1.5 text-sm text-gray-600">
-              <CalendarClock className="w-4 h-4 text-gray-400" />
-              {formatSchedule(delivery.scheduled_pickup_at)}
-            </span>
-          </div>
-        </div>
-        <div>
-          <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold border ${statusColors[delivery.status] || statusColors.CREATED}`}>
-            {t('components.deliveryStatus.' + delivery.status)}
+    <div className="space-y-5">
+      {/* Where it stands */}
+      <section className={`${cardClass} p-4 sm:p-5`}>
+        <div className="flex flex-wrap items-center gap-2">
+          <ServiceBadge serviceType={delivery.service_type} />
+          <span
+            className={`inline-flex items-center gap-1.5 text-[13px] font-semibold ${BUCKET_TEXT[tone]}`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${BUCKET_DOT[tone]}`} />
+            {t(statusLabelKey(delivery.status))}
           </span>
         </div>
-      </div>
+        <p className="mt-3 flex items-center gap-2 text-[15px] text-gray-700">
+          <CalendarClock className="h-4 w-4 shrink-0 text-gray-400" />
+          {formatSchedule(delivery.scheduled_pickup_at)}
+        </p>
+        <p className="mt-1 text-[13px] text-gray-400">
+          {t('components.deliveries.created')} {created}
+        </p>
+      </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Details */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Map Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-primary" />
-                {t('components.deliveryDetails.routeMap')}
-              </h2>
+      {/* Route */}
+      <section>
+        <h2 className={sectionLabel}>{t('components.deliveryDetails.routeMap')}</h2>
+        <div className={`${cardClass} overflow-hidden`}>
+          {loadError ? (
+            <div className="flex items-start gap-2.5 bg-amber-50 p-4 text-[13px] text-amber-800">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{t('components.deliveryDetails.mapLoadError')}</span>
             </div>
-            
-            {loadError && (
-              <div className="p-8 text-center text-amber-600 bg-amber-50">
-                <AlertCircle className="w-8 h-8 mx-auto mb-2" />
-                <p>{t('components.deliveryDetails.mapLoadError')}</p>
-              </div>
-            )}
-
-            {!isLoaded && !loadError && (
-              <div className="h-[240px] sm:h-[320px] lg:h-[400px] flex items-center justify-center bg-gray-50">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              </div>
-            )}
-
-            {isLoaded && (
-              <div className="h-[240px] sm:h-[320px] lg:h-[400px]">
-                <GoogleMap
-                  mapContainerStyle={mapContainerStyle}
-                  zoom={12}
-                  center={mapCenter}
-                  options={{
-                    disableDefaultUI: false,
-                    streetViewControl: false,
-                    mapTypeControl: false,
-                  }}
-                >
-                  {pickupLocation && <Marker position={pickupLocation} label="A" title={t('components.deliveries.pickup')} />}
-                  {dropoffLocation && <Marker position={dropoffLocation} label="B" title={t('components.deliveries.dropoff')} />}
-                  {directions && <DirectionsRenderer directions={directions} />}
-                </GoogleMap>
-              </div>
-            )}
-          </div>
-
-          {/* Locations Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
-              {/* Pickup */}
-              <div className="p-6 space-y-4">
-                <div className="flex items-center gap-2 text-green-700 font-semibold mb-2">
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">A</div>
-                  {t('components.deliveryDetails.pickupDetails')}
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <User className="w-5 h-5 text-gray-400 mt-0.5" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{delivery.pickup_name}</div>
-                      <div className="text-sm text-gray-500">{t('components.deliveryDetails.contactPerson')}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{delivery.pickup_phone}</div>
-                      <div className="text-sm text-gray-500">{t('common.phone')}</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{delivery.pickup_address}</div>
-                      <div className="text-sm text-gray-500">{t('components.deliveryDetails.address')}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Dropoff */}
-              <div className="p-6 space-y-4">
-                <div className="flex items-center gap-2 text-blue-700 font-semibold mb-2">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">B</div>
-                  {t('components.deliveryDetails.dropoffDetails')}
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <User className="w-5 h-5 text-gray-400 mt-0.5" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{delivery.dropoff_name}</div>
-                      <div className="text-sm text-gray-500">{t('components.deliveryDetails.recipient')}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{delivery.dropoff_phone}</div>
-                      <div className="text-sm text-gray-500">{t('common.phone')}</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{delivery.dropoff_address}</div>
-                      <div className="text-sm text-gray-500">{t('components.deliveryDetails.address')}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          ) : !isLoaded ? (
+            <div className="flex h-[220px] items-center justify-center bg-gray-50">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          </div>
-        </div>
-
-        {/* Right Column: Info */}
-        <div className="space-y-6">
-          {/* Service details (ride note / hire plan / errand instructions) */}
-          {delivery.service_details && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <ClipboardList className="w-5 h-5 text-gray-500" />
-                {t('components.deliveryDetails.requestDetails')}
-              </h3>
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 text-gray-800">
-                <p className="whitespace-pre-wrap">{delivery.service_details}</p>
-              </div>
+          ) : (
+            <div className="h-[220px] sm:h-[280px]">
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                zoom={12}
+                center={mapCenter}
+                options={{
+                  disableDefaultUI: true,
+                  zoomControl: true,
+                  gestureHandling: 'cooperative',
+                }}
+              >
+                {pickupLocation && <Marker position={pickupLocation} label="A" />}
+                {dropoffLocation && <Marker position={dropoffLocation} label="B" />}
+                {directions && <DirectionsRenderer directions={directions} />}
+              </GoogleMap>
             </div>
           )}
 
-          {/* Package Info - deliveries only */}
-          {delivery.service_type === 'delivery' || !delivery.service_type ? (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Package className="w-5 h-5 text-gray-500" />
-              {t('components.deliveryDetails.packageInfo')}
-            </h3>
-            <div className="bg-amber-50 rounded-lg p-4 border border-amber-100 text-amber-900">
-              <p className="whitespace-pre-wrap">{delivery.package_description || t('components.deliveryDetails.noDescription')}</p>
+          <Stop
+            which="pickup"
+            label={t('components.deliveries.pickup')}
+            address={delivery.pickup_address}
+            name={delivery.pickup_name}
+            phone={delivery.pickup_phone}
+          />
+          <span className="ml-[3.25rem] block h-px bg-gray-100" />
+          <Stop
+            which="dropoff"
+            label={t('components.deliveries.dropoff')}
+            address={delivery.dropoff_address}
+            name={delivery.dropoff_name}
+            phone={delivery.dropoff_phone}
+          />
+        </div>
+      </section>
+
+      {delivery.service_details && (
+        <section>
+          <h2 className={sectionLabel}>{t('components.deliveryDetails.requestDetails')}</h2>
+          <div className={`${cardClass} flex items-start gap-3 p-4 sm:p-5`}>
+            <ClipboardList className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
+            <p className="min-w-0 flex-1 whitespace-pre-wrap text-[15px] leading-relaxed text-gray-800">
+              {delivery.service_details}
+            </p>
+          </div>
+        </section>
+      )}
+
+      {isDelivery && (
+        <section>
+          <h2 className={sectionLabel}>{t('components.deliveryDetails.packageInfo')}</h2>
+          <div className={`${cardClass} p-4 sm:p-5`}>
+            <div className="flex items-start gap-3">
+              <Package className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
+              <p className="min-w-0 flex-1 whitespace-pre-wrap text-[15px] leading-relaxed text-gray-800">
+                {delivery.package_description || t('components.deliveryDetails.noDescription')}
+              </p>
             </div>
             {delivery.package_image_url && (
-              <div className="mt-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">{t('components.deliveryDetails.packageImage')}</p>
-                <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 w-full">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={delivery.package_image_url} 
-                    alt="Package" 
-                    className="w-full h-auto object-contain max-h-64"
-                  />
-                  <a 
-                    href={delivery.package_image_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded backdrop-blur-sm transition-colors"
-                  >
-                    {t('components.deliveryDetails.viewFull')}
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
-          ) : null}
-
-          {/* Rider Info */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <User className="w-5 h-5 text-gray-500" />
-              {t('components.deliveryDetails.assignedRider')}
-            </h3>
-            {delivery.assigned_rider ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                    <User className="w-6 h-6 text-gray-500" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">{delivery.assigned_rider.name}</div>
-                    <div className="text-sm text-gray-500">{delivery.assigned_rider.phone}</div>
-                  </div>
-                </div>
-                <ChatLauncher
-                  deliveryId={delivery.id}
-                  otherName={delivery.assigned_rider.name}
-                  label={t('components.deliveryDetails.chatWithRider')}
+              <a
+                href={delivery.package_image_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 block overflow-hidden rounded-xl border border-gray-200 bg-gray-50"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={delivery.package_image_url}
+                  alt=""
+                  className="max-h-64 w-full object-contain"
                 />
-              </div>
-            ) : (
-              <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                {t('components.deliveryDetails.noRiderYet')}
-              </div>
+              </a>
             )}
           </div>
+        </section>
+      )}
 
-          {/* Timeline */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-gray-500" />
-              {t('components.deliveryDetails.timeline')}
-            </h3>
+      {/* Rider */}
+      <section>
+        <h2 className={sectionLabel}>{t('components.deliveryDetails.assignedRider')}</h2>
+        <div className={`${cardClass} p-4 sm:p-5`}>
+          {delivery.assigned_rider ? (
             <div className="space-y-4">
-              <div className="flex gap-3">
-                <div className="mt-1">
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-900">{t('components.deliveries.created')}</div>
-                  <div className="text-xs text-gray-500">{formatDate(delivery.created_at)}</div>
-                </div>
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500">
+                  <User className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[15px] font-semibold text-gray-900">
+                    {delivery.assigned_rider.name}
+                  </span>
+                  <a
+                    href={`tel:${delivery.assigned_rider.phone}`}
+                    className="mt-0.5 inline-flex items-center gap-1.5 text-[13px] font-medium text-primary"
+                  >
+                    <Phone className="h-3.5 w-3.5" />
+                    {delivery.assigned_rider.phone}
+                  </a>
+                </span>
               </div>
+              <ChatLauncher
+                deliveryId={delivery.id}
+                otherName={delivery.assigned_rider.name}
+                label={t('components.deliveryDetails.chatWithRider')}
+              />
             </div>
-          </div>
+          ) : (
+            <p className="py-2 text-center text-[15px] text-gray-500">
+              {t('components.deliveryDetails.noRiderYet')}
+            </p>
+          )}
         </div>
+      </section>
+    </div>
+  );
+}
+
+/** One end of the journey: marker, address, and who is there. */
+function Stop({
+  which,
+  label,
+  address,
+  name,
+  phone,
+}: {
+  which: 'pickup' | 'dropoff';
+  label: string;
+  address: string;
+  name?: string | null;
+  phone?: string | null;
+}) {
+  const { title, detail } = splitAddress(address || '');
+  const Icon = which === 'pickup' ? Navigation : MapPin;
+  // The place picker stores "{name}, {address}", so the contact's name is often
+  // already the headline - printing it again just repeats the line.
+  const contact = name && name.trim() !== title.trim() ? name : '';
+  return (
+    <div className="flex items-start gap-3 px-4 py-3.5">
+      <span
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+          which === 'pickup' ? 'bg-primary/10 text-primary' : 'bg-secondary/15 text-secondary-dark'
+        }`}
+      >
+        <Icon className="h-[18px] w-[18px]" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[13px] text-gray-500">{label}</p>
+        <p className="mt-0.5 text-[15px] font-semibold leading-snug text-gray-900">{title}</p>
+        {detail && <p className="mt-0.5 text-[13px] text-gray-500">{detail}</p>}
+        {(contact || phone) && (
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px]">
+            {contact && <span className="text-gray-700">{contact}</span>}
+            {phone && (
+              <a
+                href={`tel:${phone}`}
+                className="inline-flex items-center gap-1.5 font-medium text-primary"
+              >
+                <Phone className="h-3.5 w-3.5" />
+                {phone}
+              </a>
+            )}
+          </p>
+        )}
       </div>
     </div>
   );

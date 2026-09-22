@@ -1,13 +1,12 @@
 {
   "nav": {
-    "overview": "Overview",
+    "home": "Home",
     "orderDelivery": "Order Delivery",
     "ridesHistory": "Rides History",
     "messages": "Messages",
     "invoices": "Invoices",
     "profile": "Profile",
     "verify": "Verify",
-    "dashboard": "Dashboard",
     "clients": "Clients",
     "users": "Users",
     "deliveries": "Deliveries",
@@ -25,6 +24,25 @@
     "myJobs": "My Jobs",
     "createDelivery": "Create Delivery",
     "registerBusiness": "Register Business",
-    "toggleSidebar": "Toggle sidebar"
+    "account": "Account",
+    "activity": "Activity"
+  },
+  "account": {
+    "roles": {
+      "BUSINESS": "Business account",
+      "RIDER": "Rider",
+      "STAFF": "Staff",
+      "ADMIN": "Administrator"
+    },
+    "groups": {
+      "work": "Operations",
+      "money": "Money",
+      "people": "People",
+      "content": "Content",
+      "settings": "Settings",
+      "account": "Your account"
+    },
+    "signOutTitle": "Logout?",
+    "signOutMessage": "You will need to sign in again to place or track orders."
   }
 }

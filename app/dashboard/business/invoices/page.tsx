@@ -2,11 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, X, FileText, Printer } from 'lucide-react';
+import { ChevronRight, Loader2, Printer, Receipt } from 'lucide-react';
+import Sheet from '@/components/common/Sheet';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
 import InvoiceDocument from '@/components/invoices/InvoiceDocument';
-import { cardClass, pillPrimary, pageTitle, overlayClass } from '@/lib/ui';
+import {
+  INVOICE_DOT,
+  INVOICE_TEXT,
+  invoiceStatusLabelKey,
+  invoiceTone,
+} from '@/lib/invoiceStatus';
+import { cardClass, pageTitle, pillPrimary } from '@/lib/ui';
 
 interface Invoice {
   id: string;
@@ -68,14 +75,6 @@ interface PaymentInstructions {
   branch: string | null;
   active: boolean;
 }
-
-const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-800',
-  PROFORMA: 'bg-purple-100 text-purple-800',
-  SENT: 'bg-blue-100 text-blue-800',
-  PAID: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-800',
-};
 
 export default function BusinessInvoicesPage() {
   const t = useT();
@@ -206,132 +205,108 @@ export default function BusinessInvoicesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
 
+  function closeInvoice() {
+    setSelectedInvoice(null);
+    setInvoiceItems([]);
+    setCompanyProfile(null);
+    setBusiness(null);
+    setPaymentInstructions(null);
+  }
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className={pageTitle}>{t('business.invoices.title')}</h1>
-      </div>
+      <h1 className={`${pageTitle} mb-4`}>{t('business.invoices.title')}</h1>
 
-      {/* Invoices Table */}
-      <div className={`overflow-hidden ${cardClass}`}>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('business.invoices.col.invoiceNumber')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('business.invoices.col.period')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('business.invoices.col.amount')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('business.invoices.col.status')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('business.invoices.col.generated')}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {invoices.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                    {t('business.invoices.empty')}
-                  </td>
-                </tr>
-              ) : (
-                invoices.map((invoice) => (
-                  <tr 
-                    key={invoice.id} 
-                    className="hover:bg-gray-50 cursor-pointer"
-                    onClick={() => loadInvoiceDetails(invoice)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                      {invoice.invoice_number}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {new Date(invoice.week_start).toLocaleDateString()} -{' '}
-                      {new Date(invoice.week_end).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                      TZS {invoice.total_amount.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          statusColors[invoice.status] || statusColors.DRAFT
-                        }`}
-                      >
-                        {invoice.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(invoice.generated_at).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {invoices.length === 0 ? (
+        <div className={`${cardClass} px-6 py-12 text-center`}>
+          <Receipt className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+          <p className="mx-auto max-w-xs text-[15px] text-gray-500">
+            {t('business.invoices.empty')}
+          </p>
         </div>
-      </div>
-
-      {/* Invoice Detail Modal */}
-      {selectedInvoice && (
-        <div className={`${overlayClass} flex items-center justify-center p-4`}>
-          <div className="bg-white rounded-2xl shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10">
-              <h2 className="text-2xl font-bold text-gray-900">{t('business.invoices.details')}</h2>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => router.push(`/dashboard/business/invoices/${selectedInvoice.id}/print`)}
-                  className={pillPrimary}
-                >
-                  <Printer className="w-4 h-4" />
-                  {t('business.invoices.printPdf')}
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedInvoice(null);
-                    setInvoiceItems([]);
-                    setCompanyProfile(null);
-                    setBusiness(null);
-                    setPaymentInstructions(null);
-                  }}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
-
-            {loadingInvoice ? (
-              <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-12 h-12 animate-spin text-primary" />
-              </div>
-            ) : (
-              <div className="p-6">
-                <InvoiceDocument
-                  invoice={selectedInvoice}
-                  invoiceItems={invoiceItems}
-                  companyProfile={companyProfile}
-                  business={business}
-                  paymentInstructions={paymentInstructions}
-                />
-              </div>
-            )}
-          </div>
+      ) : (
+        <div className={`${cardClass} overflow-hidden`}>
+          <ul>
+            {invoices.map((invoice, i) => {
+              const tone = invoiceTone(invoice.status);
+              return (
+                <li key={invoice.id}>
+                  <button
+                    type="button"
+                    onClick={() => loadInvoiceDetails(invoice)}
+                    className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-gray-50 active:bg-gray-100"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-baseline gap-2">
+                        <span className="min-w-0 flex-1 truncate font-mono text-[15px] font-semibold text-gray-900">
+                          {invoice.invoice_number}
+                        </span>
+                        <span className="shrink-0 text-[15px] font-semibold text-gray-900">
+                          TZS {invoice.total_amount.toLocaleString()}
+                        </span>
+                      </span>
+                      <span className="mt-0.5 block truncate text-[13px] text-gray-500">
+                        {new Date(invoice.week_start).toLocaleDateString()} –{' '}
+                        {new Date(invoice.week_end).toLocaleDateString()}
+                      </span>
+                      <span
+                        className={`mt-1.5 inline-flex items-center gap-1.5 text-xs font-medium ${INVOICE_TEXT[tone]}`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${INVOICE_DOT[tone]}`} />
+                        {t(invoiceStatusLabelKey(invoice.status))}
+                      </span>
+                    </span>
+                    <ChevronRight className="h-5 w-5 shrink-0 text-gray-300" />
+                  </button>
+                  {i < invoices.length - 1 && <span className="block h-px bg-gray-100" />}
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
+
+      <Sheet
+        open={selectedInvoice !== null}
+        onClose={closeInvoice}
+        title={t('business.invoices.details')}
+        headerRight={
+          selectedInvoice ? (
+            <button
+              type="button"
+              onClick={() =>
+                router.push(`/dashboard/business/invoices/${selectedInvoice.id}/print`)
+              }
+              className={`${pillPrimary} h-10 px-4 text-[13px]`}
+            >
+              <Printer className="h-4 w-4" />
+              {t('business.invoices.printPdf')}
+            </button>
+          ) : undefined
+        }
+      >
+        {loadingInvoice || !selectedInvoice ? (
+          <div className="flex h-64 items-center justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="p-4">
+            <InvoiceDocument
+              invoice={selectedInvoice}
+              invoiceItems={invoiceItems}
+              companyProfile={companyProfile}
+              business={business}
+              paymentInstructions={paymentInstructions}
+            />
+          </div>
+        )}
+      </Sheet>
     </div>
   );
 }

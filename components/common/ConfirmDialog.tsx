@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
-import { AlertTriangle, Info, Loader2, X } from 'lucide-react';
+import { AlertTriangle, Info, Loader2 } from 'lucide-react';
+import Sheet from '@/components/common/Sheet';
 import { useT } from '@/lib/i18n';
+import { pillGhost, pillPrimary } from '@/lib/ui';
 
 export type ConfirmTone = 'danger' | 'warning' | 'info';
 
@@ -22,20 +23,28 @@ const toneStyles: Record<ConfirmTone, { iconBg: string; icon: string; button: st
   danger: {
     iconBg: 'bg-red-100',
     icon: 'text-red-600',
-    button: 'bg-red-600 hover:bg-red-700 focus:ring-red-300',
+    button: 'bg-red-600 hover:bg-red-700 shadow-red-600/25',
   },
   warning: {
     iconBg: 'bg-amber-100',
     icon: 'text-amber-600',
-    button: 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-300',
+    button: 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/25',
   },
   info: {
     iconBg: 'bg-primary/10',
     icon: 'text-primary',
-    button: 'bg-primary hover:bg-primary-dark focus:ring-primary/40',
+    button: '',
   },
 };
 
+/**
+ * Confirm or cancel a consequential action.
+ *
+ * Built on the shared Sheet, so it inherits Escape, a focus trap, the scroll
+ * lock and the z-ladder. Its buttons were `px-4 py-2 text-sm` - about 34px,
+ * under the 44px touch minimum - on a dialog that already appears on the
+ * redesigned account screen.
+ */
 export default function ConfirmDialog({
   isOpen,
   title,
@@ -48,60 +57,22 @@ export default function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const t = useT();
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !loading) onCancel();
-    };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [isOpen, loading, onCancel]);
-
-  if (!isOpen) return null;
-
   const styles = toneStyles[tone];
   const Icon = tone === 'info' ? Info : AlertTriangle;
 
   return (
-    <div
-      className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-dialog-title"
-      onClick={() => !loading && onCancel()}
-    >
-      <div
-        className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={loading}
-          className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50"
-          aria-label={t('common.close')}
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-start gap-4">
-          <div className={`w-11 h-11 rounded-full ${styles.iconBg} flex items-center justify-center flex-shrink-0`}>
-            <Icon className={`w-5 h-5 ${styles.icon}`} />
-          </div>
-          <div className="flex-1 pt-0.5">
-            <h2 id="confirm-dialog-title" className="text-base font-bold text-gray-900">
-              {title}
-            </h2>
-            <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">{message}</p>
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-center justify-end gap-3">
+    <Sheet
+      open={isOpen}
+      onClose={() => !loading && onCancel()}
+      title={title}
+      layer="dialog"
+      footer={
+        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onCancel}
             disabled={loading}
-            className="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
+            className={`${pillGhost} h-12 flex-1`}
           >
             {cancelLabel ?? t('common.cancel')}
           </button>
@@ -109,13 +80,22 @@ export default function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg focus:outline-none focus:ring-4 transition-colors disabled:opacity-60 cursor-pointer ${styles.button}`}
+            className={`${pillPrimary} h-12 flex-1 ${styles.button}`}
           >
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading && <Loader2 className="h-5 w-5 animate-spin" />}
             {confirmLabel ?? t('common.confirm')}
           </button>
         </div>
+      }
+    >
+      <div className="flex items-start gap-4 p-4">
+        <span
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${styles.iconBg}`}
+        >
+          <Icon className={`h-5 w-5 ${styles.icon}`} />
+        </span>
+        <p className="min-w-0 flex-1 pt-2 text-[15px] leading-relaxed text-gray-600">{message}</p>
       </div>
-    </div>
+    </Sheet>
   );
 }
