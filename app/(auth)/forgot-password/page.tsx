@@ -3,14 +3,18 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MessageSquare, Mail, Loader2, ArrowLeft, Eye, EyeOff, CheckCircle2, Lock } from 'lucide-react';
+import { Mail, CheckCircle2 } from 'lucide-react';
 import { requestPasswordReset, confirmPasswordReset } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import AuthShell, {
   AuthField,
+  PasswordField,
+  AuthAlert,
+  AuthActions,
+  SubmitButton,
+  ResendButton,
+  ChannelPicker,
   inputBase,
-  primaryBtn,
-  secondaryBtn,
   otpInputClass,
 } from '@/components/auth/AuthShell';
 
@@ -26,8 +30,6 @@ export default function ForgotPasswordPage() {
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -101,42 +103,13 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell heading={t('authx.forgot.title')} subtitle={subtitle} footer={footer}>
-      {error && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
-      )}
-      {info && step !== 3 && (
-        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">{info}</div>
-      )}
+      {error && <AuthAlert>{error}</AuthAlert>}
+      {info && step !== 3 && <AuthAlert variant="success">{info}</AuthAlert>}
 
       {/* Step 1 - request a code */}
       {step === 1 && (
         <form onSubmit={handleSendCode} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setChannel('sms')}
-              className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 transition-colors ${
-                channel === 'sms'
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-gray-200 text-gray-600 hover:border-primary/60'
-              }`}
-            >
-              <MessageSquare className="h-5 w-5" />
-              <span className="text-sm font-medium">{t('auth.channelSms')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setChannel('email')}
-              className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 transition-colors ${
-                channel === 'email'
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-gray-200 text-gray-600 hover:border-primary/60'
-              }`}
-            >
-              <Mail className="h-5 w-5" />
-              <span className="text-sm font-medium">{t('auth.channelEmail')}</span>
-            </button>
-          </div>
+          <ChannelPicker value={channel} onChange={setChannel} />
 
           {channel === 'sms' ? (
             <div>
@@ -170,10 +143,9 @@ export default function ForgotPasswordPage() {
             />
           )}
 
-          <button type="submit" disabled={loading} className={primaryBtn}>
-            {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+          <SubmitButton type="submit" loading={loading} loadingLabel={t('common.sending')}>
             {t('auth.sendCode')}
-          </button>
+          </SubmitButton>
         </form>
       )}
 
@@ -193,78 +165,38 @@ export default function ForgotPasswordPage() {
               className={otpInputClass}
               placeholder="000000"
             />
-            <button
-              type="button"
-              onClick={() => handleSendCode()}
-              disabled={loading}
-              className="mt-1.5 text-xs text-primary hover:underline disabled:opacity-50"
-            >
-              {t('auth.resendCode')}
-            </button>
+            <ResendButton onClick={() => handleSendCode()} disabled={loading} />
           </div>
 
-          <AuthField
+          <PasswordField
             id="new-password"
             label={t('authx.forgot.newPassword')}
-            icon={Lock}
-            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             minLength={8}
             placeholder={t('authx.forgot.passwordPlaceholder8')}
-            rightSlot={
-              <button
-                type="button"
-                onClick={() => setShowPassword((s) => !s)}
-                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
-                aria-label={showPassword ? t('authx.hidePassword') : t('authx.showPassword')}
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            }
           />
 
-          <AuthField
+          <PasswordField
             id="confirm-password"
             label={t('authx.forgot.confirmNewPassword')}
-            icon={Lock}
-            type={showConfirm ? 'text' : 'password'}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             minLength={8}
             placeholder={t('authx.forgot.confirmPlaceholder')}
-            rightSlot={
-              <button
-                type="button"
-                onClick={() => setShowConfirm((s) => !s)}
-                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
-                aria-label={showConfirm ? t('authx.hidePassword') : t('authx.showPassword')}
-                tabIndex={-1}
-              >
-                {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            }
           />
 
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setStep(1);
-                setError('');
-                setInfo('');
-              }}
-              className={secondaryBtn}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {t('common.back')}
-            </button>
-            <button type="submit" disabled={loading} className={primaryBtn}>
-              {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+          <AuthActions
+            onBack={() => {
+              setStep(1);
+              setError('');
+              setInfo('');
+            }}
+          >
+            <SubmitButton type="submit" loading={loading}>
               {t('authx.forgot.resetPassword')}
-            </button>
-          </div>
+            </SubmitButton>
+          </AuthActions>
         </form>
       )}
 
@@ -275,9 +207,9 @@ export default function ForgotPasswordPage() {
             <CheckCircle2 className="h-9 w-9 text-green-600" />
           </div>
           <p className="text-gray-700">{t('authx.forgot.doneMessage')}</p>
-          <button onClick={() => router.push(loginHref)} className={primaryBtn}>
+          <SubmitButton type="button" onClick={() => router.push(loginHref)}>
             {t('authx.forgot.goToLogin')}
-          </button>
+          </SubmitButton>
         </div>
       )}
     </AuthShell>

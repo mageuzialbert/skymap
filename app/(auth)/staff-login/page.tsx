@@ -5,16 +5,20 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginWithEmail } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Mail, ArrowRight } from 'lucide-react';
 import { useT } from '@/lib/i18n';
-import AuthShell, { AuthField, primaryBtn } from '@/components/auth/AuthShell';
+import AuthShell, {
+  AuthField,
+  PasswordField,
+  AuthAlert,
+  SubmitButton,
+} from '@/components/auth/AuthShell';
 
 export default function StaffLoginPage() {
   const router = useRouter();
   const t = useT();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -79,9 +83,7 @@ export default function StaffLoginPage() {
 
   return (
     <AuthShell heading={t('authx.login.welcome')} subtitle={t('authx.staff.portalSubtitle')} footer={footer}>
-      {error && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
-      )}
+      {error && <AuthAlert>{error}</AuthAlert>}
 
       <form onSubmit={handleLogin} className="space-y-4">
         <AuthField
@@ -95,26 +97,13 @@ export default function StaffLoginPage() {
           placeholder="admin@theskymap.com"
         />
         <div>
-          <AuthField
+          <PasswordField
             id="password"
             label={t('common.password')}
-            icon={Lock}
-            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             placeholder={t('authx.login.passwordPlaceholder')}
-            rightSlot={
-              <button
-                type="button"
-                onClick={() => setShowPassword((s) => !s)}
-                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
-                aria-label={showPassword ? t('authx.hidePassword') : t('authx.showPassword')}
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            }
           />
           <div className="mt-1.5 text-right">
             <Link href="/forgot-password" className="text-sm text-primary hover:underline">
@@ -122,19 +111,9 @@ export default function StaffLoginPage() {
             </Link>
           </div>
         </div>
-        <button type="submit" disabled={loading} className={primaryBtn}>
-          {loading ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" />
-              {t('common.signingIn')}
-            </>
-          ) : (
-            <>
-              {t('common.signIn')}
-              <ArrowRight className="h-5 w-5" />
-            </>
-          )}
-        </button>
+        <SubmitButton type="submit" loading={loading} loadingLabel={t('common.signingIn')} icon={ArrowRight}>
+          {t('common.signIn')}
+        </SubmitButton>
       </form>
     </AuthShell>
   );

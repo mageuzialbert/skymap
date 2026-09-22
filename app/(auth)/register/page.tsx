@@ -3,16 +3,21 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MessageSquare, Mail, Loader2, ArrowLeft, Eye, EyeOff, UserRound, Lock } from 'lucide-react';
+import { Mail, UserRound } from 'lucide-react';
 import { registerBusiness, sendVerificationCode } from '@/lib/auth';
 import CountryCodeSelect from '@/components/common/CountryCodeSelect';
 import { Country, DEFAULT_COUNTRY_CODE, getCountry } from '@/lib/countries';
 import { useT } from '@/lib/i18n';
 import AuthShell, {
   AuthField,
+  PasswordField,
+  AuthAlert,
+  AuthActions,
+  BackLink,
+  SubmitButton,
+  ResendButton,
+  ChannelPicker,
   inputBase,
-  primaryBtn,
-  secondaryBtn,
   otpInputClass,
 } from '@/components/auth/AuthShell';
 
@@ -31,8 +36,6 @@ export default function RegisterPage() {
     confirmPassword: '',
   });
   const [channel, setChannel] = useState<Channel>('sms');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [code, setCode] = useState('');
   const [codeSent, setCodeSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -162,28 +165,8 @@ export default function RegisterPage() {
 
   return (
     <AuthShell heading={t('auth.registerTitle')} subtitle={t('auth.registerSubtitle')} footer={footer}>
-      {/* Step indicator */}
-      <div className="mb-6 flex items-center justify-center">
-        {[1, 2, 3].map((n, i) => (
-          <div key={n} className="flex items-center">
-            <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                step >= n ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'
-              }`}
-            >
-              {n}
-            </div>
-            {i < 2 && <div className={`mx-1 h-1 w-12 ${step > n ? 'bg-primary' : 'bg-gray-200'}`} />}
-          </div>
-        ))}
-      </div>
-
-      {error && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
-      )}
-      {info && (
-        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">{info}</div>
-      )}
+      {error && <AuthAlert>{error}</AuthAlert>}
+      {info && <AuthAlert variant="success">{info}</AuthAlert>}
 
       {/* Step 1: Business info */}
       {step === 1 && (
@@ -206,9 +189,9 @@ export default function RegisterPage() {
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             placeholder={t('authx.register.emailPlaceholder')}
           />
-          <button type="button" onClick={() => validateStep1() && setStep(2)} className={primaryBtn}>
+          <SubmitButton type="button" onClick={() => validateStep1() && setStep(2)}>
             {t('common.next')}
-          </button>
+          </SubmitButton>
         </div>
       )}
 
@@ -235,63 +218,32 @@ export default function RegisterPage() {
               />
             </div>
           </div>
-          <AuthField
+          <PasswordField
             id="password"
             label={t('common.password')}
-            icon={Lock}
-            type={showPassword ? 'text' : 'password'}
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             minLength={6}
             placeholder={t('authx.register.passwordPlaceholder')}
-            rightSlot={
-              <button
-                type="button"
-                onClick={() => setShowPassword((s) => !s)}
-                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
-                aria-label={showPassword ? t('authx.hidePassword') : t('authx.showPassword')}
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            }
           />
-          <AuthField
+          <PasswordField
             id="confirmPassword"
             label={t('common.confirmPassword')}
-            icon={Lock}
-            type={showConfirm ? 'text' : 'password'}
             value={formData.confirmPassword}
             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
             minLength={6}
             placeholder={t('authx.register.confirmPlaceholder')}
-            rightSlot={
-              <button
-                type="button"
-                onClick={() => setShowConfirm((s) => !s)}
-                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
-                aria-label={showConfirm ? t('authx.hidePassword') : t('authx.showPassword')}
-                tabIndex={-1}
-              >
-                {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            }
           />
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setStep(1);
-                setError('');
-              }}
-              className={`flex-1 ${secondaryBtn}`}
-            >
-              {t('common.back')}
-            </button>
-            <button type="button" onClick={goToVerify} className={primaryBtn}>
+          <AuthActions
+            onBack={() => {
+              setStep(1);
+              setError('');
+            }}
+          >
+            <SubmitButton type="button" onClick={goToVerify}>
               {t('common.next')}
-            </button>
-          </div>
+            </SubmitButton>
+          </AuthActions>
         </div>
       )}
 
@@ -300,44 +252,14 @@ export default function RegisterPage() {
         <form onSubmit={handleRegister} className="space-y-4">
           <p className="text-sm text-gray-600">{t('auth.verifyChannel')}</p>
 
-          {/* Channel choice */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => selectChannel('sms')}
-              disabled={!isTanzania}
-              className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 transition-colors ${
-                channel === 'sms' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'
-              } ${!isTanzania ? 'cursor-not-allowed opacity-40' : 'hover:border-primary/60'}`}
-            >
-              <MessageSquare className="h-5 w-5" />
-              <span className="text-sm font-medium">{t('auth.channelSms')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => selectChannel('email')}
-              className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 transition-colors ${
-                channel === 'email'
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-gray-200 text-gray-600 hover:border-primary/60'
-              }`}
-            >
-              <Mail className="h-5 w-5" />
-              <span className="text-sm font-medium">{t('auth.channelEmail')}</span>
-            </button>
-          </div>
+          <ChannelPicker value={channel} onChange={selectChannel} smsDisabled={!isTanzania} />
 
-          {!isTanzania && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-              {t('auth.smsOnlyTz')}
-            </div>
-          )}
+          {!isTanzania && <AuthAlert variant="warning" flush>{t('auth.smsOnlyTz')}</AuthAlert>}
 
           {!codeSent ? (
-            <button type="button" onClick={handleSendCode} disabled={sending} className={primaryBtn}>
-              {sending && <Loader2 className="h-5 w-5 animate-spin" />}
+            <SubmitButton type="button" onClick={handleSendCode} loading={sending} loadingLabel={t('common.sending')}>
               {t('auth.sendCode')}
-            </button>
+            </SubmitButton>
           ) : (
             <>
               <div>
@@ -352,35 +274,20 @@ export default function RegisterPage() {
                   placeholder="000000"
                 />
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <button
-                  type="button"
-                  onClick={handleSendCode}
-                  disabled={sending}
-                  className="font-medium text-primary hover:text-primary-dark disabled:opacity-50"
-                >
-                  {t('auth.resendCode')}
-                </button>
-              </div>
-              <button type="submit" disabled={loading} className={primaryBtn}>
-                {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+              <ResendButton onClick={handleSendCode} disabled={sending} />
+              <SubmitButton type="submit" loading={loading} loadingLabel={t('authx.verifying')}>
                 {t('auth.verify')} & {t('common.register')}
-              </button>
+              </SubmitButton>
             </>
           )}
 
-          <button
-            type="button"
+          <BackLink
             onClick={() => {
               setStep(2);
               setError('');
               setInfo('');
             }}
-            className="flex w-full items-center justify-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t('common.back')}
-          </button>
+          />
         </form>
       )}
     </AuthShell>
