@@ -1,8 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
+import Alert from '@/components/common/Alert';
+import Sheet from '@/components/common/Sheet';
+import { OptionGroup, OptionRow } from '@/components/wizard/OptionGroup';
 import { useT } from '@/lib/i18n';
+import { pillGhost, pillPrimary } from '@/lib/ui';
 
 interface Rider {
   id: string;
@@ -80,87 +84,77 @@ export default function RiderAssignmentModal({
     }
   }
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-white rounded-t-2xl sm:rounded-lg shadow-xl max-w-md w-full max-h-[90dvh] flex flex-col">
-        <div className="flex justify-between items-center p-5 sm:p-6 border-b shrink-0">
-          <h2 className="text-lg sm:text-xl font-semibold">{t('components.riderAssignment.title')}</h2>
+    <Sheet
+      open={isOpen}
+      onClose={() => !loading && onClose()}
+      title={t('components.riderAssignment.title')}
+      footer={
+        <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600"
             disabled={loading}
+            className={`${pillGhost} h-12 flex-1`}
           >
-            <X className="w-5 h-5" />
+            {t('common.cancel')}
+          </button>
+          <button
+            type="button"
+            onClick={handleAssign}
+            disabled={loading || !selectedRiderId}
+            className={`${pillPrimary} h-12 flex-[2]`}
+          >
+            {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+            {loading
+              ? t('components.riderAssignment.assigning')
+              : t('components.riderAssignment.title')}
           </button>
         </div>
+      }
+    >
+      <div className="space-y-4 p-4">
+        {error && <Alert tone="error">{error}</Alert>}
 
-        <div className="p-5 sm:p-6 overflow-y-auto">
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
+        {vehicleLabel && (
+          <Alert tone="info">
+            {t('components.riderAssignment.requestedVehicle')}:{' '}
+            <span className="font-semibold">{vehicleLabel}</span> —{' '}
+            {t('components.riderAssignment.onlyMatching')}
+          </Alert>
+        )}
 
-          {vehicleLabel && (
-            <div className="mb-4 p-3 bg-primary/5 border border-primary/20 text-primary rounded-lg text-sm">
-              {t('components.riderAssignment.requestedVehicle')}: <span className="font-semibold">{vehicleLabel}</span> - {t('components.riderAssignment.onlyMatching')}
-            </div>
-          )}
-
-          {loadingRiders ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-          ) : riders.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              {vehicleTypeId
-                ? t('components.riderAssignment.noRidersForVehicle')
-                : t('components.riderAssignment.noRiders')}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('components.riderAssignment.selectRider')} *
-                </label>
-                <select
-                  value={selectedRiderId}
-                  onChange={(e) => setSelectedRiderId(e.target.value)}
-                  disabled={loading}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="">{t('components.riderAssignment.chooseRider')}</option>
-                  {riders.map((rider) => (
-                    <option key={rider.id} value={rider.id}>
-                      {rider.name} - {rider.phone}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={handleAssign}
-                  disabled={loading || !selectedRiderId}
-                  className="flex-1 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {loading ? t('components.riderAssignment.assigning') : t('components.riderAssignment.title')}
-                </button>
-                <button
-                  onClick={onClose}
-                  disabled={loading}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                >
-                  {t('common.cancel')}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        {loadingRiders ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : riders.length === 0 ? (
+          <p className="py-10 text-center text-[15px] text-gray-500">
+            {vehicleTypeId
+              ? t('components.riderAssignment.noRidersForVehicle')
+              : t('components.riderAssignment.noRiders')}
+          </p>
+        ) : (
+          /* A rider is a person, not a dropdown entry - the row shows who they
+             are and is a 56px target. */
+          <OptionGroup label={t('components.riderAssignment.selectRider')}>
+            {riders.map((rider) => (
+              <OptionRow
+                key={rider.id}
+                selected={selectedRiderId === rider.id}
+                onSelect={() => {
+                  setSelectedRiderId(rider.id);
+                  setError('');
+                }}
+                disabled={loading}
+                icon={<User className="h-5 w-5" />}
+                title={rider.name}
+                subtitle={rider.phone}
+              />
+            ))}
+          </OptionGroup>
+        )}
       </div>
-    </div>
+    </Sheet>
   );
 }

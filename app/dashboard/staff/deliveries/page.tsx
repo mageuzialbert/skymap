@@ -9,7 +9,9 @@ import DeliveryForm, {
   DeliveryFormData,
 } from "@/components/deliveries/DeliveryForm";
 import RiderAssignmentModal from "@/components/deliveries/RiderAssignmentModal";
+import FormSheet from "@/components/common/FormSheet";
 import { useT } from "@/lib/i18n";
+import { fieldLabel, inputClass, pageTitle, pillPrimary } from "@/lib/ui";
 
 interface Delivery {
   id: string;
@@ -61,7 +63,7 @@ export default function StaffDeliveriesPage() {
 
   // Pagination state
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
+  const pageSize = 25;
   const [totalCount, setTotalCount] = useState(0);
 
   // Fee edit modal state
@@ -332,11 +334,6 @@ export default function StaffDeliveriesPage() {
     setPage(newPage);
   }
 
-  function handlePageSizeChange(newPageSize: number) {
-    setPageSize(newPageSize);
-    setPage(1); // Reset to first page when changing page size
-  }
-
   function handleExport(format: "csv" | "excel") {
     // Build CSV content
     const headers = [
@@ -425,44 +422,32 @@ export default function StaffDeliveriesPage() {
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">
-          {t("staff.deliveries.title")}
-        </h1>
-        {!showCreateForm && (
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            {t("staff.deliveries.createDelivery")}
-          </button>
-        )}
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h1 className={pageTitle}>{t("staff.deliveries.title")}</h1>
+        <button type="button" onClick={() => setShowCreateForm(true)} className={pillPrimary}>
+          <Plus className="h-5 w-5" />
+          <span className="hidden sm:inline">{t("staff.deliveries.createDelivery")}</span>
+        </button>
       </div>
 
-      {showCreateForm && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">{t("staff.deliveries.createNewDelivery")}</h2>
-            <button
-              onClick={() => {
-                setShowCreateForm(false);
-                setError("");
-              }}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <DeliveryForm
-            onSubmit={handleCreateDelivery}
-            loading={submitting}
-            error={error}
-            showBusinessSelector={true}
-            showDeliveryFee={true}
-          />
-        </div>
-      )}
+      <FormSheet
+        open={showCreateForm}
+        onClose={() => {
+          setShowCreateForm(false);
+          setError("");
+        }}
+        onSubmit={() => {}}
+        title={t("staff.deliveries.createNewDelivery")}
+      >
+        {/* DeliveryForm brings its own submit button. */}
+        <DeliveryForm
+          onSubmit={handleCreateDelivery}
+          loading={submitting}
+          error={error}
+          showBusinessSelector={true}
+          showDeliveryFee={true}
+        />
+      </FormSheet>
 
       <DeliveriesTable
         deliveries={deliveries}
@@ -480,49 +465,34 @@ export default function StaffDeliveriesPage() {
         pageSize={pageSize}
         totalCount={totalCount}
         onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
       />
 
-      {/* Fee Edit Modal */}
-      {showFeeModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">{t("staff.deliveries.editFeeTitle")}</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("staff.deliveries.feeAmount")}
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="100"
-                value={editingFee}
-                onChange={(e) => setEditingFee(parseFloat(e.target.value) || 0)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                autoFocus
-              />
-            </div>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => {
-                  setShowFeeModal(false);
-                  setEditingDeliveryId(null);
-                }}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                {t("common.cancel")}
-              </button>
-              <button
-                onClick={handleSaveFee}
-                disabled={savingFee}
-                className="px-4 py-2 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
-              >
-                {savingFee ? t("common.saving") : t("common.save")}
-              </button>
-            </div>
-          </div>
+      <FormSheet
+        open={showFeeModal}
+        onClose={() => {
+          setShowFeeModal(false);
+          setEditingDeliveryId(null);
+        }}
+        onSubmit={handleSaveFee}
+        submitting={savingFee}
+        title={t("staff.deliveries.editFeeTitle")}
+      >
+        <div>
+          <label className={fieldLabel} htmlFor="deliveryFee">
+            {t("staff.deliveries.feeAmount")}
+          </label>
+          <input
+            id="deliveryFee"
+            type="number"
+            min="0"
+            step="100"
+            value={editingFee}
+            onChange={(e) => setEditingFee(parseFloat(e.target.value) || 0)}
+            className={inputClass}
+            autoFocus
+          />
         </div>
-      )}
+      </FormSheet>
 
       <RiderAssignmentModal
         isOpen={showAssignModal}

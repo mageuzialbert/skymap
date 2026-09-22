@@ -2,6 +2,8 @@
 
 import { Package, Clock, CheckCircle, TrendingUp } from 'lucide-react';
 import { useT } from '@/lib/i18n';
+import { BUCKET_DOT, BUCKET_TEXT, statusBucket, statusLabelKey } from '@/lib/deliveryStatus';
+import { cardClass } from '@/lib/ui';
 
 interface OperationsData {
   metrics: {
@@ -32,19 +34,11 @@ interface OperationsDashboardProps {
   data: OperationsData;
 }
 
-const statusColors: Record<string, string> = {
-  CREATED: 'bg-gray-100 text-gray-800',
-  ASSIGNED: 'bg-blue-100 text-blue-800',
-  PICKED_UP: 'bg-yellow-100 text-yellow-800',
-  IN_TRANSIT: 'bg-orange-100 text-orange-800',
-  DELIVERED: 'bg-green-100 text-green-800',
-  FAILED: 'bg-red-100 text-red-800',
-};
 
 export default function OperationsDashboard({ data }: OperationsDashboardProps) {
   const t = useT();
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -56,7 +50,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.operations.totalDeliveries')}</p>
@@ -68,7 +62,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.operations.activeDeliveries')}</p>
@@ -80,7 +74,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.operations.completedToday')}</p>
@@ -92,7 +86,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${cardClass} p-6`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">{t('components.operations.avgDeliveryTime')}</p>
@@ -106,18 +100,19 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
       </div>
 
       {/* Status Distribution */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className={`${cardClass} p-6`}>
         <h3 className="text-lg font-semibold mb-4">{t('components.operations.byStatus')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(data.statusCounts).map(([status, count]) => (
             <div key={status} className="text-center">
-              <div
-                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-2 ${
-                  statusColors[status] || statusColors.CREATED
+              <span
+                className={`mb-2 inline-flex items-center gap-1.5 text-[13px] font-medium ${
+                  BUCKET_TEXT[statusBucket(status)]
                 }`}
               >
-                {t('components.deliveryStatus.' + status)}
-              </div>
+                <span className={`h-1.5 w-1.5 rounded-full ${BUCKET_DOT[statusBucket(status)]}`} />
+                {t(statusLabelKey(status))}
+              </span>
               <p className="text-2xl font-bold text-gray-900">{count}</p>
             </div>
           ))}
@@ -125,7 +120,7 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
       </div>
 
       {/* Recent Deliveries */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className={`${cardClass} p-6`}>
         <h3 className="text-lg font-semibold mb-4">{t('components.operations.recentDeliveries')}</h3>
         {data.recentDeliveries.length === 0 ? (
           <p className="text-gray-500 text-center py-4">{t('components.operations.noRecent')}</p>
@@ -156,11 +151,14 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          statusColors[delivery.status] || statusColors.CREATED
+                        className={`inline-flex items-center gap-1.5 text-xs font-medium ${
+                          BUCKET_TEXT[statusBucket(delivery.status)]
                         }`}
                       >
-                        {t('components.deliveryStatus.' + delivery.status)}
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${BUCKET_DOT[statusBucket(delivery.status)]}`}
+                        />
+                        {t(statusLabelKey(delivery.status))}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">

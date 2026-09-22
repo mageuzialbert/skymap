@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Package, Clock, CheckCircle, TrendingUp, Plus, UserCheck, Loader2, Receipt } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import Link from 'next/link';
 import DeliveriesTable from '@/components/deliveries/DeliveriesTable';
+import StatStrip from '@/components/common/StatStrip';
 import { useT } from '@/lib/i18n';
+import { pageTitle, pillPrimary, sectionLabel } from '@/lib/ui';
 
 interface Delivery {
   id: string;
@@ -94,113 +96,60 @@ export default function StaffDashboard() {
     );
   }
 
+  // Work that needs a person: unassigned, and awaiting confirmation.
+  const needsAssigning = statusCounts['CREATED'] || 0;
+  const awaiting = statusCounts['PENDING_CONFIRMATION'] || 0;
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">{t('staff.dashboard.title')}</h1>
-        <Link
-          href="/dashboard/staff/deliveries?action=create"
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          {t('staff.dashboard.createDelivery')}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className={pageTitle}>{t('staff.dashboard.title')}</h1>
+        <Link href="/dashboard/staff/deliveries?action=create" className={pillPrimary}>
+          <Plus className="h-5 w-5" />
+          <span className="hidden sm:inline">{t('staff.dashboard.createDelivery')}</span>
         </Link>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('staff.dashboard.totalDeliveries')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.totalDeliveries}</p>
-            </div>
-            <Package className="w-8 h-8 text-primary" />
-          </div>
-        </div>
+      {/* The queues a dispatcher acts on, then the day's totals. The detailed
+          breakdown lives on Operations rather than being duplicated here. */}
+      <StatStrip
+        stats={[
+          {
+            label: t('components.deliveries.unassigned'),
+            value: needsAssigning,
+            href: '/dashboard/staff/deliveries',
+            tone: needsAssigning > 0 ? 'text-amber-600' : undefined,
+          },
+          {
+            label: t('business.rides.status.pendingConfirmation'),
+            value: awaiting,
+            href: '/dashboard/staff/deliveries',
+            tone: awaiting > 0 ? 'text-amber-600' : undefined,
+          },
+          {
+            label: t('business.rides.status.active'),
+            value: metrics.activeDeliveries,
+            href: '/dashboard/staff/deliveries',
+          },
+          {
+            label: t('staff.dashboard.completedToday'),
+            value: metrics.completedToday,
+          },
+        ]}
+      />
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('staff.dashboard.pendingAssignments')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {statusCounts.CREATED || 0}
-              </p>
-            </div>
-            <UserCheck className="w-8 h-8 text-blue-500" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('staff.dashboard.inTransit')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {(statusCounts.IN_TRANSIT || 0) + (statusCounts.PICKED_UP || 0)}
-              </p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-orange-500" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('staff.dashboard.completedToday')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.completedToday}</p>
-            </div>
-            <CheckCircle className="w-8 h-8 text-green-500" />
-          </div>
-        </div>
-      </div>
-
-      {/* Status Distribution */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">{t('staff.dashboard.deliveriesByStatus')}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {Object.entries(statusCounts).map(([status, count]) => (
-            <div key={status} className="text-center">
-              <p className="text-sm text-gray-600 mb-1">{status.replace('_', ' ')}</p>
-              <p className="text-2xl font-bold text-gray-900">{count}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">{t('staff.dashboard.quickActions')}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link
-            href="/dashboard/staff/invoices/create"
-            className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors"
-          >
-            <Receipt className="w-8 h-8 text-primary" />
-            <div>
-              <h3 className="font-semibold text-gray-900">{t('staff.dashboard.createInvoice')}</h3>
-              <p className="text-sm text-gray-600">{t('staff.dashboard.createInvoiceDesc')}</p>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Recent Deliveries */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">{t('staff.dashboard.recentDeliveries')}</h2>
+      <section>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <h2 className={`${sectionLabel} mb-0`}>{t('staff.dashboard.recentDeliveries')}</h2>
           <Link
             href="/dashboard/staff/deliveries"
-            className="text-primary hover:text-primary-dark text-sm"
+            className="text-[13px] font-semibold text-primary"
           >
             {t('staff.dashboard.viewAll')}
           </Link>
         </div>
-        <DeliveriesTable
-          deliveries={recentDeliveries}
-          showBusiness={true}
-          showActions={false}
-        />
-      </div>
+        <DeliveriesTable deliveries={recentDeliveries} showBusiness={true} showActions={false} />
+      </section>
     </div>
   );
 }

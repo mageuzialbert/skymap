@@ -25,43 +25,6 @@ export default function StaffDeliveryDetailsPage({ params }: { params: { id: str
            return;
         }
 
-        // We can reuse the staff deliveries API or fetch directly if we had a single endpoint
-        // Since the staff API list endpoint returns everything, let's fetch specific delivery
-        // For simplicity and security (using admin client on server), let's use a new API endpoint or filter the list
-        // Actually, for staff, we should probably add a GET /api/staff/deliveries/[id] endpoint
-        // BUT, given the instructions, I'll temporarily fetch from client if RLS allows, 
-        // OR better, create/use an API route. 
-        // Let's try fetching via the existing list endpoint with a filter if supported, 
-        // OR implement a detail fetch. 
-        // Wait, I can't easily change the API right now without more files. 
-        // Let's assume RLS allows staff to select deliveries or use the server action pattern.
-        // Actually, looking at `api/staff/deliveries/route.ts`, it lists deliveries.
-        // I'll add a fetch to that endpoint with a filter if possible, or just raw fetch if RLS is set up.
-        // Checking RLS... `rls.sql` usually handles this.
-        // Let's try fetching via a new API call to /api/staff/deliveries/[id] which I might need to create?
-        // Or just use the client-side supabase request if the user is authenticated as staff.
-        // The RLS for 'deliveries' usually allows read for 'STAFF'.
-        
-        // Let's try client-side fetch first using the `getUserRole` validation.
-        // Wait, `getUserRole` uses server actions or cookie checks.
-        
-        // Use the existing GET /api/staff/deliveries endpoint? It returns a list.
-        // Let's fetch the specific one via client-side supabase if RLS permits.
-        
-        // Re-checking `api/staff/deliveries/route.ts`... it uses `supabaseAdmin` so it bypasses RLS.
-        // So client-side `supabase.from('deliveries')` will fail if RLS is strict (which it should be).
-        // I should probably Create a new route `app/api/staff/deliveries/[id]/route.ts`.
-        // BUT, to save time/files, I can check if `api/staff/deliveries` accepts an ID? 
-        // It accepts `business_id` and filters.
-        
-        // Let's create `app/api/staff/deliveries/[id]/route.ts` quickly?
-        // Actually, I can just use the existing one? No, it doesn't filter by ID.
-        
-        // Let's create the route. It's cleaner.
-        
-        // Wait, for this step I'm just creating pages. 
-        // I will write the page to fetch from `/api/staff/deliveries/${params.id}` and then create that route.
-        
         const response = await fetch(`/api/staff/deliveries/${params.id}`);
         if (!response.ok) {
             throw new Error('Failed to fetch delivery');
@@ -95,7 +58,7 @@ export default function StaffDeliveryDetailsPage({ params }: { params: { id: str
           href="/dashboard/staff/deliveries"
           className="text-primary hover:underline flex items-center justify-center gap-2"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-5 w-5" />
           {t('staff.deliveryDetail.backToDeliveries')}
         </Link>
       </div>
@@ -103,15 +66,15 @@ export default function StaffDeliveryDetailsPage({ params }: { params: { id: str
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Link 
+    <div className="space-y-5">
+      <Link
         href="/dashboard/staff/deliveries"
-        className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-6 transition-colors"
+        className="-ml-1 inline-flex min-h-[2.75rem] items-center gap-2 px-1 text-[15px] font-medium text-gray-500 transition-colors active:text-gray-900"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="h-5 w-5" />
         {t('staff.deliveryDetail.backToDeliveries')}
       </Link>
-      
+
       <DeliveryDetails delivery={delivery} />
     </div>
   );
