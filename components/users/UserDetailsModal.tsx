@@ -14,7 +14,9 @@ import {
   PowerOff,
   User as UserIcon,
 } from 'lucide-react';
+import Sheet from '@/components/common/Sheet';
 import { useT } from '@/lib/i18n';
+import { ROLE_TINT, activeDot, activeLabelKey, activeText, roleLabel } from '@/lib/userStatus';
 
 export interface RiderUser {
   id: string;
@@ -39,13 +41,6 @@ interface UserDetailsModalProps {
   onDelete?: (user: RiderUser) => void;
 }
 
-const roleColors: Record<string, string> = {
-  ADMIN: 'bg-purple-100 text-purple-800 border-purple-200',
-  STAFF: 'bg-blue-100 text-blue-800 border-blue-200',
-  RIDER: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  BUSINESS: 'bg-amber-100 text-amber-800 border-amber-200',
-};
-
 export default function UserDetailsModal({
   isOpen,
   user,
@@ -69,38 +64,17 @@ export default function UserDetailsModal({
   if (!isOpen || !user) return null;
 
   const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('en-US', {
+    new Date(date).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
 
   return (
-    <div
-      className="fixed inset-0 z-[55] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
-    >
-      <div
-        className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* gradient header strip */}
-        <div className="relative h-24 bg-gradient-to-br from-primary via-primary-light to-primary-dark">
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-3 right-3 p-2 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white transition-colors cursor-pointer"
-            aria-label={t('common.close')}
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Avatar overlapping the header */}
-        <div className="px-6 -mt-12">
-          <div className="relative w-24 h-24 rounded-2xl border-4 border-white bg-gray-100 shadow-lg overflow-hidden">
+    <Sheet open onClose={onClose} title={t('components.userDetails.title')}>
+      <div className="p-4">
+        <div>
+          <div className="relative h-20 w-20 overflow-hidden rounded-2xl bg-gray-100">
             {user.profile_picture_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -120,19 +94,20 @@ export default function UserDetailsModal({
               <h2 className="text-xl font-bold text-gray-900 truncate">{user.name || t('components.userDetails.unnamed')}</h2>
               <div className="mt-1 flex items-center gap-2 flex-wrap">
                 <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${roleColors[user.role] || roleColors.STAFF}`}
-                >
-                  <Shield className="w-3 h-3" />
-                  {user.role}
-                </span>
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                    user.active
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-700'
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                    ROLE_TINT[user.role] || 'bg-gray-100 text-gray-600'
                   }`}
                 >
-                  {user.active ? t('components.users.active') : t('components.users.inactive')}
+                  <Shield className="h-3 w-3" />
+                  {roleLabel(user.role, t)}
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1.5 text-[11px] font-semibold ${activeText(
+                    user.active
+                  )}`}
+                >
+                  <span className={`h-1.5 w-1.5 rounded-full ${activeDot(user.active)}`} />
+                  {t(activeLabelKey(user.active))}
                 </span>
               </div>
             </div>
@@ -191,7 +166,7 @@ export default function UserDetailsModal({
           )}
         </div>
       </div>
-    </div>
+    </Sheet>
   );
 }
 
@@ -206,12 +181,12 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-100">
         <Icon className="w-4 h-4 text-gray-600" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{label}</p>
-        <p className="text-sm font-medium text-gray-900 mt-0.5 break-words">{value}</p>
+        <p className="text-[13px] text-gray-500">{label}</p>
+        <p className="mt-0.5 break-words text-[15px] font-medium text-gray-900">{value}</p>
       </div>
     </div>
   );

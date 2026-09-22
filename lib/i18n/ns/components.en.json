@@ -363,7 +363,8 @@
       "licenseNumber": "License number",
       "notProvided": "Not provided",
       "phone": "Phone",
-      "unnamed": "Unnamed user"
+      "unnamed": "Unnamed user",
+      "title": "User details"
     },
     "userForm": {
       "basicInfo": "Basic Information",

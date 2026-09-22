@@ -37,7 +37,11 @@
     "saving": "Saving...",
     "sending": "Sending...",
     "retry": "Retry",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "language": "Language",
+    "active": "Active",
+    "inactive": "Inactive",
+    "notSet": "Not set"
   },
   "landing": {
     "playSound": "Tap for sound",

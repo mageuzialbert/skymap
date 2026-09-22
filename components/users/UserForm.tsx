@@ -6,6 +6,8 @@ import PermissionSelector from './PermissionSelector';
 import { getDefaultPermissions } from '@/lib/permissions';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
+import Alert from '@/components/common/Alert';
+import { cardClass, fieldLabel, inputClass } from '@/lib/ui';
 
 interface User {
   id: string;
@@ -144,9 +146,7 @@ export default function UserForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-          {error}
-        </div>
+        <Alert tone="error">{error}</Alert>
       )}
 
       {/* Profile picture */}
@@ -217,41 +217,41 @@ export default function UserForm({
         <h3 className="text-sm font-medium text-gray-900 mb-3">{t('components.userForm.basicInfo')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.name')} *</label>
+            <label className={fieldLabel}>{t('common.name')} *</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={inputClass}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('components.userForm.phone')} *</label>
+            <label className={fieldLabel}>{t('components.userForm.phone')} *</label>
             <input
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required
               placeholder="+255759561311"
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={inputClass}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.email')} *</label>
+            <label className={fieldLabel}>{t('common.email')} *</label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={inputClass}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={fieldLabel}>
               {t('components.userForm.password')} {!user ? '*' : ''}
             </label>
             <input
@@ -261,7 +261,7 @@ export default function UserForm({
               required={!user}
               minLength={6}
               placeholder={user ? t('components.userForm.leaveEmptyPassword') : t('components.userForm.minChars')}
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={inputClass}
             />
             {user && (
               <p className="mt-1 text-xs text-gray-500">{t('components.userForm.leaveEmptyPassword')}</p>
@@ -269,12 +269,12 @@ export default function UserForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('components.userForm.role')} *</label>
+            <label className={fieldLabel}>{t('components.userForm.role')} *</label>
             <select
               value={formData.role}
               onChange={(e) => handleRoleChange(e.target.value as 'STAFF' | 'RIDER')}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={inputClass}
             >
               <option value="STAFF">{t('components.userForm.staff')}</option>
               <option value="RIDER">{t('components.userForm.rider')}</option>
@@ -297,7 +297,7 @@ export default function UserForm({
           {/* License number (rider only) */}
           {isRider && (
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('components.userForm.licenseNumber')}
               </label>
               <div className="relative">
@@ -318,7 +318,7 @@ export default function UserForm({
           {/* Vehicle type / means of transport (rider only) */}
           {isRider && (
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={fieldLabel}>
                 {t('components.userForm.meansOfTransport')}
               </label>
               <div className="relative">

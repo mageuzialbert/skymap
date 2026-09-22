@@ -1,14 +1,11 @@
 "use client";
 
-import {
-  X,
-  Building2,
-  Phone,
-  Mail,
-  DollarSign,
-  Calendar,
-  Shield,
-} from "lucide-react";
+import { Building2, Calendar, DollarSign, Phone, Shield } from "lucide-react";
+import Sheet from "@/components/common/Sheet";
+import FieldGroup from "@/components/wizard/FieldGroup";
+import { useT } from "@/lib/i18n";
+import { formatStamp } from "@/lib/time";
+import { activeDot, activeLabelKey, activeText, roleLabel } from "@/lib/userStatus";
 
 interface Business {
   id: string;
@@ -25,171 +22,77 @@ interface Business {
   };
 }
 
-interface BusinessDetailsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  business: Business | null;
-}
-
+/** One client, read-only. */
 export default function BusinessDetailsModal({
   isOpen,
   onClose,
   business,
-}: BusinessDetailsModalProps) {
-  if (!isOpen || !business) return null;
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  business: Business | null;
+}) {
+  const t = useT();
+  if (!business) return null;
 
-  const formatCurrency = (amount: number | null): string => {
-    if (amount === null) return "Not set";
-    return new Intl.NumberFormat("en-TZ", {
-      style: "currency",
-      currency: "TZS",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const fee =
+    business.delivery_fee === null
+      ? t("common.notSet")
+      : new Intl.NumberFormat("en-TZ", {
+          style: "currency",
+          currency: "TZS",
+          minimumFractionDigits: 0,
+        }).format(business.delivery_fee);
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
-          <h2 className="text-xl font-semibold">Client Details</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {/* Client Information */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Building2 className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold text-gray-900">
-                Client Information
-              </h3>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Client Name
-                </label>
-                <p className="text-sm text-gray-900 mt-1">{business.name}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Phone
-                </label>
-                <div className="flex items-center gap-2 mt-1">
-                  <Phone className="w-4 h-4 text-gray-400" />
-                  <p className="text-sm text-gray-900">{business.phone}</p>
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Delivery Fee
-                </label>
-                <div className="flex items-center gap-2 mt-1">
-                  <DollarSign className="w-4 h-4 text-gray-400" />
-                  <p className="text-sm text-gray-900">
-                    {formatCurrency(business.delivery_fee)}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Status
-                </label>
-                <div className="mt-1">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      business.active
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {business.active ? "Active" : "Inactive"}
-                  </span>
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Created
-                </label>
-                <div className="flex items-center gap-2 mt-1">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <p className="text-sm text-gray-900">
-                    {formatDate(business.created_at)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* User Information */}
-          {business.user && (
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Shield className="w-5 h-5 text-blue-500" />
-                <h3 className="font-semibold text-gray-900">
-                  Associated User Account
-                </h3>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Name
-                  </label>
-                  <p className="text-sm text-gray-900 mt-1">
-                    {business.user.name}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Phone
-                  </label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Phone className="w-4 h-4 text-gray-400" />
-                    <p className="text-sm text-gray-900">
-                      {business.user.phone}
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Role
-                  </label>
-                  <div className="mt-1">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                      {business.user.role}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Close Button */}
-          <div className="flex justify-end pt-4 border-t">
-            <button
-              onClick={onClose}
-              className="px-6 py-2 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors"
+    <Sheet open={isOpen} onClose={onClose} title={t("admin.clients.detailsTitle")}>
+      <div className="space-y-5 p-4">
+        <FieldGroup label={t("admin.clients.clientInfo")}>
+          <Detail icon={Building2} label={t("admin.clients.name")} value={business.name} />
+          <Detail icon={Phone} label={t("admin.clients.phone")} value={business.phone} />
+          <Detail icon={DollarSign} label={t("admin.clients.deliveryFee")} value={fee} />
+          <div>
+            <p className="text-[13px] text-gray-500">{t("admin.clients.status")}</p>
+            <p
+              className={`mt-0.5 inline-flex items-center gap-1.5 text-[15px] font-medium ${activeText(
+                business.active
+              )}`}
             >
-              Close
-            </button>
+              <span className={`h-1.5 w-1.5 rounded-full ${activeDot(business.active)}`} />
+              {t(activeLabelKey(business.active))}
+            </p>
           </div>
-        </div>
+          <Detail
+            icon={Calendar}
+            label={t("admin.clients.created")}
+            value={formatStamp(business.created_at)}
+          />
+        </FieldGroup>
+
+        {business.user && (
+          <FieldGroup label={t("admin.clients.userAccount")}>
+            <Detail icon={Shield} label={t("admin.clients.name")} value={business.user.name} />
+            <Detail icon={Phone} label={t("admin.clients.phone")} value={business.user.phone} />
+            <Detail
+              icon={Shield}
+              label={t("admin.clients.role")}
+              value={roleLabel(business.user.role, t)}
+            />
+          </FieldGroup>
+        )}
       </div>
+    </Sheet>
+  );
+}
+
+function Detail({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[13px] text-gray-500">{label}</p>
+      <p className="mt-0.5 flex items-center gap-2 text-[15px] font-medium text-gray-900">
+        <Icon className="h-4 w-4 shrink-0 text-gray-400" />
+        {value}
+      </p>
     </div>
   );
 }

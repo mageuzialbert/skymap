@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useLoadScript } from "@react-google-maps/api";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import LocationPicker from "@/components/common/LocationPicker";
+import Alert from '@/components/common/Alert';
+import { useT } from '@/lib/i18n';
+import { fieldLabel, helpText, inputClass, pillGhost, pillPrimary, sectionLabel } from '@/lib/ui';
 
 interface Business {
   id: string;
@@ -63,6 +66,7 @@ export default function BusinessForm({
   loading,
   error,
 }: BusinessFormProps) {
+  const t = useT();
   const isEditing = !!business;
 
   const [formData, setFormData] = useState<BusinessFormData>({
@@ -181,38 +185,26 @@ export default function BusinessForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
-
-      {loadError && (
-        <div className="p-3 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-sm flex items-center gap-2">
-          <AlertCircle className="w-4 h-4" />
-          <span>
-            Google Maps failed to load. You can still enter addresses manually.
-          </span>
-        </div>
-      )}
+      {error && <Alert tone="error">{error}</Alert>}
+      {loadError && <Alert tone="warning">{t('admin.clients.mapsError')}</Alert>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Client Name *
+          <label className={fieldLabel}>
+            {t('admin.clients.name')} *
           </label>
           <input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Phone *
+          <label className={fieldLabel}>
+            {t('admin.clients.phone')} *
           </label>
           <input
             type="tel"
@@ -221,8 +213,8 @@ export default function BusinessForm({
               setFormData({ ...formData, phone: e.target.value })
             }
             required
-            placeholder="+255759561311"
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+            placeholder="+255…"
+            className={inputClass}
           />
         </div>
 
@@ -230,8 +222,8 @@ export default function BusinessForm({
         {!isEditing && (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email *
+              <label className={fieldLabel}>
+                {t('admin.clients.email')} *
               </label>
               <input
                 type="email"
@@ -240,15 +232,15 @@ export default function BusinessForm({
                   setFormData({ ...formData, email: e.target.value })
                 }
                 required
-                placeholder="client@example.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder={t('admin.clients.emailPlaceholder')}
+                className={inputClass}
               />
-              <p className="mt-1 text-xs text-gray-500">Used for login</p>
+              <p className={helpText}>{t('admin.clients.usedForLogin')}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password *
+              <label className={fieldLabel}>
+                {t('admin.clients.password')} *
               </label>
               <input
                 type="password"
@@ -258,16 +250,16 @@ export default function BusinessForm({
                 }
                 required
                 minLength={6}
-                placeholder="Minimum 6 characters"
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder={t('admin.clients.passwordPlaceholder')}
+                className={inputClass}
               />
             </div>
           </>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Delivery Fee (TZS)
+          <label className={fieldLabel}>
+            {t('admin.clients.deliveryFee')}
           </label>
           <input
             type="number"
@@ -277,11 +269,11 @@ export default function BusinessForm({
             }
             step="0.01"
             min="0"
-            placeholder="0.00"
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+            placeholder={t('admin.clients.feePlaceholder')}
+            className={inputClass}
           />
-          <p className="mt-1 text-xs text-gray-500">
-            Leave empty to use default pricing
+          <p className={helpText}>
+            {t('admin.clients.deliveryFeeHint')}
           </p>
         </div>
 
@@ -296,7 +288,7 @@ export default function BusinessForm({
             className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
           />
           <label htmlFor="active" className="text-sm font-medium text-gray-700">
-            Active
+            {t('admin.clients.active')}
           </label>
         </div>
       </div>
@@ -304,14 +296,14 @@ export default function BusinessForm({
       {/* Location Section */}
       <div className="border-t pt-4 mt-4">
         <h3 className="text-md font-semibold text-gray-800 mb-3">
-          Business Location
+          {t('admin.clients.location')}
         </h3>
 
         {/* Address with Google Maps */}
         <div className="mb-4">
           {isLoaded ? (
             <LocationPicker
-              label="Business Address"
+              label={t('admin.clients.address')}
               value={formData.address}
               onChange={handleLocationChange}
               defaultLocation={
@@ -322,8 +314,8 @@ export default function BusinessForm({
             />
           ) : loadError ? (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Business Address
+              <label className={fieldLabel}>
+                {t('admin.clients.address')}
               </label>
               <input
                 type="text"
@@ -331,15 +323,15 @@ export default function BusinessForm({
                 onChange={(e) =>
                   setFormData({ ...formData, address: e.target.value })
                 }
-                placeholder="Enter business address"
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder={t('admin.clients.addressPlaceholder')}
+                className={inputClass}
               />
             </div>
           ) : (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="w-5 h-5 animate-spin text-primary" />
               <span className="ml-2 text-gray-500 text-sm">
-                Loading maps...
+                {t('admin.clients.loadingMaps')}
               </span>
             </div>
           )}
@@ -348,8 +340,8 @@ export default function BusinessForm({
         {/* Region and District */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Region
+            <label className={fieldLabel}>
+              {t('admin.clients.region')}
             </label>
             <select
               value={selectedRegionId || ""}
@@ -359,9 +351,9 @@ export default function BusinessForm({
                 )
               }
               disabled={loadingRegions}
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100"
+              className={`${inputClass} disabled:bg-gray-100`}
             >
-              <option value="">Select region</option>
+              <option value="">{t('admin.clients.selectRegion')}</option>
               {regions.map((region) => (
                 <option key={region.id} value={region.id}>
                   {region.name}
@@ -371,8 +363,8 @@ export default function BusinessForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              District
+            <label className={fieldLabel}>
+              {t('admin.clients.district')}
             </label>
             <select
               value={formData.district_id || ""}
@@ -383,9 +375,9 @@ export default function BusinessForm({
                 })
               }
               disabled={!selectedRegionId || loadingDistricts}
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100"
+              className={`${inputClass} disabled:bg-gray-100`}
             >
-              <option value="">Select district</option>
+              <option value="">{t('admin.clients.selectDistrict')}</option>
               {districts.map((district) => (
                 <option key={district.id} value={district.id}>
                   {district.name}
@@ -393,8 +385,8 @@ export default function BusinessForm({
               ))}
             </select>
             {!selectedRegionId && (
-              <p className="mt-1 text-xs text-gray-500">
-                Select a region first
+              <p className={helpText}>
+                {t('admin.clients.selectRegionFirst')}
               </p>
             )}
           </div>
@@ -405,22 +397,22 @@ export default function BusinessForm({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className={`${pillPrimary} h-12 flex-[2]`}
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           {loading
-            ? "Saving..."
+            ? t('common.saving')
             : isEditing
-              ? "Update Client"
-              : "Create Client"}
+              ? t('admin.clients.update')
+              : t('admin.clients.create')}
         </button>
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+          className={`${pillGhost} h-12 flex-1`}
         >
-          Cancel
+          {t('common.cancel')}
         </button>
       </div>
     </form>

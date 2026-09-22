@@ -1,6 +1,9 @@
 "use client";
 
-import { Building2, Edit, Eye, Power, DollarSign } from "lucide-react";
+import { Building2 } from "lucide-react";
+import { EmptyState, RecordList, RecordRow } from "@/components/common/RecordList";
+import { useT } from "@/lib/i18n";
+import { activeDot, activeLabelKey, activeText } from "@/lib/userStatus";
 
 interface Business {
   id: string;
@@ -25,6 +28,13 @@ interface BusinessesTableProps {
   showActions?: boolean;
 }
 
+/**
+ * The client list.
+ *
+ * Was a seven-column table with no mobile fallback at all, and the only file
+ * group in the app with no translations - a Swahili admin got a bilingual
+ * screen. Now a card list, fully translated.
+ */
 export default function BusinessesTable({
   businesses,
   onView,
@@ -32,160 +42,87 @@ export default function BusinessesTable({
   onToggleActive,
   showActions = true,
 }: BusinessesTableProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  const t = useT();
 
-  const formatCurrency = (amount: number | null): string => {
-    if (amount === null) return "Not set";
-    return new Intl.NumberFormat("en-TZ", {
-      style: "currency",
-      currency: "TZS",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number | null): string =>
+    amount === null
+      ? t("common.notSet")
+      : new Intl.NumberFormat("en-TZ", {
+          style: "currency",
+          currency: "TZS",
+          minimumFractionDigits: 0,
+        }).format(amount);
+
+  if (businesses.length === 0) {
+    return <EmptyState icon={Building2} title={t("admin.businesses.noneFound")} />;
+  }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Client
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contact
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Delivery Fee
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Created
-              </th>
-              {showActions && (
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {businesses.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={showActions ? 6 : 5}
-                  className="px-6 py-4 text-center text-gray-500"
-                >
-                  No clients found
-                </td>
-              </tr>
-            ) : (
-              businesses.map((business) => (
-                <tr key={business.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-primary/10">
-                        <Building2 className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {business.name}
-                        </div>
-                        {business.user && (
-                          <div className="text-sm text-gray-500">
-                            {business.user.name}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {business.phone}
-                    </div>
-                    {business.user && (
-                      <div className="text-sm text-gray-500">
-                        {business.user.phone}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-900">
-                        {formatCurrency(business.delivery_fee)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        business.active
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {business.active ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(business.created_at)}
-                  </td>
-                  {showActions && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-3">
-                        {onView && (
-                          <button
-                            onClick={() => onView(business)}
-                            className="text-blue-600 hover:text-blue-900"
-                            title="View details"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        )}
-                        {onEdit && (
-                          <button
-                            onClick={() => onEdit(business)}
-                            className="text-primary hover:text-primary-dark"
-                            title="Edit client"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                        )}
-                        {onToggleActive && (
-                          <button
-                            onClick={() => onToggleActive(business)}
-                            className={
-                              business.active
-                                ? "text-red-600 hover:text-red-900"
-                                : "text-green-600 hover:text-green-900"
-                            }
-                            title={
-                              business.active
-                                ? "Disable client"
-                                : "Enable client"
-                            }
-                          >
-                            <Power className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <RecordList>
+      {businesses.map((business) => (
+        <RecordRow
+          key={business.id}
+          onClick={onView ? () => onView(business) : undefined}
+          leading={
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700">
+              <Building2 className="h-[18px] w-[18px]" />
+            </span>
+          }
+          title={business.name}
+          trailing={formatCurrency(business.delivery_fee)}
+          subtitle={business.phone}
+          status={{
+            dot: activeDot(business.active),
+            text: activeText(business.active),
+            label: t(activeLabelKey(business.active)),
+          }}
+          actions={
+            showActions && (
+              <>
+                {onView && (
+                  <Action onClick={() => onView(business)}>
+                    {t("admin.clients.viewDetails")}
+                  </Action>
+                )}
+                {onEdit && (
+                  <Action onClick={() => onEdit(business)}>{t("admin.clients.editClient")}</Action>
+                )}
+                {onToggleActive && (
+                  <Action onClick={() => onToggleActive(business)} tone={business.active ? "danger" : undefined}>
+                    {business.active
+                      ? t("admin.clients.disableClient")
+                      : t("admin.clients.enableClient")}
+                  </Action>
+                )}
+              </>
+            )
+          }
+        />
+      ))}
+    </RecordList>
+  );
+}
+
+function Action({
+  children,
+  onClick,
+  tone,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  tone?: "danger";
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[2.25rem] items-center rounded-full border px-3 text-[13px] font-semibold transition-colors ${
+        tone === "danger"
+          ? "border-red-200 text-red-600 active:bg-red-50"
+          : "border-gray-200 text-gray-700 active:bg-gray-100"
+      }`}
+    >
+      {children}
+    </button>
   );
 }

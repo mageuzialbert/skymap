@@ -8,6 +8,7 @@ import UsersTable from '@/components/users/UsersTable';
 import UserForm, { UserFormData } from '@/components/users/UserForm';
 import UserDetailsModal, { RiderUser } from '@/components/users/UserDetailsModal';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
+import Sheet from '@/components/common/Sheet';
 import { useT } from '@/lib/i18n';
 
 interface User {
@@ -266,31 +267,18 @@ export default function AdminUsersPage() {
         )}
       </div>
 
-      {showForm && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">
-              {editingUser ? t('admin.users.editUser') : t('admin.users.createUser')}
-            </h2>
-            <button
-              onClick={() => {
-                setShowForm(false);
-                setEditingUser(null);
-                setEditingPermissions([]);
-                setError('');
-              }}
-              className="text-gray-500 hover:text-gray-700 cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          {loadingPermissions ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <span className="ml-2 text-gray-600">{t('admin.users.loadingPermissions')}</span>
-            </div>
-          ) : (
-            <UserForm
+      <Sheet
+        open={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setEditingUser(null);
+          setEditingPermissions([]);
+          setError('');
+        }}
+        title={editingUser ? t('admin.users.editUser') : t('admin.users.createUser')}
+      >
+        <div className="p-4">
+          <UserForm
               user={editingUser}
               initialPermissions={editingUser ? editingPermissions : undefined}
               onSubmit={handleSubmit}
@@ -303,9 +291,8 @@ export default function AdminUsersPage() {
               loading={submitting}
               error={error}
             />
-          )}
         </div>
-      )}
+      </Sheet>
 
       <UsersTable
         users={staffAndRiders}

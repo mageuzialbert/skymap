@@ -37,7 +37,11 @@
     "saving": "Inahifadhi...",
     "sending": "Inatuma...",
     "retry": "Jaribu tena",
-    "error": "Hitilafu imetokea"
+    "error": "Hitilafu imetokea",
+    "language": "Lugha",
+    "active": "Inatumika",
+    "inactive": "Haitumiki",
+    "notSet": "Haijawekwa"
   },
   "landing": {
     "playSound": "Gusa kwa sauti",

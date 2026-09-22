@@ -1,7 +1,9 @@
 'use client';
 
-import { User, Shield, Bike, Building2, X, Edit, Eye, IdCard } from 'lucide-react';
+import { Bike, Building2, IdCard, Shield, User } from 'lucide-react';
+import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
 import { useT } from '@/lib/i18n';
+import { ROLE_TINT, activeDot, activeLabelKey, activeText, roleLabel } from '@/lib/userStatus';
 
 interface UserData {
   id: string;
@@ -30,13 +32,14 @@ const roleIcons: Record<string, any> = {
   BUSINESS: Building2,
 };
 
-const roleColors: Record<string, string> = {
-  ADMIN: 'bg-purple-100 text-purple-800',
-  STAFF: 'bg-blue-100 text-blue-800',
-  RIDER: 'bg-emerald-100 text-emerald-800',
-  BUSINESS: 'bg-amber-100 text-amber-800',
-};
-
+/**
+ * The people list.
+ *
+ * Was an eight-column table plus a duplicated `md:hidden` card list, showing
+ * the raw role enum and a hardcoded English "Active"/"Inactive". Roles and
+ * states now come from `lib/userStatus`, so staff read the same words the
+ * person themselves sees on their Account screen.
+ */
 export default function UsersTable({
   users,
   onView,
@@ -45,235 +48,99 @@ export default function UsersTable({
   showActions = true,
 }: UsersTableProps) {
   const t = useT();
-  const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+
+  if (users.length === 0) {
+    return <EmptyState icon={User} title={t('components.users.noneFound')} />;
+  }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="overflow-x-auto hidden md:block">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('components.users.user')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('components.users.contact')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('components.users.license')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('components.users.role')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('common.status')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('components.deliveries.created')}
-              </th>
-              {showActions && (
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('common.actions')}
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {users.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={showActions ? 7 : 6}
-                  className="px-6 py-10 text-center text-gray-500"
+    <RecordList>
+      {users.map((user) => {
+        const Icon = roleIcons[user.role] || User;
+        return (
+          <RecordRow
+            key={user.id}
+            onClick={onView ? () => onView(user) : undefined}
+            leading={
+              user.profile_picture_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={user.profile_picture_url}
+                  alt=""
+                  className="h-9 w-9 rounded-full object-cover"
+                />
+              ) : (
+                <span
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                    ROLE_TINT[user.role] || 'bg-gray-100 text-gray-600'
+                  }`}
                 >
-                  {t('components.users.noneFound')}
-                </td>
-              </tr>
-            ) : (
-              users.map((user) => {
-                const RoleIcon = roleIcons[user.role] || User;
-                return (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-11 w-11 rounded-full overflow-hidden border border-gray-200 bg-gray-100">
-                          {user.profile_picture_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={user.profile_picture_url}
-                              alt={user.name}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                              <RoleIcon className="w-5 h-5 text-gray-500" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="ml-3 min-w-0">
-                          <div className="text-sm font-semibold text-gray-900 truncate">{user.name}</div>
-                          <div className="text-xs text-gray-500 truncate">{user.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{user.phone}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.license_number ? (
-                        <div className="inline-flex items-center gap-1.5 text-sm text-gray-700">
-                          <IdCard className="w-4 h-4 text-gray-400" />
-                          <span className="font-mono">{user.license_number}</span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-400 italic">{t('components.users.notSet')}</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          roleColors[user.role] || roleColors.STAFF
-                        }`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          user.active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {user.active ? t('components.users.active') : t('components.users.inactive')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(user.created_at)}
-                    </td>
-                    {showActions && (
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center gap-1.5">
-                          {onView && (
-                            <button
-                              onClick={() => onView(user)}
-                              className="p-1.5 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors cursor-pointer"
-                              title={t('components.users.viewDetails')}
-                              aria-label={t('components.users.viewDetailsOf', { name: user.name })}
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                          )}
-                          {onEdit && (
-                            <button
-                              onClick={() => onEdit(user)}
-                              className="p-1.5 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors cursor-pointer"
-                              title={t('components.users.editUser')}
-                              aria-label={t('components.users.editUserName', { name: user.name })}
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                          )}
-                          {onDeactivate && user.active && (
-                            <button
-                              onClick={() => onDeactivate(user.id)}
-                              className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                              title={t('components.users.deactivateUser')}
-                              aria-label={t('components.users.deactivateUserName', { name: user.name })}
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    )}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mobile cards */}
-      <div className="md:hidden divide-y divide-gray-100">
-        {users.length === 0 ? (
-          <div className="px-4 py-8 text-center text-gray-500">{t('components.users.noneFound')}</div>
-        ) : (
-          users.map((user) => {
-            const RoleIcon = roleIcons[user.role] || User;
-            return (
-              <div key={user.id} className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex-shrink-0 h-11 w-11 rounded-full overflow-hidden border border-gray-200 bg-gray-100">
-                    {user.profile_picture_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={user.profile_picture_url} alt={user.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                        <RoleIcon className="w-5 h-5 text-gray-500" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold text-gray-900 truncate">{user.name}</div>
-                    <div className="text-xs text-gray-500 truncate">{user.email}</div>
-                  </div>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      roleColors[user.role] || roleColors.STAFF
-                    }`}
-                  >
-                    {user.role}
-                  </span>
-                </div>
-
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
-                  <span>{user.phone}</span>
-                  {user.license_number && (
-                    <span className="inline-flex items-center gap-1 font-mono text-xs">
-                      <IdCard className="w-3.5 h-3.5 text-gray-400" />
-                      {user.license_number}
-                    </span>
+                  <Icon className="h-[18px] w-[18px]" />
+                </span>
+              )
+            }
+            title={user.name}
+            trailing={roleLabel(user.role, t)}
+            subtitle={user.phone || user.email}
+            meta={
+              user.license_number ? (
+                <span className="inline-flex items-center gap-1">
+                  <IdCard className="h-3.5 w-3.5" />
+                  {user.license_number}
+                </span>
+              ) : undefined
+            }
+            status={{
+              dot: activeDot(user.active),
+              text: activeText(user.active),
+              label: t(activeLabelKey(user.active)),
+            }}
+            actions={
+              showActions && (
+                <>
+                  {onView && (
+                    <Action onClick={() => onView(user)}>
+                      {t('components.users.viewDetails')}
+                    </Action>
                   )}
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                      user.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {user.active ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
+                  {onEdit && (
+                    <Action onClick={() => onEdit(user)}>{t('components.users.editUser')}</Action>
+                  )}
+                  {onDeactivate && user.active && (
+                    <Action onClick={() => onDeactivate(user.id)} tone="danger">
+                      {t('components.users.deactivate')}
+                    </Action>
+                  )}
+                </>
+              )
+            }
+          />
+        );
+      })}
+    </RecordList>
+  );
+}
 
-                {showActions && (
-                  <div className="mt-3 flex items-center gap-4 text-sm font-medium">
-                    {onView && (
-                      <button onClick={() => onView(user)} className="inline-flex items-center gap-1 text-gray-600">
-                        <Eye className="w-4 h-4" /> {t('components.deliveries.view')}
-                      </button>
-                    )}
-                    {onEdit && (
-                      <button onClick={() => onEdit(user)} className="inline-flex items-center gap-1 text-gray-600">
-                        <Edit className="w-4 h-4" /> {t('common.edit')}
-                      </button>
-                    )}
-                    {onDeactivate && user.active && (
-                      <button onClick={() => onDeactivate(user.id)} className="inline-flex items-center gap-1 text-red-600">
-                        <X className="w-4 h-4" /> {t('components.users.deactivate')}
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-    </div>
+function Action({
+  children,
+  onClick,
+  tone,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  tone?: 'danger';
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[2.25rem] items-center rounded-full border px-3 text-[13px] font-semibold transition-colors ${
+        tone === 'danger'
+          ? 'border-red-200 text-red-600 active:bg-red-50'
+          : 'border-gray-200 text-gray-700 active:bg-gray-100'
+      }`}
+    >
+      {children}
+    </button>
   );
 }

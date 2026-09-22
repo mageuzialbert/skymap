@@ -9,6 +9,8 @@ import BusinessForm, {
   BusinessFormData,
 } from "@/components/businesses/BusinessForm";
 import BusinessDetailsModal from "@/components/businesses/BusinessDetailsModal";
+import Sheet from "@/components/common/Sheet";
+import { cardClass, inputClass } from "@/lib/ui";
 import { useT } from "@/lib/i18n";
 
 interface Business {
@@ -278,7 +280,7 @@ export default function AdminBusinessesPage() {
 
       {/* Filters Section */}
       {!showForm && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
+        <div className={`${cardClass} p-4 mb-6`}>
           <div className="flex flex-col md:flex-row gap-4 items-center">
             {/* Search Input */}
             <div className="flex-1 w-full md:w-auto">
@@ -300,7 +302,7 @@ export default function AdminBusinessesPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={`${inputClass} w-auto`}
               >
                 <option value="ALL">{t("admin.businesses.allStatuses")}</option>
                 <option value="ACTIVE">{t("admin.common.active")}</option>
@@ -329,20 +331,16 @@ export default function AdminBusinessesPage() {
         </div>
       )}
 
-      {/* Create/Edit Form */}
-      {showForm && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">
-              {editingBusiness ? t("admin.businesses.editBusiness") : t("admin.businesses.registerBusiness")}
-            </h2>
-            <button
-              onClick={handleCancel}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+      <Sheet
+        open={showForm}
+        onClose={handleCancel}
+        title={
+          editingBusiness
+            ? t("admin.businesses.editBusiness")
+            : t("admin.businesses.registerBusiness")
+        }
+      >
+        <div className="p-4">
           <BusinessForm
             business={editingBusiness}
             onSubmit={handleSubmit}
@@ -351,7 +349,7 @@ export default function AdminBusinessesPage() {
             error={error}
           />
         </div>
-      )}
+      </Sheet>
 
       {/* Clients Table */}
       {!showForm && (
