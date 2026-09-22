@@ -175,7 +175,7 @@ export default function AdminVehiclesPage() {
         onClose={resetForm}
         onSubmit={() => handleSubmit()}
         submitting={submitting}
-        title={editing ? t('admin.vehicles.editTitle') : t('admin.vehicles.newTitle')}
+        title={editing ? t('admin.vehicles.editTitle') : t('admin.vehicles.addTitle')}
       >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>

@@ -13,7 +13,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const I18N_DIR = path.join(__dirname, '..', 'lib', 'i18n');
+const ROOT = path.join(__dirname, '..');
+const I18N_DIR = path.join(ROOT, 'lib', 'i18n');
 const NS_DIR = path.join(I18N_DIR, 'ns');
 
 function readJson(file) {
@@ -60,9 +61,45 @@ const sw = flatten(dictionaryFor('sw'));
 const missingInSw = [...en].filter((k) => !sw.has(k)).sort();
 const missingInEn = [...sw].filter((k) => !en.has(k)).sort();
 
-if (missingInSw.length === 0 && missingInEn.length === 0) {
-  console.log(`i18n: en and sw both define ${en.size} keys. In sync.`);
+/**
+ * Keys referenced by the code but defined in neither locale.
+ *
+ * Comparing en against sw cannot catch these: a key missing from *both* files
+ * is perfectly "in sync", yet `t()` falls back to the raw key, so the screen
+ * prints e.g. "admin.companyProfile.addressLabel" to the user. Only literal
+ * t('a.b') calls are checked; keys built at runtime are skipped.
+ */
+function usedKeys() {
+  const SRC = ['app', 'components', 'lib'];
+  const found = new Map();
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (!/node_modules|\.next|\.git/.test(full)) walk(full);
+      } else if (/\.tsx?$/.test(entry.name)) {
+        const src = fs.readFileSync(full, 'utf8');
+        for (const m of src.matchAll(/\bt\(\s*'([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)+)'/g)) {
+          if (!found.has(m[1])) found.set(m[1], path.relative(ROOT, full));
+        }
+      }
+    }
+  };
+  SRC.forEach((d) => walk(path.join(ROOT, d)));
+  return found;
+}
+
+const used = usedKeys();
+const undefinedKeys = [...used.entries()].filter(([k]) => !en.has(k) && !sw.has(k));
+
+if (missingInSw.length === 0 && missingInEn.length === 0 && undefinedKeys.length === 0) {
+  console.log(`i18n: en and sw both define ${en.size} keys. ${used.size} keys used in code are all defined. In sync.`);
   process.exit(0);
+}
+
+if (undefinedKeys.length) {
+  console.error(`\nUsed in code but defined in neither locale (${undefinedKeys.length}) - these render as the raw key:`);
+  undefinedKeys.forEach(([k, f]) => console.error(`  ${k}  <- ${f}`));
 }
 
 if (missingInSw.length) {

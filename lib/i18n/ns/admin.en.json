@@ -237,6 +237,7 @@
       "faviconAlt": "Favicon",
       "infoHeading": "Company Information",
       "companyName": "Company Name *",
+      "addressLabel": "Address",
       "cityLabel": "City",
       "regionLabel": "Region",
       "postalCode": "Postal Code",

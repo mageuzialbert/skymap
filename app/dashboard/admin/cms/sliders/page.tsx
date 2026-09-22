@@ -357,7 +357,7 @@ export default function AdminSlidersPage() {
         onClose={resetForm}
         onSubmit={() => handleSubmit()}
         submitting={submitting}
-        title={isEditMode ? t('admin.cms.sliders.editTitle') : t('admin.cms.sliders.newTitle')}
+        title={isEditMode ? t('admin.cms.sliders.editTitle') : t('admin.cms.sliders.addTitle')}
       >
             {/* Image Upload Section */}
             <div>
