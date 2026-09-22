@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { dashboardPathForRole } from '@/lib/dashboardRoutes';
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -32,18 +33,50 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Auth gating: all platform activity requires authentication.
+  // A redirect response is a fresh response object, so any cookies the session
+  // refresh above just wrote onto `response` have to be carried over — losing
+  // them would sign the user out on the very request that renewed their token.
+  const redirectTo = (pathname: string, search?: URLSearchParams) => {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname;
+    url.search = search ? `?${search}` : '';
+    const redirect = NextResponse.redirect(url);
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
+  };
+
   const { pathname } = request.nextUrl;
+
+  // The app launches on the authentication screen: opening the root sends a
+  // visitor to /login, while someone already signed in goes straight to their
+  // dashboard. The marketing page stays reachable at /welcome.
+  if (pathname === '/') {
+    if (!user) return redirectTo('/login');
+
+    // Role decides which dashboard is "home". The metadata copy saves a query
+    // on the common path; the users table is the fallback source of truth.
+    let role = user.user_metadata?.role as string | undefined;
+    if (!role) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      role = userData?.role ?? undefined;
+    }
+
+    return redirectTo(dashboardPathForRole(role));
+  }
+
+  // Auth gating: all platform activity requires authentication.
   const protectedPrefixes = ['/dashboard', '/order', '/quick-order'];
   const isProtected = protectedPrefixes.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`)
   );
 
   if (isProtected && !user) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = '/login';
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
+    const params = new URLSearchParams({ redirect: pathname });
+    return redirectTo('/login', params);
   }
 
   return response;

@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { normalizeTzPhone } from './phone';
+import { dashboardPathForRole } from './dashboardRoutes';
 
 export interface RegisterData {
   businessName: string;
@@ -279,16 +280,7 @@ export async function getDashboardPathForCurrentUser(): Promise<string | null> {
     .eq('id', user.id)
     .single();
 
-  switch (userData?.role) {
-    case 'ADMIN':
-      return '/dashboard/admin';
-    case 'STAFF':
-      return '/dashboard/staff';
-    case 'RIDER':
-      return '/dashboard/rider';
-    default:
-      return '/dashboard/business/request-ride';
-  }
+  return dashboardPathForRole(userData?.role);
 }
 
 export async function getCurrentUser() {
