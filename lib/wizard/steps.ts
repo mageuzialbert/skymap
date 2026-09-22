@@ -46,7 +46,6 @@ export interface RequestDraft {
   hireCategory: 'people' | 'load' | null;
   hireVehicleId: string | null;
   hireVehicle: HireVehicleOption | null;
-  hirePassengers: string;
   hirePurpose: string;
   hireLoadDesc: string;
   hireWeight: string;
@@ -99,7 +98,6 @@ export function freshDraft(profile: BusinessProfile | null): RequestDraft {
     hireCategory: null,
     hireVehicleId: null,
     hireVehicle: null,
-    hirePassengers: '',
     hirePurpose: '',
     hireLoadDesc: '',
     hireWeight: '',
@@ -163,9 +161,6 @@ export function validateStep(step: StepId, d: RequestDraft): Issue[] {
       if (!d.hireCategory) issues.push({ field: 'hireCategory', messageKey: E('hireCategoryRequired') });
       else if (!d.hireVehicleId)
         issues.push({ field: 'hireVehicle', messageKey: E('hireVehicleRequired') });
-      if (d.hireCategory === 'people' && !d.hirePassengers.trim()) {
-        issues.push({ field: 'hirePassengers', messageKey: E('passengersRequired') });
-      }
       if (d.hireCategory === 'load' && !d.hireLoadDesc.trim()) {
         issues.push({ field: 'hireLoadDesc', messageKey: E('loadRequired') });
       }
@@ -195,7 +190,8 @@ export function validateStep(step: StepId, d: RequestDraft): Issue[] {
 export function buildHireDetails(d: RequestDraft): string {
   const lines: string[] = [];
   if (d.hireCategory === 'people') {
-    if (d.hirePassengers) lines.push(`Passengers: ${d.hirePassengers}`);
+    // Headcount is not asked for: the chosen vehicle already states its
+    // capacity, so a second number would only contradict it.
     if (d.hirePurpose) lines.push(`Purpose: ${d.hirePurpose}`);
   } else if (d.hireCategory === 'load') {
     if (d.hireLoadDesc) lines.push(`Load: ${d.hireLoadDesc}`);

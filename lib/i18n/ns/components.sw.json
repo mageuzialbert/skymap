@@ -233,7 +233,6 @@
       "choosePeopleOrLoad": "Kwanza chagua unachobeba, kisha chagua gari",
       "carryPeople": "Kubeba Abiria",
       "carryLoads": "Kubeba Mizigo",
-      "passengers": "Idadi ya abiria",
       "tripPurpose": "Madhumuni ya safari",
       "tripPurposePlaceholder": "mf. Harusi, tukio la kikazi, safari ya shule",
       "loadDescription": "Unasafirisha nini?",
@@ -335,7 +334,6 @@
         "vehicleRequired": "Chagua chombo ili kuendelea.",
         "hireCategoryRequired": "Chagua unachobeba.",
         "hireVehicleRequired": "Chagua gari la kukodi.",
-        "passengersRequired": "Abiria wangapi?",
         "loadRequired": "Eleza unachosafirisha.",
         "scheduleTimeRequired": "Chagua tarehe na muda.",
         "scheduleTimePast": "Chagua muda ujao."

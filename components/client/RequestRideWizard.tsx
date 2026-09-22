@@ -447,15 +447,6 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
               {draft.hireCategory === 'people' && (
                 <FieldGroup label={t('components.rideWizard.group.people')}>
                   <TextField
-                    id="hirePassengers"
-                    label={t('components.rideWizard.passengers')}
-                    value={draft.hirePassengers}
-                    onChange={(v) => set({ hirePassengers: v })}
-                    inputMode="numeric"
-                    error={issueFor('hirePassengers')}
-                    disabled={submitting}
-                  />
-                  <TextField
                     id="hirePurpose"
                     label={t('components.rideWizard.tripPurpose')}
                     value={draft.hirePurpose}
@@ -620,7 +611,11 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
             )}
             {svc === 'hire' && (
               <SummaryRow
-                label={t('components.rideWizard.group.people')}
+                label={t(
+                  draft.hireCategory === 'load'
+                    ? 'components.rideWizard.group.load'
+                    : 'components.rideWizard.group.people'
+                )}
                 value={buildHireDetails(draft)}
                 onEdit={() => dispatch({ type: 'GO', step: 1 })}
                 editLabel={t('components.rideWizard.editStep')}

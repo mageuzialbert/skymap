@@ -233,7 +233,6 @@
       "choosePeopleOrLoad": "First pick what you're carrying, then a vehicle",
       "carryPeople": "Carrying People",
       "carryLoads": "Carrying Loads",
-      "passengers": "Number of passengers",
       "tripPurpose": "Purpose of the trip",
       "tripPurposePlaceholder": "e.g. Wedding, corporate event, school trip",
       "loadDescription": "What are you transporting?",
@@ -335,7 +334,6 @@
         "vehicleRequired": "Choose a vehicle to continue.",
         "hireCategoryRequired": "Choose what you are carrying.",
         "hireVehicleRequired": "Choose a vehicle to hire.",
-        "passengersRequired": "How many passengers?",
         "loadRequired": "Describe what you are transporting.",
         "scheduleTimeRequired": "Pick a date and time.",
         "scheduleTimePast": "Choose a time in the future."
