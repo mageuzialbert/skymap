@@ -25,7 +25,9 @@
     "createDelivery": "Create Delivery",
     "registerBusiness": "Register Business",
     "account": "Account",
-    "activity": "Activity"
+    "activity": "Activity",
+    "expenseCategories": "Expense Categories",
+    "smsSend": "Send SMS"
   },
   "account": {
     "roles": {

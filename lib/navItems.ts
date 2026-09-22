@@ -169,6 +169,48 @@ const adminNavItems: NavItem[] = [
     icon: MessageSquare,
     group: "content",
   },
+  {
+    href: "/dashboard/admin/invoices",
+    label: t("nav.invoices"),
+    icon: ReceiptText,
+    group: "money",
+  },
+  {
+    href: "/dashboard/admin/expenses",
+    label: t("nav.expenses"),
+    icon: BarChart3,
+    group: "money",
+  },
+  {
+    href: "/dashboard/admin/expense-categories",
+    label: t("nav.expenseCategories"),
+    icon: FolderOpen,
+    group: "money",
+  },
+  {
+    href: "/dashboard/admin/payment-instructions",
+    label: t("nav.payments"),
+    icon: CreditCard,
+    group: "money",
+  },
+  {
+    href: "/dashboard/admin/delivery-packages",
+    label: t("nav.packages"),
+    icon: FolderOpen,
+    group: "work",
+  },
+  {
+    href: "/dashboard/admin/sms/send",
+    label: t("nav.smsSend"),
+    icon: MessageSquare,
+    group: "content",
+  },
+  {
+    href: "/dashboard/admin/company-profile",
+    label: t("nav.company"),
+    icon: Settings,
+    group: "settings",
+  },
 ];
 
 // Staff nav items with permission requirements

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ChevronRight, Globe, LogOut } from 'lucide-react';
+import { Globe, LogOut } from 'lucide-react';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
+import { NavRow, NavRowDivider } from '@/components/common/NavRowList';
 import { getCurrentUser, logout } from '@/lib/auth';
 import { getUserRole } from '@/lib/roles';
 import {
@@ -28,28 +28,6 @@ function initialsOf(name: string): string {
   const parts = base.split(/\s+/).filter(Boolean);
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-function Row({ item, tint }: { item: NavItem; tint: string }) {
-  return (
-    <Link
-      href={item.href}
-      className="flex min-h-[3.5rem] items-center gap-3 px-4 transition-colors hover:bg-gray-50 active:bg-gray-100"
-    >
-      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tint}`}>
-        <item.icon className="h-[18px] w-[18px]" />
-      </span>
-      <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-gray-900">
-        {item.label}
-      </span>
-      <ChevronRight className="h-5 w-5 shrink-0 text-gray-300" />
-    </Link>
-  );
-}
-
-/** Hairline between rows, inset to start under the label like a native list. */
-function RowDivider() {
-  return <span className="ml-[3.25rem] block h-px bg-gray-100" />;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -170,8 +148,8 @@ export default function AccountPage() {
           <ul>
             {ungrouped.map((item, i) => (
               <li key={item.href}>
-                <Row item={item} tint={NAV_PRIMARY_TINT} />
-                {i < ungrouped.length - 1 && <RowDivider />}
+                <NavRow item={item} tint={NAV_PRIMARY_TINT} />
+                {i < ungrouped.length - 1 && <NavRowDivider />}
               </li>
             ))}
           </ul>
@@ -185,8 +163,8 @@ export default function AccountPage() {
             <ul>
               {grouped[g].map((item, i) => (
                 <li key={item.href}>
-                  <Row item={item} tint={NAV_GROUP_TINTS[g]} />
-                  {i < grouped[g].length - 1 && <RowDivider />}
+                  <NavRow item={item} tint={NAV_GROUP_TINTS[g]} />
+                  {i < grouped[g].length - 1 && <NavRowDivider />}
                 </li>
               ))}
             </ul>
@@ -201,8 +179,8 @@ export default function AccountPage() {
           <ul>
             {accountItems.map((item) => (
               <li key={item.href}>
-                <Row item={item} tint={NAV_GROUP_TINTS.account} />
-                <RowDivider />
+                <NavRow item={item} tint={NAV_GROUP_TINTS.account} />
+                <NavRowDivider />
               </li>
             ))}
             <li className="flex min-h-[3.5rem] items-center gap-3 px-4">

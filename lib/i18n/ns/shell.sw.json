@@ -25,7 +25,9 @@
     "createDelivery": "Tengeneza Uwasilishaji",
     "registerBusiness": "Sajili Biashara",
     "account": "Akaunti",
-    "activity": "Shughuli"
+    "activity": "Shughuli",
+    "expenseCategories": "Aina za Matumizi",
+    "smsSend": "Tuma SMS"
   },
   "account": {
     "roles": {
