@@ -95,10 +95,10 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${sora.variable}`}>
       <head>
         {/* PWA Meta Tags */}
-        <meta name="application-name" content="The Skaymap" />
+        <meta name="application-name" content="The Skymap" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="The Skaymap" />
+        <meta name="apple-mobile-web-app-title" content="The Skymap" />
         <meta name="msapplication-TileColor" content="#0b5a54" />
         <meta name="msapplication-tap-highlight" content="no" />
         

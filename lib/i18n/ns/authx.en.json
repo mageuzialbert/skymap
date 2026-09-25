@@ -55,7 +55,9 @@
       "emailAddress": "Email Address",
       "staffOnly": "This login is for staff, admin, and riders only. Please use the business login.",
       "areYouBusiness": "Are you a business?",
-      "businessLogin": "Business Login"
+      "businessLogin": "Business Login",
+      "areYouStaff": "Staff, admin or rider?",
+      "staffLogin": "Staff sign-in"
     },
     "errors": {
       "loginFailed": "Login failed",

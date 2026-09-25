@@ -55,7 +55,9 @@
       "emailAddress": "Anwani ya Barua Pepe",
       "staffOnly": "Kuingia huku ni kwa wafanyakazi, wasimamizi, na waendeshaji pekee. Tafadhali tumia kuingia kwa biashara.",
       "areYouBusiness": "Je, wewe ni biashara?",
-      "businessLogin": "Kuingia kwa Biashara"
+      "businessLogin": "Kuingia kwa Biashara",
+      "areYouStaff": "Wafanyakazi, msimamizi au dereva?",
+      "staffLogin": "Ingia kama mfanyakazi"
     },
     "errors": {
       "loginFailed": "Kuingia kumeshindikana",

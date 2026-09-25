@@ -24,6 +24,7 @@ export default function FormSheet({
   error,
   submitting = false,
   submitLabel,
+  hideFooter = false,
   children,
 }: {
   open: boolean;
@@ -33,10 +34,16 @@ export default function FormSheet({
   error?: string;
   submitting?: boolean;
   submitLabel?: string;
+  /** For callers whose embedded form brings its own submit button - without
+   *  this the sheet rendered a second, non-functional "Save". */
+  hideFooter?: boolean;
   children: ReactNode;
 }) {
   const t = useT();
 
+  // Some callers embed a form that brings its own submit button. Without this
+  // the sheet still rendered its own primary "Save", wired to whatever onSubmit
+  // was passed - a prominent button that did nothing.
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     onSubmit();
@@ -47,7 +54,7 @@ export default function FormSheet({
       open={open}
       onClose={() => !submitting && onClose()}
       title={title}
-      footer={
+      footer={hideFooter ? undefined : (
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -67,7 +74,7 @@ export default function FormSheet({
             {submitting ? t('common.saving') : submitLabel || t('common.save')}
           </button>
         </div>
-      }
+      )}
     >
       {/* The form element stays so Enter submits and browsers autofill. */}
       <form onSubmit={handleSubmit} className="space-y-4 p-4">

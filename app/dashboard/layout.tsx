@@ -36,6 +36,7 @@ import { PermissionsProvider, usePermissions } from "@/lib/permissions-context";
 import { useT } from "@/lib/i18n";
 import { useNavItems } from "@/lib/navItems";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { dashboardPathForRole } from '@/lib/dashboardRoutes';
 
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
@@ -96,20 +97,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   }
 
   // Get base dashboard path based on role
-  const getDashboardBase = () => {
-    switch (role) {
-      case "BUSINESS":
-        return "/dashboard/business/request-ride";
-      case "STAFF":
-        return "/dashboard/staff";
-      case "RIDER":
-        return "/dashboard/rider";
-      case "ADMIN":
-        return "/dashboard/admin";
-      default:
-        return "/dashboard";
-    }
-  };
 
 
   // The whole of navigation, in three destinations. Activity is each role's
@@ -120,7 +107,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       : role === "RIDER"
         ? "/dashboard/rider/jobs"
         : "/dashboard/staff/deliveries";
-  const homeHref = getDashboardBase();
+  const homeHref = dashboardPathForRole(role);
 
   // Prefix matching, not equality: a detail route like /rides/[id] has to keep
   // its tab lit, and anything not under Home or Activity belongs to Account.
@@ -156,7 +143,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               {/* No hamburger on mobile: the bottom bar's "More" tab opens the same
                   drawer, and when a role has four or fewer destinations they all fit
                   in the bar, so there is nothing left for a drawer to show. */}
-              <Link href={getDashboardBase()} className="flex items-center">
+              <Link href={dashboardPathForRole(role)} className="flex items-center">
                 <NextImage
                   src="/logo-cropped.webp"
                   alt="The Skymap"

@@ -437,9 +437,11 @@ export default function StaffDeliveriesPage() {
           setError("");
         }}
         onSubmit={() => {}}
+        hideFooter
         title={t("staff.deliveries.createNewDelivery")}
       >
-        {/* DeliveryForm brings its own submit button. */}
+        {/* DeliveryForm brings its own submit button, so the sheet suppresses
+            its footer rather than showing a second "Save" that does nothing. */}
         <DeliveryForm
           onSubmit={handleCreateDelivery}
           loading={submitting}

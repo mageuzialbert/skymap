@@ -148,7 +148,12 @@ export default function StaffDashboard() {
             {t('staff.dashboard.viewAll')}
           </Link>
         </div>
-        <DeliveriesTable deliveries={recentDeliveries} showBusiness={true} showActions={false} />
+        <DeliveriesTable
+          deliveries={recentDeliveries}
+          showBusiness={true}
+          showActions={false}
+          basePath="/dashboard/staff/deliveries"
+        />
       </section>
     </div>
   );

@@ -146,12 +146,23 @@ export default function LoginPage() {
   };
 
   const footer = (
-    <p className="text-sm text-gray-600">
-      {t('auth.noAccount')}{' '}
-      <Link href="/register" className="font-semibold text-primary hover:text-primary-dark">
-        {t('authx.login.registerBusiness')}
-      </Link>
-    </p>
+    <div className="space-y-2">
+      <p className="text-sm text-gray-600">
+        {t('auth.noAccount')}{' '}
+        <Link href="/register" className="font-semibold text-primary hover:text-primary-dark">
+          {t('authx.login.registerBusiness')}
+        </Link>
+      </p>
+      {/* /staff-login had no inbound link from anywhere, and this screen only
+          takes a phone - so staff, admins and riders had no route to a sign-in
+          form that would accept them. /staff-login already links back here. */}
+      <p className="text-sm text-gray-600">
+        {t('authx.staff.areYouStaff')}{' '}
+        <Link href="/staff-login" className="font-semibold text-primary hover:text-primary-dark">
+          {t('authx.staff.staffLogin')}
+        </Link>
+      </p>
+    </div>
   );
 
   return (

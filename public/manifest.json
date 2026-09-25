@@ -34,21 +34,37 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["business", "logistics", "productivity"],
+  "categories": [
+    "business",
+    "logistics",
+    "productivity"
+  ],
   "shortcuts": [
     {
       "name": "Quick Order",
       "short_name": "Order",
       "description": "Create a quick delivery order",
-      "url": "/quick-order",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "url": "/dashboard/business/request-ride",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "My Deliveries",
       "short_name": "Deliveries",
       "description": "View your delivery history",
-      "url": "/dashboard/business/deliveries",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "url": "/dashboard/business/rides",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
