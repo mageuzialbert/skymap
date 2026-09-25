@@ -2,6 +2,7 @@
 
 import { DollarSign, TrendingUp, FileText, AlertCircle, TrendingDown, Calculator } from 'lucide-react';
 import { RecordList, RecordRow } from '@/components/common/RecordList';
+import StatStrip from '@/components/common/StatStrip';
 import { useT } from '@/lib/i18n';
 import { cardClass } from '@/lib/ui';
 
@@ -64,6 +65,19 @@ interface FinancialDashboardProps {
   data: FinancialData;
 }
 
+/** Digits only. The currency unit goes in the tile's label instead: inside a
+ *  two-up grid the symbol pushed the number onto a second line and it broke
+ *  mid-digit ("TSh 2,502,00" / "0"). */
+function formatAmount(amount: number): string {
+  return new Intl.NumberFormat('en-TZ', { maximumFractionDigits: 0 }).format(amount);
+}
+
+/** The unit as this locale renders it, e.g. "TSh" - derived, not hardcoded. */
+const CURRENCY_UNIT =
+  new Intl.NumberFormat('en-TZ', { style: 'currency', currency: 'TZS', minimumFractionDigits: 0 })
+    .formatToParts(0)
+    .find((p) => p.type === 'currency')?.value ?? 'TZS';
+
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-TZ', {
     style: 'currency',
@@ -87,61 +101,40 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
 
   return (
     <div className="space-y-6">
-      {/* Revenue, Expenses, and Profit Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className={`${cardClass} p-6`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">
-                {data.revenue.filtered !== undefined ? t('components.financial.revenueSelected') : t('components.financial.totalRevenue')}
-              </p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {formatCurrency(displayRevenue)}
-              </p>
-            </div>
-            <DollarSign className="w-8 h-8 text-primary" />
-          </div>
-        </div>
-
-        <div className={`${cardClass} p-6`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('components.financial.totalExpenses')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {formatCurrency(data.expenses.total)}
-              </p>
-            </div>
-            <TrendingDown className="w-8 h-8 text-red-500" />
-          </div>
-        </div>
-
-        <div className={`${cardClass} p-6`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('components.financial.profit')}</p>
-              <p className={`text-2xl font-bold mt-1 ${isProfitPositive ? 'text-green-600' : 'text-red-600'}`}>
-                {formatCurrency(data.profit.total)}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {t('components.financial.margin', { value: profitMargin.toFixed(1) })}
-              </p>
-            </div>
-            <Calculator className={`w-8 h-8 ${isProfitPositive ? 'text-green-500' : 'text-red-500'}`} />
-          </div>
-        </div>
-
-        <div className={`${cardClass} p-6`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('components.financial.thisMonthRevenue')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {formatCurrency(data.revenue.thisMonth)}
-              </p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-blue-500" />
-          </div>
-        </div>
-      </div>
+      {/* Summary. Was four `grid-cols-1 md:grid-cols-4` cards, so inside the
+          768px measure each one took a full-width row - four screens of
+          scrolling on a phone before any content. "This month revenue" is
+          dropped: the filtered total beside it answers the same question.
+          Currency runs far longer than a count, so these tiles use the smaller
+          value size and carry the unit in the label - with the symbol inline
+          the number wrapped and broke mid-digit. */}
+      <StatStrip
+        size="sm"
+        stats={[
+          {
+            label: `${
+              data.revenue.filtered !== undefined
+                ? t('components.financial.revenueSelected')
+                : t('components.financial.totalRevenue')
+            } (${CURRENCY_UNIT})`,
+            value: formatAmount(displayRevenue),
+          },
+          {
+            label: `${t('components.financial.totalExpenses')} (${CURRENCY_UNIT})`,
+            value: formatAmount(data.expenses.total),
+          },
+          {
+            label: `${t('components.financial.profit')} (${CURRENCY_UNIT})`,
+            value: formatAmount(data.profit.total),
+            tone: isProfitPositive ? 'text-green-600' : 'text-red-600',
+          },
+          {
+            label: t('components.financial.marginLabel'),
+            value: `${profitMargin.toFixed(1)}%`,
+            tone: isProfitPositive ? 'text-green-600' : 'text-red-600',
+          },
+        ]}
+      />
 
       {/* Date Range Display */}
       {data.dateRange && (data.dateRange.start || data.dateRange.end) && (
@@ -154,42 +147,33 @@ export default function FinancialDashboard({ data }: FinancialDashboardProps) {
         </div>
       )}
 
-      {/* Invoices Overview */}
-      <div className={`${cardClass} p-6`}>
-        <h3 className="text-lg font-semibold mb-4">{t('components.financial.invoicesOverview')}</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          <div className="text-center">
-            <p className="text-sm text-gray-600">{t('components.financial.total')}</p>
-            <p className="text-xl font-bold text-gray-900">{data.invoices.total}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-600">{t('components.financial.pending')}</p>
-            <p className="text-xl font-bold text-yellow-600">{data.invoices.pending}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-600">{t('components.financial.paid')}</p>
-            <p className="text-xl font-bold text-green-600">{data.invoices.paid}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-600">{t('components.financial.draft')}</p>
-            <p className="text-xl font-bold text-gray-600">{data.invoices.draft}</p>
-          </div>
-        </div>
-        <div className="border-t pt-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('components.financial.totalInvoiceAmount')}</span>
-            <span className="text-lg font-semibold text-gray-900">
-              {formatCurrency(data.invoices.totalAmount)}
-            </span>
-          </div>
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-sm text-gray-600">{t('components.financial.pendingAmount')}</span>
-            <span className="text-lg font-semibold text-yellow-600">
-              {formatCurrency(data.invoices.pendingAmount)}
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* Invoices. The four counts and the two money lines were three separate
+          idioms - a grid, then two `flex justify-between` rows with no
+          `min-w-0`, where a long TZS figure could collide with its label.
+          They are one grid of tiles now. */}
+      <StatStrip
+        label={t('components.financial.invoicesOverview')}
+        stats={[
+          { label: t('components.financial.total'), value: data.invoices.total },
+          { label: t('components.financial.pending'), value: data.invoices.pending, tone: 'text-yellow-600' },
+          { label: t('components.financial.paid'), value: data.invoices.paid, tone: 'text-green-600' },
+          { label: t('components.financial.draft'), value: data.invoices.draft, tone: 'text-gray-600' },
+        ]}
+      />
+      <StatStrip
+        size="sm"
+        stats={[
+          {
+            label: `${t('components.financial.totalInvoiceAmount')} (${CURRENCY_UNIT})`,
+            value: formatAmount(data.invoices.totalAmount),
+          },
+          {
+            label: `${t('components.financial.pendingAmount')} (${CURRENCY_UNIT})`,
+            value: formatAmount(data.invoices.pendingAmount),
+            tone: 'text-yellow-600',
+          },
+        ]}
+      />
 
       {/* Top Businesses */}
       <div className={`${cardClass} p-6`}>

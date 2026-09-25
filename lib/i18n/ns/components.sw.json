@@ -433,6 +433,7 @@
       "expensesByCategory": "Matumizi kwa Jamii",
       "invoicesOverview": "Muhtasari wa Ankara",
       "margin": "Faida: {{value}}%",
+      "marginLabel": "Ukingo",
       "noBusinessRevenue": "Hakuna data ya mapato ya biashara",
       "noRecentCharges": "Hakuna malipo ya hivi karibuni",
       "paid": "Imelipwa",

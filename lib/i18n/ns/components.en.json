@@ -433,6 +433,7 @@
       "expensesByCategory": "Expenses by Category",
       "invoicesOverview": "Invoices Overview",
       "margin": "Margin: {{value}}%",
+      "marginLabel": "Margin",
       "noBusinessRevenue": "No business revenue data",
       "noRecentCharges": "No recent charges",
       "paid": "Paid",

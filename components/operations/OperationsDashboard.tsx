@@ -1,6 +1,6 @@
 'use client';
 
-import { Package, Clock, CheckCircle, TrendingUp } from 'lucide-react';
+import StatStrip from '@/components/common/StatStrip';
 import { useT } from '@/lib/i18n';
 import { BUCKET_DOT, BUCKET_TEXT, statusBucket, statusLabelKey } from '@/lib/deliveryStatus';
 import { cardClass } from '@/lib/ui';
@@ -14,20 +14,6 @@ interface OperationsData {
     avgDeliveryTimeHours: number;
   };
   statusCounts: Record<string, number>;
-  recentDeliveries: Array<{
-    id: string;
-    status: string;
-    created_at: string;
-    delivered_at: string | null;
-    businesses?: {
-      id: string;
-      name: string;
-    };
-    assigned_rider?: {
-      id: string;
-      name: string;
-    } | null;
-  }>;
 }
 
 interface OperationsDashboardProps {
@@ -37,72 +23,27 @@ interface OperationsDashboardProps {
 
 export default function OperationsDashboard({ data }: OperationsDashboardProps) {
   const t = useT();
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   return (
     <div className="space-y-6">
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className={`${cardClass} p-6`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('components.operations.totalDeliveries')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {data.metrics.totalDeliveries}
-              </p>
-            </div>
-            <Package className="w-8 h-8 text-primary" />
-          </div>
-        </div>
-
-        <div className={`${cardClass} p-6`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('components.operations.activeDeliveries')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {data.metrics.activeDeliveries}
-              </p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-blue-500" />
-          </div>
-        </div>
-
-        <div className={`${cardClass} p-6`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('components.operations.completedToday')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {data.metrics.completedToday}
-              </p>
-            </div>
-            <CheckCircle className="w-8 h-8 text-green-500" />
-          </div>
-        </div>
-
-        <div className={`${cardClass} p-6`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{t('components.operations.avgDeliveryTime')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {data.metrics.avgDeliveryTimeHours.toFixed(1)}h
-              </p>
-            </div>
-            <Clock className="w-8 h-8 text-orange-500" />
-          </div>
-        </div>
-      </div>
+      {/* Key metrics. Total and Active are one tap away on the staff hub, so
+          only the two numbers that appear nowhere else are kept here. */}
+      <StatStrip
+        stats={[
+          {
+            label: t('components.operations.completedToday'),
+            value: data.metrics.completedToday,
+          },
+          {
+            label: t('components.operations.avgDeliveryTime'),
+            value: `${data.metrics.avgDeliveryTimeHours.toFixed(1)}h`,
+          },
+        ]}
+      />
 
       {/* Status Distribution */}
       <div className={`${cardClass} p-6`}>
         <h3 className="text-lg font-semibold mb-4">{t('components.operations.byStatus')}</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {Object.entries(data.statusCounts).map(([status, count]) => (
             <div key={status} className="text-center">
               <span
@@ -119,61 +60,10 @@ export default function OperationsDashboard({ data }: OperationsDashboardProps) 
         </div>
       </div>
 
-      {/* Recent Deliveries */}
-      <div className={`${cardClass} p-6`}>
-        <h3 className="text-lg font-semibold mb-4">{t('components.operations.recentDeliveries')}</h3>
-        {data.recentDeliveries.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">{t('components.operations.noRecent')}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.operations.business')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('common.status')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.deliveries.rider')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {t('components.deliveries.created')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {data.recentDeliveries.map((delivery) => (
-                  <tr key={delivery.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-900">
-                      {delivery.businesses?.name || t('components.deliveries.unknown')}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center gap-1.5 text-xs font-medium ${
-                          BUCKET_TEXT[statusBucket(delivery.status)]
-                        }`}
-                      >
-                        <span
-                          className={`h-1.5 w-1.5 rounded-full ${BUCKET_DOT[statusBucket(delivery.status)]}`}
-                        />
-                        {t(statusLabelKey(delivery.status))}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {delivery.assigned_rider?.name || t('components.deliveries.notAssigned')}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {formatDate(delivery.created_at)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* The "Recent deliveries" table lived here. It was the last <table> on
+          any dashboard - a sideways-scrolling strip on a phone - and it showed
+          the same four fields as /dashboard/staff/deliveries, which renders
+          them as card rows and can filter, paginate and act on them. */}
     </div>
   );
 }
