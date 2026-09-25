@@ -6,7 +6,7 @@ import Bajaj from '@/components/common/BajajIcon';
 import { OptionRow } from '@/components/wizard/OptionGroup';
 import { useT } from '@/lib/i18n';
 
-export interface VehicleAvailability {
+export interface VehicleType {
   id: string;
   key: string;
   name: string;
@@ -33,7 +33,7 @@ interface VehicleSelectorProps {
  */
 export default function VehicleSelector({ value, onChange, disabled }: VehicleSelectorProps) {
   const t = useT();
-  const [types, setTypes] = useState<VehicleAvailability[]>([]);
+  const [types, setTypes] = useState<VehicleType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
