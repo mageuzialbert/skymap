@@ -12,6 +12,7 @@ import BusinessDetailsModal from "@/components/businesses/BusinessDetailsModal";
 import Sheet from "@/components/common/Sheet";
 import { cardClass, inputClass } from "@/lib/ui";
 import { useT } from "@/lib/i18n";
+import { pageTitle } from '@/lib/ui';
 
 interface Business {
   id: string;
@@ -266,7 +267,7 @@ export default function AdminBusinessesPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">{t("admin.businesses.title")}</h1>
+        <h1 className={pageTitle}>{t("admin.businesses.title")}</h1>
         {!showForm && canCreate && (
           <button
             onClick={handleCreate}

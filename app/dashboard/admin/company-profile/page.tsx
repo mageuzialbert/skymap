@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2, Save, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { useT } from '@/lib/i18n';
-import { cardClass, fieldLabel, inputClass } from '@/lib/ui';
+import { cardClass, fieldLabel, inputClass, pageTitle } from '@/lib/ui';
 
 interface CompanyProfile {
   id: string;
@@ -198,7 +198,7 @@ export default function AdminCompanyProfilePage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">{t('admin.companyProfile.title')}</h1>
+      <h1 className={`${pageTitle} mb-6`}>{t('admin.companyProfile.title')}</h1>
       <p className="text-gray-600 mb-6">
         {t('admin.companyProfile.subtitle')}
       </p>

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { usePermissions } from '@/lib/permissions-context';
 import BusinessForm, { BusinessFormData } from '@/components/businesses/BusinessForm';
 import { useT } from '@/lib/i18n';
-import { cardClass } from '@/lib/ui';
+import { cardClass, pageTitle } from '@/lib/ui';
 
 export default function RiderRegisterBusinessPage() {
   const t = useT();
@@ -106,7 +106,7 @@ export default function RiderRegisterBusinessPage() {
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('rider.registerBusiness.backToDashboard')}
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">{t('rider.registerBusiness.title')}</h1>
+        <h1 className={pageTitle}>{t('rider.registerBusiness.title')}</h1>
         <p className="text-gray-600 mt-1">{t('rider.registerBusiness.subtitle')}</p>
       </div>
 

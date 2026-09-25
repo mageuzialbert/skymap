@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import OperationsDashboard from '@/components/operations/OperationsDashboard';
 import { useT } from '@/lib/i18n';
+import { pageTitle } from '@/lib/ui';
 
 export default function StaffOperationsPage() {
   const t = useT();
@@ -59,7 +60,7 @@ export default function StaffOperationsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">{t('staff.operations.title')}</h1>
+      <h1 className={`${pageTitle} mb-6`}>{t('staff.operations.title')}</h1>
       <OperationsDashboard data={data} />
     </div>
   );

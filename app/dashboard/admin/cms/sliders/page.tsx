@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
 import FormSheet from '@/components/common/FormSheet';
 import { useT } from '@/lib/i18n';
-import { fieldLabel } from '@/lib/ui';
+import { fieldLabel, pageTitle } from '@/lib/ui';
 import { activeDot, activeLabelKey, activeText } from '@/lib/userStatus';
 
 interface Slider {
@@ -331,7 +331,7 @@ export default function AdminSlidersPage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('admin.cms.sliders.title')}</h1>
+        <h1 className={pageTitle}>{t('admin.cms.sliders.title')}</h1>
         {(
           <button
             onClick={() => {

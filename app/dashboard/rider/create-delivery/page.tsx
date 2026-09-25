@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { usePermissions } from '@/lib/permissions-context';
 import DeliveryForm, { DeliveryFormData } from '@/components/deliveries/DeliveryForm';
 import { useT } from '@/lib/i18n';
-import { cardClass } from '@/lib/ui';
+import { cardClass, pageTitle } from '@/lib/ui';
 
 export default function RiderCreateDeliveryPage() {
   const t = useT();
@@ -91,7 +91,7 @@ export default function RiderCreateDeliveryPage() {
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('rider.createDelivery.backToDashboard')}
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">{t('rider.createDelivery.title')}</h1>
+        <h1 className={pageTitle}>{t('rider.createDelivery.title')}</h1>
         <p className="text-gray-600 mt-1">{t('rider.createDelivery.subtitle')}</p>
       </div>
 

@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { getUserRole } from '@/lib/roles';
 import FinancialDashboard from '@/components/financial/FinancialDashboard';
 import { useT } from '@/lib/i18n';
-import { cardClass, inputClass } from '@/lib/ui';
+import { cardClass, inputClass, pageTitle } from '@/lib/ui';
 
 export default function StaffFinancialPage() {
   const t = useT();
@@ -76,7 +76,7 @@ export default function StaffFinancialPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">{t('staff.financial.title')}</h1>
+        <h1 className={pageTitle}>{t('staff.financial.title')}</h1>
       </div>
 
       {/* Date Range Selector */}

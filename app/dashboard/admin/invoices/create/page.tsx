@@ -6,6 +6,7 @@ import { Loader2, Save, Calendar, FileText } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useT } from "@/lib/i18n";
 import { cardClass, inputClass } from "@/lib/ui";
+import { pageTitle } from '@/lib/ui';
 
 interface Business {
   id: string;
@@ -219,7 +220,7 @@ export default function CreateInvoicePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">{t("admin.invoiceCreate.title")}</h1>
+        <h1 className={pageTitle}>{t("admin.invoiceCreate.title")}</h1>
         <p className="text-gray-600 mt-2">
           {t("admin.invoiceCreate.subtitle")}
         </p>

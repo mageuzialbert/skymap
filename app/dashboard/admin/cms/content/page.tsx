@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2, Save } from 'lucide-react';
 import { useT } from '@/lib/i18n';
-import { cardClass, fieldLabel, inputClass } from '@/lib/ui';
+import { cardClass, fieldLabel, inputClass, pageTitle } from '@/lib/ui';
 
 interface CMSContent {
   id: string;
@@ -93,7 +93,7 @@ export default function AdminContentPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">{t('admin.cms.content.title')}</h1>
+      <h1 className={`${pageTitle} mb-6`}>{t('admin.cms.content.title')}</h1>
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">

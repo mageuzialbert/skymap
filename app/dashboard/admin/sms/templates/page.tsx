@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import FormSheet from '@/components/common/FormSheet';
-import { fieldLabel, textareaClass } from '@/lib/ui';
+import { fieldLabel, pageTitle, textareaClass } from '@/lib/ui';
 import { useT } from '@/lib/i18n';
 
 interface SmsTemplate {
@@ -165,7 +165,7 @@ export default function SmsTemplatesPage() {
             <ArrowLeft className="w-4 h-4" />
             {t('admin.sms.templates.backToAdmin')}
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">{t('admin.sms.templates.title')}</h1>
+          <h1 className={pageTitle}>{t('admin.sms.templates.title')}</h1>
           <p className="text-gray-600 mt-1">
             {t('admin.sms.templates.subtitle')}
           </p>

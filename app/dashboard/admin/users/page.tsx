@@ -10,6 +10,7 @@ import UserDetailsModal, { RiderUser } from '@/components/users/UserDetailsModal
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import Sheet from '@/components/common/Sheet';
 import { useT } from '@/lib/i18n';
+import { pageTitle } from '@/lib/ui';
 
 interface User {
   id: string;
@@ -247,7 +248,7 @@ export default function AdminUsersPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('admin.users.title')}</h1>
+          <h1 className={pageTitle}>{t('admin.users.title')}</h1>
           <p className="mt-1 text-sm text-gray-500">
             {t('admin.users.subtitle')}
           </p>

@@ -5,6 +5,7 @@ import { Loader2, MessageCircle } from 'lucide-react';
 import DirectChat from '@/components/chat/DirectChat';
 import { getCurrentUser } from '@/lib/auth';
 import { getUserRole } from '@/lib/roles';
+import { pageTitle } from '@/lib/ui';
 
 interface Conversation {
   owner_id: string;
@@ -76,7 +77,7 @@ export default function MessagesPage() {
   // Admin / staff: conversation list + selected chat.
   return (
     <div className="h-full flex flex-col">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 shrink-0">Messages</h1>
+      <h1 className={`${pageTitle} mb-4 shrink-0`}>Messages</h1>
       <div className="flex-1 min-h-0 flex gap-4">
         {/* List */}
         <aside

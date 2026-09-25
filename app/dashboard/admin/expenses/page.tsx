@@ -8,7 +8,7 @@ import Alert from '@/components/common/Alert';
 import FormSheet from '@/components/common/FormSheet';
 import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
 import { useT } from '@/lib/i18n';
-import { cardClass, fieldLabel, inputClass } from '@/lib/ui';
+import { cardClass, fieldLabel, inputClass, pageTitle } from '@/lib/ui';
 
 interface Expense {
   id: string;
@@ -243,9 +243,9 @@ export default function AdminExpensesPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('admin.expenses.title')}</h1>
+          <h1 className={pageTitle}>{t('admin.expenses.title')}</h1>
           <p className="text-gray-600 mt-1">{t('admin.expenses.subtitle')}</p>
         </div>
         <button
@@ -253,13 +253,13 @@ export default function AdminExpensesPage() {
           className="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
-          {t('admin.expenses.new')}
+          <span className="hidden sm:inline">{t('admin.expenses.new')}</span>
         </button>
       </div>
 
       {/* Summary Card */}
       <div className={`${cardClass} p-6 mb-6`}>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-sm text-gray-600">{t('admin.expenses.total')}</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">

@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
 import ServiceIcon from '@/components/common/ServiceIcon';
 import { statusBucket, statusLabelKey, BUCKET_DOT, BUCKET_TEXT } from '@/lib/deliveryStatus';
-import { cardClass, chipCount, chipTrack, filterChip, pageTitle, pillPrimary, stickyFilterBar } from '@/lib/ui';
+import { cardClass, chipCount, chipTrack, filterChip, inputClass, pageTitle, pillPrimary, stickyFilterBar } from '@/lib/ui';
 
 interface Ride {
   id: string;
@@ -261,7 +261,7 @@ export default function RidesHistoryPage() {
               </button>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {[
               { label: t('business.rides.dateFrom'), type: 'date', value: dateFrom, set: setDateFrom },
               { label: t('business.rides.dateTo'), type: 'date', value: dateTo, set: setDateTo },
@@ -274,7 +274,7 @@ export default function RidesHistoryPage() {
                   type={f.type}
                   value={f.value}
                   onChange={(e) => f.set(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-gray-300 px-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
+                  className={inputClass}
                 />
               </label>
             ))}

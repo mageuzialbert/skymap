@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useT } from '@/lib/i18n';
-import { cardClass, fieldLabel } from '@/lib/ui';
+import { cardClass, fieldLabel, pageTitle } from '@/lib/ui';
 
 interface Business {
   id: string;
@@ -167,7 +167,7 @@ export default function SmsSendPage() {
             <ArrowLeft className="w-4 h-4" />
             {t('admin.sms.send.backToTemplates')}
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">{t('admin.sms.send.title')}</h1>
+          <h1 className={pageTitle}>{t('admin.sms.send.title')}</h1>
           <p className="text-gray-600 mt-1">
             {t('admin.sms.send.subtitle')}
           </p>

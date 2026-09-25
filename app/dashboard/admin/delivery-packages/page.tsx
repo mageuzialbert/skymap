@@ -8,7 +8,7 @@ import FormSheet from '@/components/common/FormSheet';
 import { EmptyState, RecordList, RecordRow } from '@/components/common/RecordList';
 import { useT } from '@/lib/i18n';
 import { activeDot, activeLabelKey, activeText } from '@/lib/userStatus';
-import { fieldLabel, inputClass } from '@/lib/ui';
+import { fieldLabel, inputClass, pageTitle } from '@/lib/ui';
 
 interface DeliveryPackage {
   id: string;
@@ -201,9 +201,9 @@ export default function AdminDeliveryPackagesPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('admin.deliveryPackages.title')}</h1>
+          <h1 className={pageTitle}>{t('admin.deliveryPackages.title')}</h1>
           <p className="text-gray-600 mt-1">{t('admin.deliveryPackages.subtitle')}</p>
         </div>
         {role === 'ADMIN' && (
@@ -212,7 +212,7 @@ export default function AdminDeliveryPackagesPage() {
             className="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
-            {t('admin.deliveryPackages.new')}
+            <span className="hidden sm:inline">{t('admin.deliveryPackages.new')}</span>
           </button>
         )}
       </div>
