@@ -37,10 +37,14 @@ export default function AdminDashboard() {
       const res = await fetch('/api/staff/operations');
       if (!res.ok) return;
       const data = await res.json();
+      // The endpoint nests these under `metrics`, and there is no
+      // `completedDeliveries` key - it is `completedToday`. Reading them off
+      // the root object made all three `undefined`, so the hub showed 0/0/0
+      // no matter what the data said.
       setStats({
-        total: data.totalDeliveries ?? 0,
-        active: data.activeDeliveries ?? 0,
-        delivered: data.completedDeliveries ?? 0,
+        total: data.metrics?.totalDeliveries ?? 0,
+        active: data.metrics?.activeDeliveries ?? 0,
+        delivered: data.metrics?.completedToday ?? 0,
       });
     } catch {
       // The hub still works without today's numbers.
@@ -89,7 +93,9 @@ export default function AdminDashboard() {
               href: '/dashboard/staff/deliveries',
             },
             {
-              label: t('business.rides.status.delivered'),
+              // `completedToday`, not an all-time total - the endpoint has no
+              // all-time completed count, so the label has to say "today".
+              label: t('staff.dashboard.completedToday'),
               value: stats.delivered,
               href: '/dashboard/staff/deliveries',
             },
