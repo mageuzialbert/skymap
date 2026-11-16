@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Globe, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { LocaleFlag } from '@/components/common/Flags';
 import { useI18n, LOCALES, Locale } from '@/lib/i18n';
 
 interface LanguageSwitcherProps {
@@ -38,7 +39,7 @@ export default function LanguageSwitcher({ variant = 'dark', className = '' }: L
         aria-label="Change language"
         title={current.label}
       >
-        <Globe className="w-5 h-5" />
+        <LocaleFlag code={current.code} className="h-5 w-[1.875rem] rounded-[3px] ring-1 ring-black/10" />
       </button>
 
       {open && (
@@ -53,7 +54,10 @@ export default function LanguageSwitcher({ variant = 'dark', className = '' }: L
               }}
               className="flex items-center justify-between w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
-              <span>{l.label}</span>
+              <span className="flex items-center gap-2.5">
+                <LocaleFlag code={l.code} className="h-4 w-6 rounded-[2px] ring-1 ring-black/10" />
+                {l.label}
+              </span>
               {l.code === locale && <Check className="w-4 h-4 text-primary" />}
             </button>
           ))}

@@ -211,12 +211,58 @@
       "mapsNotConfigured": "Google Maps is not configured. Address selection requires it. Please contact support."
     },
     "home": {
-      "heading": "Move anything, anywhere.",
+      "heading": "Choose a service",
       "whereTo": "Where to?",
       "later": "Later",
       "recent": "Recent",
       "activeNow": "Happening now",
-      "track": "Track"
+      "track": "Track",
+      "tiles": {
+        "rider": {
+          "label": "Fuel Transport",
+          "tagline": "Buy, Pick up & Collect"
+        },
+        "delivery": {
+          "label": "Package Delivery",
+          "tagline": "Send & Receive Parcels"
+        },
+        "ride": {
+          "label": "Driver Hire",
+          "tagline": "Bajaj, Boda & Car"
+        },
+        "errands": {
+          "label": "Running Errands",
+          "tagline": "Tasks & Assistance"
+        },
+        "hire": {
+          "label": "Vehicle Hire",
+          "tagline": "Book a Vehicle"
+        },
+        "freight": {
+          "label": "Heavy Freights",
+          "tagline": "Transport cargo"
+        }
+      },
+      "hero": {
+        "line1": "Move Anything,",
+        "line2": "Anywhere.",
+        "tagline": "Fast • Safe • Reliable",
+        "cta": "Order Now"
+      },
+      "popular": {
+        "heading": "Popular Locations",
+        "airport": "Airport",
+        "port": "Port",
+        "sgr": "SGR",
+        "busStand": "Magufuli Bus Stand",
+        "kariakoo": "Kariakoo",
+        "mlimani": "Mlimani City"
+      },
+      "trackOrder": {
+        "title": "Track Your Order",
+        "subtitle": "Know exactly where your delivery is.",
+        "cta": "Track Now"
+      }
     }
   },
   "account": {

@@ -211,12 +211,58 @@
       "mapsNotConfigured": "Google Maps haijasanidiwa. Uchaguzi wa anuani unaihitaji. Tafadhali wasiliana na msaada."
     },
     "home": {
-      "heading": "Safirisha chochote, popote.",
+      "heading": "Chagua huduma",
       "whereTo": "Unaenda wapi?",
       "later": "Baadaye",
       "recent": "Za hivi karibuni",
       "activeNow": "Inaendelea sasa",
-      "track": "Fuatilia"
+      "track": "Fuatilia",
+      "tiles": {
+        "rider": {
+          "label": "Usafirishaji wa Mafuta",
+          "tagline": "Nunua, Chukua na Pokea"
+        },
+        "delivery": {
+          "label": "Usafirishaji wa Vifurushi",
+          "tagline": "Tuma na Pokea Vifurushi"
+        },
+        "ride": {
+          "label": "Kukodi Dereva",
+          "tagline": "Bajaj, Boda na Gari"
+        },
+        "errands": {
+          "label": "Shughuli Ndogo",
+          "tagline": "Kazi na Usaidizi"
+        },
+        "hire": {
+          "label": "Kukodi Gari",
+          "tagline": "Weka Nafasi ya Gari"
+        },
+        "freight": {
+          "label": "Mizigo Mizito",
+          "tagline": "Safirisha mizigo"
+        }
+      },
+      "hero": {
+        "line1": "Safirisha Chochote,",
+        "line2": "Popote.",
+        "tagline": "Haraka • Salama • Uhakika",
+        "cta": "Agiza Sasa"
+      },
+      "popular": {
+        "heading": "Maeneo Maarufu",
+        "airport": "Uwanja wa Ndege",
+        "port": "Bandari",
+        "sgr": "SGR",
+        "busStand": "Stendi ya Magufuli",
+        "kariakoo": "Kariakoo",
+        "mlimani": "Mlimani City"
+      },
+      "trackOrder": {
+        "title": "Fuatilia Oda Yako",
+        "subtitle": "Jua hasa mzigo wako ulipo.",
+        "cta": "Fuatilia Sasa"
+      }
     }
   },
   "account": {

@@ -111,8 +111,27 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [locale]
   );
 
+  // Hold off rendering for good when a device simulator has taken over this
+  // document (see simulatorOwnsDocument). Suspending leaves its markup alone.
+  if (simulatorOwnsDocument()) throw NEVER;
+
   return (
     <I18nContext.Provider value={{ locale, setLocale, t }}>{children}</I18nContext.Provider>
+  );
+}
+
+// The "Mobile simulator" browser extension replaces the top-level document
+// with its own phone frame and loads the app again inside an iframe. Our
+// scripts still run in that outer document, where hydration cannot match the
+// extension's markup, so React falls back to re-rendering the whole page and
+// wipes the simulator out. As this provider wraps the entire app, suspending
+// here keeps the outer copy inert; the iframe copy is unaffected.
+const NEVER = new Promise<never>(() => {});
+
+function simulatorOwnsDocument(): boolean {
+  if (typeof window === 'undefined' || window.top !== window) return false;
+  return !!document.querySelector(
+    'body[data-js="mobile-first-element"], .mobile-first-element'
   );
 }
 
