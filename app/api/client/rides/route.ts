@@ -48,9 +48,6 @@ export async function POST(request: NextRequest) {
 
     // Per-service requirements (vehicle rules differ by service).
     if (service_type === 'delivery') {
-      if (!vehicle_type_id) {
-        return NextResponse.json({ error: 'Please choose a means of transport', code: 'vehicleRequired' }, { status: 400 });
-      }
       if (!dropoff_address || !dropoff_phone) {
         return NextResponse.json(
           { error: 'Dropoff address and recipient phone are required for a delivery', code: 'recipientPhoneRequired' },
@@ -69,9 +66,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Please choose a vehicle to hire', code: 'hireVehicleRequired' }, { status: 400 });
       }
     } else if (service_type === 'errand') {
-      if (!dropoff_address) {
-        return NextResponse.json({ error: 'Please say where the rider should go', code: 'errandDestinationRequired' }, { status: 400 });
-      }
+      // No destination check: an errand from the Running Errands menu can take
+      // place at the starting location alone. The request form still asks for
+      // one where the errand needs it.
       if (!service_details) {
         return NextResponse.json(
           { error: 'Please describe what you need done', code: 'errandReasonRequired' },

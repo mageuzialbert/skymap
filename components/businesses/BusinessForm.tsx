@@ -1,13 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useLoadScript } from "@react-google-maps/api";
 import { Loader2 } from "lucide-react";
 import LocationPicker from "@/components/common/LocationPicker";
 import Alert from '@/components/common/Alert';
 import { useT } from '@/lib/i18n';
 import { fieldLabel, helpText, inputClass, pillGhost, pillPrimary, sectionLabel } from '@/lib/ui';
-import { MAPS_API_KEY, MAPS_LIBRARIES } from '@/lib/maps';
 
 interface Business {
   id: string;
@@ -89,10 +87,6 @@ export default function BusinessForm({
   const [loadingRegions, setLoadingRegions] = useState(true);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
 
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: MAPS_API_KEY,
-    libraries: MAPS_LIBRARIES,
-  });
 
   // Load regions on mount
   useEffect(() => {
@@ -187,7 +181,6 @@ export default function BusinessForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <Alert tone="error">{error}</Alert>}
-      {loadError && <Alert tone="warning">{t('admin.clients.mapsError')}</Alert>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -300,10 +293,9 @@ export default function BusinessForm({
           {t('admin.clients.location')}
         </h3>
 
-        {/* Address with Google Maps */}
+        {/* Business address */}
         <div className="mb-4">
-          {isLoaded ? (
-            <LocationPicker
+          <LocationPicker
               label={t('admin.clients.address')}
               value={formData.address}
               onChange={handleLocationChange}
@@ -313,29 +305,6 @@ export default function BusinessForm({
                   : undefined
               }
             />
-          ) : loadError ? (
-            <div>
-              <label className={fieldLabel}>
-                {t('admin.clients.address')}
-              </label>
-              <input
-                type="text"
-                value={formData.address}
-                onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
-                }
-                placeholder={t('admin.clients.addressPlaceholder')}
-                className={inputClass}
-              />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center p-4">
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
-              <span className="ml-2 text-gray-500 text-sm">
-                {t('admin.clients.loadingMaps')}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Region and District */}

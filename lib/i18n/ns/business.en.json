@@ -218,17 +218,21 @@
       "activeNow": "Happening now",
       "track": "Track",
       "tiles": {
+        "requestRide": {
+          "label": "Request Ride",
+          "tagline": "Bajaj, Boda & Car"
+        },
         "rider": {
           "label": "Fuel Transport",
           "tagline": "Buy, Pick up & Collect"
         },
         "delivery": {
           "label": "Package Delivery",
-          "tagline": "Send & Receive Parcels"
+          "tagline": "Any size, small or large"
         },
         "ride": {
-          "label": "Driver Hire",
-          "tagline": "Bajaj, Boda & Car"
+          "label": "Find a Driver",
+          "tagline": "Automatic or Manual"
         },
         "errands": {
           "label": "Running Errands",
@@ -239,8 +243,8 @@
           "tagline": "Book a Vehicle"
         },
         "freight": {
-          "label": "Heavy Freights",
-          "tagline": "Transport cargo"
+          "label": "Heavy Freight",
+          "tagline": "Transport"
         }
       },
       "hero": {
@@ -262,6 +266,84 @@
         "title": "Track Your Order",
         "subtitle": "Know exactly where your delivery is.",
         "cta": "Track Now"
+      },
+      "errands": {
+        "title": "Running Errands",
+        "subtitle": "Choose the kind of errand you need.",
+        "typeLabel": "Errand type",
+        "types": {
+          "documents": {
+            "title": "Document Handling",
+            "p1": "Collecting documents from offices.",
+            "p2": "Delivering documents to institutions.",
+            "p3": "Gathering letters and files.",
+            "p4": "Following up on documents."
+          },
+          "shopping": {
+            "title": "Shopping Errands",
+            "p1": "Buying goods on your behalf.",
+            "p2": "Collecting goods from the shop.",
+            "p3": "Buying home or office supplies."
+          },
+          "payments": {
+            "title": "Payment Assistance",
+            "p1": "Making payments you have instructed.",
+            "p2": "Paying for services on your behalf.",
+            "p3": "Delivering proof of payment."
+          },
+          "inspection": {
+            "title": "Follow-up & Inspection",
+            "p1": "Following up on project progress.",
+            "p2": "Inspecting a site or goods.",
+            "p3": "Taking photos and sending a report.",
+            "p4": "Giving you feedback."
+          },
+          "personal": {
+            "title": "Personal Assistance",
+            "p1": "Representing you where that is permitted.",
+            "p2": "Holding your place in a queue where allowed.",
+            "p3": "Carrying out special tasks you request."
+          },
+          "pickup": {
+            "title": "Pickup & Collection",
+            "p1": "Picking up goods.",
+            "p2": "Collecting loads.",
+            "p3": "Collecting orders from suppliers.",
+            "p4": "Delivering items to you."
+          },
+          "other": {
+            "title": "Other Task",
+            "p1": "Any permitted task that is not listed above."
+          }
+        },
+        "form": {
+          "subtitle": "Tell us what you need done. We'll handle it for you.",
+          "describe": "Describe your task",
+          "describeLabel": "What do you need done?",
+          "describePlaceholder": "Explain exactly what you want The Skymap to do…",
+          "start": "Pickup / starting location",
+          "destination": "Destination (if applicable)",
+          "priority": "Priority",
+          "priorities": {
+            "normal": {
+              "title": "Normal",
+              "subtitle": "As soon as someone is available"
+            },
+            "urgent": {
+              "title": "Urgent",
+              "subtitle": "Needs attention right away"
+            },
+            "scheduled": {
+              "title": "Scheduled",
+              "subtitle": "Choose a date and time"
+            }
+          },
+          "schedule": "Schedule your task",
+          "when": "Preferred date and time",
+          "whenHint": "Leave empty if any time is fine.",
+          "clearDate": "Clear date",
+          "photoOptional": "Photo (optional)"
+        }
       }
     }
   },

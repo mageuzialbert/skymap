@@ -16,12 +16,14 @@ export default function StepShell({
   service,
   title,
   subtitle,
+  compact = false,
   children,
 }: {
   service: ServiceTypeKey;
   /** The question this step asks, e.g. "Where is it going?" */
   title: string;
   subtitle?: string;
+  compact?: boolean;
   children: ReactNode;
 }) {
   const { accent } = getServiceType(service);
@@ -40,7 +42,7 @@ export default function StepShell({
           {subtitle && <p className="mt-1 text-[15px] leading-snug text-gray-500">{subtitle}</p>}
         </div>
       </header>
-      <div className="space-y-5">{children}</div>
+      <div className={compact ? "space-y-2" : "space-y-5"}>{children}</div>
     </div>
   );
 }

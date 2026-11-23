@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useLoadScript } from "@react-google-maps/api";
 import {
   Loader2,
   MapPin,
@@ -20,7 +19,6 @@ import Alert from "@/components/common/Alert";
 import LocationPicker from "@/components/common/LocationPicker";
 import { useT } from "@/lib/i18n";
 import { cardClass, fieldLabel as labelClass, inputClass, sectionTitle } from "@/lib/ui";
-import { MAPS_API_KEY, MAPS_LIBRARIES } from '@/lib/maps';
 
 interface Region {
   id: number;
@@ -102,10 +100,6 @@ export default function DeliveryForm({
   const [pickupPreFilled, setPickupPreFilled] = useState(false);
   const [defaultPackageFee, setDefaultPackageFee] = useState<number>(0);
 
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: MAPS_API_KEY,
-    libraries: MAPS_LIBRARIES,
-  });
 
   // Get current datetime in local timezone for the default created_at value
   const getCurrentLocalDatetime = () => {
@@ -355,17 +349,6 @@ export default function DeliveryForm({
         </Alert>
       )}
 
-      {loadError && (
-        <Alert tone="warning">{t("components.deliveryForm.mapsFailed")}</Alert>
-      )}
-
-      {!isLoaded && !loadError && (
-        <div className="flex items-center justify-center p-4">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-          <span className="ml-2 text-gray-500">{t("components.deliveryForm.loadingMaps")}</span>
-        </div>
-      )}
-
       {/* Business Selector */}
       {showBusinessSelector && (
         <div className="rounded-xl bg-gray-50 p-4">
@@ -488,8 +471,7 @@ export default function DeliveryForm({
             </div>
 
             <div>
-              {isLoaded ? (
-                <LocationPicker
+              <LocationPicker
                   label={t("components.deliveryForm.pickupAddress")}
                   value={formData.pickup_address}
                   onChange={(address, lat, lng) =>
@@ -512,29 +494,6 @@ export default function DeliveryForm({
                     formData.pickup_address ? undefined : t("components.deliveryForm.addressRequired")
                   }
                 />
-              ) : (
-                <>
-                  <label className={labelClass}>
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      {t("components.deliveryDetails.address")} <span className="text-red-500">*</span>
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.pickup_address}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        pickup_address: e.target.value,
-                      })
-                    }
-                    required
-                    placeholder={t("components.deliveryForm.streetAddress")}
-                    className={inputClass}
-                  />
-                </>
-              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -639,9 +598,9 @@ export default function DeliveryForm({
             </div>
 
             <div>
-              {isLoaded ? (
-                <LocationPicker
+              <LocationPicker
                   label={t("components.deliveryForm.dropoffAddress")}
+                  showMyLocation={false}
                   value={formData.dropoff_address}
                   onChange={(address, lat, lng) =>
                     setFormData({
@@ -655,29 +614,6 @@ export default function DeliveryForm({
                     formData.dropoff_address ? undefined : t("components.deliveryForm.addressRequired")
                   }
                 />
-              ) : (
-                <>
-                  <label className={labelClass}>
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      {t("components.deliveryDetails.address")} <span className="text-red-500">*</span>
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.dropoff_address}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        dropoff_address: e.target.value,
-                      })
-                    }
-                    required
-                    placeholder={t("components.deliveryForm.streetAddress")}
-                    className={inputClass}
-                  />
-                </>
-              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">

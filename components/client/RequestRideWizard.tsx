@@ -6,13 +6,13 @@ import { AlertCircle, Camera, CheckCircle2, ImagePlus, Loader2, Package, Users, 
 import CameraCapture from '@/components/common/CameraCapture';
 import ServiceBadge from '@/components/common/ServiceBadge';
 import VehicleSelector from '@/components/landing/VehicleSelector';
-import FullscreenMapPicker from '@/components/landing/FullscreenMapPicker';
 import HireVehicleSelector from '@/components/client/HireVehicleSelector';
 import ServiceHome from '@/components/client/ServiceHome';
+import ErrandMenu, { ERRAND_TYPES } from '@/components/client/ErrandMenu';
+import DriverHireWizard from '@/components/client/DriverHireWizard';
 import ContactCard from '@/components/wizard/ContactCard';
 import FieldGroup from '@/components/wizard/FieldGroup';
-import LocationField from '@/components/wizard/LocationField';
-import LocationSearchSheet from '@/components/wizard/LocationSearchSheet';
+import LocationPicker from '@/components/common/LocationPicker';
 import { OptionGroup, OptionRow } from '@/components/wizard/OptionGroup';
 import StepIndicator from '@/components/wizard/StepIndicator';
 import StepShell from '@/components/wizard/StepShell';
@@ -36,8 +36,6 @@ import { cardClass, errorText, fieldLabel, inputClass, textareaClass } from '@/l
 interface WizardProps {
   /** The signed-in business, used to prefill the pick-up. */
   profile: BusinessProfile | null;
-  /** Google Places is still loading. Only the Where step cares. */
-  mapsLoading?: boolean;
 }
 
 /** A datetime-local value for "now", so the scheduler cannot offer the past. */
@@ -46,7 +44,7 @@ function nowLocal(): string {
   return d.toISOString().slice(0, 16);
 }
 
-export default function RequestRideWizard({ profile, mapsLoading = false }: WizardProps) {
+export default function RequestRideWizard({ profile }: WizardProps) {
   const router = useRouter();
   const t = useT();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -58,11 +56,13 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [sheetFor, setSheetFor] = useState<'pickup' | 'dropoff' | null>(null);
-  const [mapFor, setMapFor] = useState<'pickup' | 'dropoff' | null>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [checkingPhone, setCheckingPhone] = useState(false);
+  // The Running Errands menu sits between Home and the errand request.
+  const [errandMenu, setErrandMenu] = useState(false);
+  // Find a Driver is its own request flow (the customer's vehicle, our driver).
+  const [driverHire, setDriverHire] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const steps = stepsFor(draft.service);
@@ -91,11 +91,9 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
     };
   }, [draft.vehicleTypeId]);
 
-  // Arriving from Home's "Where to?" opens the destination picker straight away,
-  // which is what that button promises.
+  // Clear the one-time destination focus request after the field mounts.
   useEffect(() => {
     if (draft.focusDropoff) {
-      setSheetFor('dropoff');
       dispatch({ type: 'SET_FIELD', patch: { focusDropoff: false } });
     }
   }, [draft.focusDropoff]);
@@ -104,7 +102,7 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
   // silently do nothing here.
   useEffect(() => {
     rootRef.current?.closest('main')?.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [draft.step, draft.service]);
+  }, [draft.step, draft.service, errandMenu]);
 
   const issues = useMemo(
     () => (currentStep ? validateStep(currentStep, draft) : []),
@@ -227,12 +225,43 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
     }
   }
 
+  /** Leave the request and reopen the errand list, to pick a different kind.
+   *  The request starts over, as it does when going back to Home. */
+  function backToErrandMenu() {
+    dispatch({ type: 'RESTART' });
+    setErrandMenu(true);
+  }
+
   // ---------------------------------------------------------------- home
+  if ((!svc || !currentStep) && driverHire) {
+    return (
+      <div ref={rootRef} className="w-full">
+        <DriverHireWizard profile={profile} onExit={() => setDriverHire(false)} />
+      </div>
+    );
+  }
+
+  if ((!svc || !currentStep) && errandMenu) {
+    return (
+      <div ref={rootRef} className="mx-auto w-full max-w-md">
+        <ErrandMenu
+          onBack={() => setErrandMenu(false)}
+          onChoose={(label) => {
+            setErrandMenu(false);
+            chooseService('errand', { errandType: label });
+          }}
+        />
+      </div>
+    );
+  }
+
   if (!svc || !currentStep) {
     return (
       <div ref={rootRef} className="mx-auto w-full max-w-md">
         <ServiceHome
           onChooseService={(key) => chooseService(key)}
+          onOpenErrands={() => setErrandMenu(true)}
+          onOpenDriverHire={() => setDriverHire(true)}
           onWhereTo={() => chooseService('ride', { focusDropoff: true })}
           onScheduleLater={() => chooseService('ride', { scheduleLater: true })}
           onPickRecent={(d) =>
@@ -251,17 +280,51 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
     );
   }
 
-  if (mapsLoading && currentStep === 'where') {
-    return (
-      <div className={`${cardClass} flex items-center justify-center p-10`}>
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   const stepLabels = steps.map((id) => ({ id, label: t(`components.rideWizard.steps.${id}`) }));
   const copy = (k: string) => t(`components.rideWizard.svc.${svc}.${k}`);
   const hint = draft.showErrors && issues.length > 0 ? t(issues[0].messageKey) : null;
+
+  // An errand started from the Running Errands menu follows that booking
+  // form: describe the task first, then where, with the destination optional
+  // and a priority on the last step. The plain errand flow is unchanged.
+  const typedErrand = svc === 'errand' && !!draft.errandType;
+  const errandTypeId = ERRAND_TYPES.find((e) => e.label === draft.errandType)?.id;
+  const errandFields =
+    svc === 'errand' ? (
+            <FieldGroup
+              label={t(typedErrand ? 'business.home.errands.form.describe' : 'components.rideWizard.group.errand')}
+            >
+              <div>
+                <label className={fieldLabel} htmlFor="errandReason">
+                  {t(typedErrand ? 'business.home.errands.form.describeLabel' : 'components.rideWizard.errandReason')}
+                </label>
+                <textarea
+                  id="errandReason"
+                  data-field="errandReason"
+                  value={draft.errandReason}
+                  onChange={(e) => set({ errandReason: e.target.value })}
+                  placeholder={t(
+                    typedErrand
+                      ? 'business.home.errands.form.describePlaceholder'
+                      : 'components.rideWizard.errandReasonPlaceholder'
+                  )}
+                  aria-invalid={issueFor('errandReason') ? true : undefined}
+                  className={`${textareaClass} ${issueFor('errandReason') ? 'border-red-300' : ''}`}
+                  disabled={submitting}
+                />
+                {issueFor('errandReason') && <p className={errorText}>{issueFor('errandReason')}</p>}
+              </div>
+              {/* The photo was never compulsory, but nothing said so. */}
+              <p className={`${fieldLabel} !mb-0`}>{t('business.home.errands.form.photoOptional')}</p>
+              <PhotoField
+                photo={draft.photo}
+                uploading={uploading}
+                onPick={() => fileInputRef.current?.click()}
+                onCamera={() => setCameraOpen(true)}
+                onRemove={() => dispatch({ type: 'SET_PHOTO', photo: null })}
+              />
+            </FieldGroup>
+    ) : null;
 
   return (
     <div ref={rootRef} className="mx-auto w-full max-w-md">
@@ -274,34 +337,56 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
 
       {/* ------------------------------------------------------------ where */}
       {currentStep === 'where' && (
-        <StepShell service={svc} title={copy('whereTitle')} subtitle={copy('whereSubtitle')}>
-          <FieldGroup>
-            <LocationField
-              which="pickup"
-              label={t('components.rideWizard.pickupLocation')}
-              placeholder={t('components.rideWizard.typeOrPickMap')}
-              address={draft.pickup.address}
-              onOpen={() => setSheetFor('pickup')}
+        <StepShell
+          service={svc}
+          title={
+            typedErrand && errandTypeId
+              ? t(`business.home.errands.types.${errandTypeId}.title`)
+              : copy('whereTitle')
+          }
+          subtitle={
+            svc === 'delivery'
+              ? undefined
+              : typedErrand
+                ? t('business.home.errands.form.subtitle')
+                : copy('whereSubtitle')
+          }
+          compact={svc === 'delivery'}
+        >
+          {typedErrand && errandFields}
+          <FieldGroup compact={svc === 'delivery'}>
+            <LocationPicker
+              label={t(
+                typedErrand
+                  ? 'business.home.errands.form.start'
+                  : 'components.rideWizard.pickupLocation'
+              )}
+              placeholder={t('components.rideWizard.searchPlaceholder')}
+              value={draft.pickup.address}
+              onChange={(address, latitude, longitude) => dispatch({ type: 'SET_LOCATION', which: 'pickup', patch: { address, latitude, longitude } })}
+              disabled={submitting}
               error={issueFor('pickup')}
             />
-            <LocationField
-              which="dropoff"
+            <LocationPicker
+              showMyLocation={false}
+              autoFocus={draft.focusDropoff}
               label={t(
-                svc === 'errand'
+                typedErrand
+                  ? 'business.home.errands.form.destination'
+                  : svc === 'errand'
                   ? 'components.rideWizard.errandWhereGo'
                   : svc === 'delivery'
                     ? 'components.rideWizard.dropoffLocation'
                     : 'components.rideWizard.destination'
               )}
-              placeholder={t('components.rideWizard.typeOrPickMap')}
-              address={draft.dropoff.address}
-              onOpen={() => setSheetFor('dropoff')}
+              placeholder={t('components.rideWizard.searchPlaceholder')}
+              value={draft.dropoff.address}
+              onChange={(address, latitude, longitude) => dispatch({ type: 'SET_LOCATION', which: 'dropoff', patch: { address, latitude, longitude } })}
+              disabled={submitting}
               error={issueFor('dropoff')}
             />
-          </FieldGroup>
-
           {svc === 'delivery' && (
-            <FieldGroup label={t('components.rideWizard.group.recipient')}>
+            <>
               <div>
                 <label className={fieldLabel} htmlFor="recipientName">
                   {t('components.rideWizard.recipientName')}
@@ -348,27 +433,19 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
                   <p className={errorText}>{issueFor('recipientPhone')}</p>
                 )}
               </div>
-            </FieldGroup>
+            </>
           )}
 
-          {svc === 'errand' && (
-            <FieldGroup label={t('components.rideWizard.group.errand')}>
-              <div>
-                <label className={fieldLabel} htmlFor="errandReason">
-                  {t('components.rideWizard.errandReason')}
-                </label>
-                <textarea
-                  id="errandReason"
-                  data-field="errandReason"
-                  value={draft.errandReason}
-                  onChange={(e) => set({ errandReason: e.target.value })}
-                  placeholder={t('components.rideWizard.errandReasonPlaceholder')}
-                  aria-invalid={issueFor('errandReason') ? true : undefined}
-                  className={`${textareaClass} ${issueFor('errandReason') ? 'border-red-300' : ''}`}
-                  disabled={submitting}
-                />
-                {issueFor('errandReason') && <p className={errorText}>{issueFor('errandReason')}</p>}
-              </div>
+          {svc === 'delivery' && (
+            <>
+              <TextField
+                id="packageDetails"
+                label={t('components.rideWizard.packageDetails')}
+                value={draft.packageDetails}
+                onChange={(v) => set({ packageDetails: v })}
+                placeholder={t('components.rideWizard.packagePlaceholder')}
+                disabled={submitting}
+              />
               <PhotoField
                 photo={draft.photo}
                 uploading={uploading}
@@ -376,19 +453,64 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
                 onCamera={() => setCameraOpen(true)}
                 onRemove={() => dispatch({ type: 'SET_PHOTO', photo: null })}
               />
-            </FieldGroup>
+            </>
+          )}
+          </FieldGroup>
+
+          {typedErrand && (
+            <>
+              <FieldGroup label={t('business.home.errands.form.schedule')}>
+                <div>
+                  <label className={fieldLabel} htmlFor="errandWhen">
+                    {t('business.home.errands.form.when')}
+                  </label>
+                  <DateTimeField
+                    id="errandWhen"
+                    value={draft.scheduledAt}
+                    onChange={(v) => set({ scheduledAt: v })}
+                    invalid={!!issueFor('scheduledAt')}
+                    disabled={submitting}
+                    clearable
+                  />
+                  {issueFor('scheduledAt') ? (
+                    <p className={errorText}>{issueFor('scheduledAt')}</p>
+                  ) : (
+                    <p className="mt-1 text-[13px] text-gray-500">
+                      {t('business.home.errands.form.whenHint')}
+                    </p>
+                  )}
+                </div>
+              </FieldGroup>
+
+              <OptionGroup label={t('business.home.errands.form.priority')}>
+                {(['normal', 'urgent', 'scheduled'] as const).map((p) => (
+                  <OptionRow
+                    key={p}
+                    selected={draft.errandPriority === p}
+                    onSelect={() => set({ errandPriority: p })}
+                    disabled={submitting}
+                    title={t(`business.home.errands.form.priorities.${p}.title`)}
+                    subtitle={t(`business.home.errands.form.priorities.${p}.subtitle`)}
+                  />
+                ))}
+              </OptionGroup>
+            </>
           )}
 
-          <FieldGroup label={t('components.rideWizard.group.sendingFrom')}>
-            <ContactCard name={draft.pickup.name} phone={draft.pickup.phone} />
-          </FieldGroup>
+          {!typedErrand && errandFields}
+
+          {svc !== 'delivery' && (
+            <FieldGroup label={t('components.rideWizard.group.sendingFrom')}>
+              <ContactCard name={draft.pickup.name} phone={draft.pickup.phone} />
+            </FieldGroup>
+          )}
         </StepShell>
       )}
 
       {/* ---------------------------------------------------------- details */}
       {currentStep === 'details' && (
         <StepShell service={svc} title={copy('detailsTitle')} subtitle={copy('detailsSubtitle')}>
-          {(svc === 'delivery' || svc === 'ride') && (
+          {svc === 'ride' && (
             <div data-field="vehicle">
               <FieldGroup label={t('components.rideWizard.group.vehicle')} padded={false}>
                 <div className="p-3">
@@ -493,25 +615,7 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
             </>
           )}
 
-          {svc === 'delivery' && (
-            <FieldGroup label={t('components.rideWizard.group.package')}>
-              <TextField
-                id="packageDetails"
-                label={t('components.rideWizard.packageDetails')}
-                value={draft.packageDetails}
-                onChange={(v) => set({ packageDetails: v })}
-                placeholder={t('components.rideWizard.packagePlaceholder')}
-                disabled={submitting}
-              />
-              <PhotoField
-                photo={draft.photo}
-                uploading={uploading}
-                onPick={() => fileInputRef.current?.click()}
-                onCamera={() => setCameraOpen(true)}
-                onRemove={() => dispatch({ type: 'SET_PHOTO', photo: null })}
-              />
-            </FieldGroup>
-          )}
+
 
           {svc === 'ride' && (
             <FieldGroup label={t('components.rideWizard.group.notes')}>
@@ -535,6 +639,9 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
           subtitle={t('components.rideWizard.confirmSubtitle')}
         >
           <div data-field="scheduledAt">
+            {/* A menu-started errand sets its schedule and priority on the
+                first page, so there is nothing to ask here. */}
+            {typedErrand ? null : (
             <OptionGroup label={t('components.rideWizard.group.schedule')} columns={2}>
               {([false, true] as const).map((later) => (
                 <OptionRow
@@ -549,15 +656,13 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
                 />
               ))}
             </OptionGroup>
+            )}
             {draft.scheduleLater && (
               <div className="mt-3">
-                <input
-                  type="datetime-local"
-                  min={nowLocal()}
+                <DateTimeField
                   value={draft.scheduledAt}
-                  onChange={(e) => set({ scheduledAt: e.target.value })}
-                  aria-invalid={issueFor('scheduledAt') ? true : undefined}
-                  className={`${inputClass} ${issueFor('scheduledAt') ? 'border-red-300' : ''}`}
+                  onChange={(v) => set({ scheduledAt: v })}
+                  invalid={!!issueFor('scheduledAt')}
                   disabled={submitting}
                 />
                 {issueFor('scheduledAt') && <p className={errorText}>{issueFor('scheduledAt')}</p>}
@@ -593,11 +698,35 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
                 editLabel={t('components.rideWizard.editStep')}
               />
             )}
-            {svc !== 'errand' && (
+            {(svc === 'ride' || svc === 'hire') && (
               <SummaryRow
                 label={t('components.rideWizard.group.vehicle')}
                 value={svc === 'hire' ? draft.hireVehicle?.name || '' : draft.vehicleName}
                 onEdit={() => dispatch({ type: 'GO', step: 1 })}
+                editLabel={t('components.rideWizard.editStep')}
+              />
+            )}
+            {svc === 'errand' && (
+              <SummaryRow
+                label={t('business.home.errands.typeLabel')}
+                value={draft.errandType}
+                onEdit={backToErrandMenu}
+                editLabel={t('components.rideWizard.editStep')}
+              />
+            )}
+            {typedErrand && (
+              <SummaryRow
+                label={t('business.home.errands.form.priority')}
+                value={t(`business.home.errands.form.priorities.${draft.errandPriority}.title`)}
+                onEdit={() => dispatch({ type: 'GO', step: 0 })}
+                editLabel={t('components.rideWizard.editStep')}
+              />
+            )}
+            {typedErrand && draft.scheduledAt && (
+              <SummaryRow
+                label={t('business.home.errands.form.schedule')}
+                value={formatDateTime(draft.scheduledAt)}
+                onEdit={() => dispatch({ type: 'GO', step: 0 })}
                 editLabel={t('components.rideWizard.editStep')}
               />
             )}
@@ -656,7 +785,9 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
         onBack={
           draft.step > 0
             ? () => dispatch({ type: 'GO', step: draft.step - 1 })
-            : () => dispatch({ type: 'RESTART' })
+            : draft.errandType
+              ? backToErrandMenu
+              : () => dispatch({ type: 'RESTART' })
         }
         onNext={goNext}
         nextLabel={
@@ -685,55 +816,87 @@ export default function RequestRideWizard({ profile, mapsLoading = false }: Wiza
         onClose={() => setCameraOpen(false)}
         onCapture={(file) => attachPhoto(file)}
       />
-      <LocationSearchSheet
-        open={sheetFor !== null}
-        onClose={() => setSheetFor(null)}
-        title={t(
-          sheetFor === 'pickup'
-            ? 'components.rideWizard.pickupLocation'
-            : 'components.rideWizard.destination'
-        )}
-        showMyLocation={sheetFor === 'pickup'}
-        onOpenMap={() => {
-          setMapFor(sheetFor);
-          setSheetFor(null);
-        }}
-        onPick={(address, lat, lng) => {
-          if (!sheetFor) return;
-          dispatch({
-            type: 'SET_LOCATION',
-            which: sheetFor,
-            patch: { address, latitude: lat, longitude: lng },
-          });
-        }}
-      />
-      <FullscreenMapPicker
-        isOpen={mapFor !== null}
-        onClose={() => setMapFor(null)}
-        title={t(
-          mapFor === 'pickup'
-            ? 'components.rideWizard.selectLocation'
-            : 'components.rideWizard.selectDestination'
-        )}
-        initialPosition={
-          mapFor && draft[mapFor].latitude && draft[mapFor].longitude
-            ? { lat: draft[mapFor].latitude as number, lng: draft[mapFor].longitude as number }
-            : null
-        }
-        onSelect={(address, lat, lng) => {
-          if (!mapFor) return;
-          dispatch({
-            type: 'SET_LOCATION',
-            which: mapFor,
-            patch: { address, latitude: lat, longitude: lng },
-          });
-        }}
-      />
     </div>
   );
 }
 
 /* -------------------------------------------------------------------------- */
+
+/** "2026-11-23T14:30" -> "23/11/2026 14:30". Plain string slicing, so the
+ *  time zone cannot shift the day. */
+function formatDateTime(value: string): string {
+  const [date, time = ''] = value.split('T');
+  const [y, m, d] = date.split('-');
+  return y && m && d ? `${d}/${m}/${y} ${time.slice(0, 5)}`.trim() : '';
+}
+
+/**
+ * Date and time, always shown as dd/mm/yyyy.
+ *
+ * A native datetime input prints the date in the browser's own order (often
+ * mm/dd/yyyy) and that cannot be changed. So the native input is kept for its
+ * picker but made invisible, laid over a box that shows the value in our
+ * format; tapping the box opens the picker.
+ */
+function DateTimeField({
+  id,
+  value,
+  onChange,
+  invalid,
+  disabled,
+  clearable = false,
+}: {
+  id?: string;
+  value: string;
+  onChange: (v: string) => void;
+  invalid?: boolean;
+  disabled?: boolean;
+  /** Show a clear button, for a date that is optional. */
+  clearable?: boolean;
+}) {
+  const t = useT();
+  return (
+    <div className="relative" data-field="scheduledAt">
+      <div
+        aria-hidden
+        className={`${inputClass} flex items-center ${invalid ? 'border-red-300' : ''} ${
+          value ? 'text-gray-900' : 'text-gray-400'
+        }`}
+      >
+        {value ? formatDateTime(value) : 'dd/mm/yyyy --:--'}
+      </div>
+      <input
+        id={id}
+        type="datetime-local"
+        min={nowLocal()}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onClick={(e) => {
+          // Desktop browsers focus the hidden field's segments instead of
+          // opening the picker unless asked to.
+          try {
+            e.currentTarget.showPicker?.();
+          } catch {
+            /* not allowed in this context - the native tap still works */
+          }
+        }}
+        aria-invalid={invalid ? true : undefined}
+        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        disabled={disabled}
+      />
+      {clearable && value && !disabled && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          aria-label={t('business.home.errands.form.clearDate')}
+          className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-gray-500 active:bg-gray-100"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+}
 
 function TextField({
   id,

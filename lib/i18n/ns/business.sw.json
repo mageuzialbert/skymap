@@ -218,17 +218,21 @@
       "activeNow": "Inaendelea sasa",
       "track": "Fuatilia",
       "tiles": {
+        "requestRide": {
+          "label": "Omba Safari",
+          "tagline": "Bajaj, Boda na Gari"
+        },
         "rider": {
           "label": "Usafirishaji wa Mafuta",
           "tagline": "Nunua, Chukua na Pokea"
         },
         "delivery": {
           "label": "Usafirishaji wa Vifurushi",
-          "tagline": "Tuma na Pokea Vifurushi"
+          "tagline": "Ukubwa wowote, mdogo au mkubwa"
         },
         "ride": {
-          "label": "Kukodi Dereva",
-          "tagline": "Bajaj, Boda na Gari"
+          "label": "Tafuta Dereva",
+          "tagline": "Otomatiki au Manual"
         },
         "errands": {
           "label": "Shughuli Ndogo",
@@ -262,6 +266,84 @@
         "title": "Fuatilia Oda Yako",
         "subtitle": "Jua hasa mzigo wako ulipo.",
         "cta": "Fuatilia Sasa"
+      },
+      "errands": {
+        "title": "Shughuli Ndogo",
+        "subtitle": "Chagua aina ya shughuli unayohitaji.",
+        "typeLabel": "Aina ya shughuli",
+        "types": {
+          "documents": {
+            "title": "Document Handling",
+            "p1": "Kuchukua nyaraka ofisini.",
+            "p2": "Kuwasilisha nyaraka kwenye taasisi.",
+            "p3": "Kukusanya barua na mafaili.",
+            "p4": "Kufuatilia nyaraka."
+          },
+          "shopping": {
+            "title": "Shopping Errands",
+            "p1": "Kununua bidhaa kwa niaba ya mteja.",
+            "p2": "Kuchukua bidhaa dukani.",
+            "p3": "Kununua mahitaji ya nyumbani au ofisini."
+          },
+          "payments": {
+            "title": "Payment Assistance",
+            "p1": "Kufanya malipo yaliyoagizwa.",
+            "p2": "Kulipia huduma mbalimbali kwa niaba ya mteja.",
+            "p3": "Kuwasilisha uthibitisho wa malipo."
+          },
+          "inspection": {
+            "title": "Follow-up & Inspection",
+            "p1": "Kufuatilia maendeleo ya mradi.",
+            "p2": "Kukagua eneo au bidhaa.",
+            "p3": "Kupiga picha na kutuma taarifa.",
+            "p4": "Kutoa mrejesho kwa mteja."
+          },
+          "personal": {
+            "title": "Personal Assistance",
+            "p1": "Kumwakilisha mteja kwenye shughuli zinazoruhusiwa.",
+            "p2": "Kwenda kuchukua nafasi kwenye foleni pale inapokubalika.",
+            "p3": "Kufanya shughuli maalumu zilizoagizwa."
+          },
+          "pickup": {
+            "title": "Pickup & Collection",
+            "p1": "Kuchukua bidhaa.",
+            "p2": "Kukusanya mizigo.",
+            "p3": "Kuchukua oda kutoka kwa wauzaji.",
+            "p4": "Kuwasilisha vitu kwa mteja."
+          },
+          "other": {
+            "title": "Other Task",
+            "p1": "Shughuli yoyote inayoruhusiwa ambayo haipo kwenye orodha."
+          }
+        },
+        "form": {
+          "subtitle": "Tuambie unachohitaji kifanyike. Tutakushughulikia.",
+          "describe": "Eleza kazi yako",
+          "describeLabel": "Unahitaji nini kifanyike?",
+          "describePlaceholder": "Eleza kwa usahihi unachotaka The Skymap ifanye…",
+          "start": "Mahali pa kuanzia / kuchukulia",
+          "destination": "Unakoenda (kama inahusika)",
+          "priority": "Kipaumbele",
+          "priorities": {
+            "normal": {
+              "title": "Kawaida",
+              "subtitle": "Mara tu mtu atakapopatikana"
+            },
+            "urgent": {
+              "title": "Haraka",
+              "subtitle": "Inahitaji kushughulikiwa mara moja"
+            },
+            "scheduled": {
+              "title": "Imepangwa",
+              "subtitle": "Chagua tarehe na saa"
+            }
+          },
+          "schedule": "Panga muda wa kazi yako",
+          "when": "Tarehe na saa unayopendelea",
+          "whenHint": "Acha wazi kama muda wowote unafaa.",
+          "clearDate": "Futa tarehe",
+          "photoOptional": "Picha (si lazima)"
+        }
       }
     }
   },

@@ -94,6 +94,12 @@ const businessNavItems: NavItem[] = [
     icon: History,
     group: "work",
   },
+  {
+    href: "/dashboard/business/driver-requests",
+    label: t("nav.driverRequests"),
+    icon: User,
+    group: "work",
+  },
   { href: "/dashboard/messages", label: t("nav.messages"), icon: MessageCircle },
   {
     href: "/dashboard/business/invoices",
@@ -149,6 +155,12 @@ const adminNavItems: NavItem[] = [
     href: "/dashboard/admin/hire-vehicles",
     label: t("nav.hireVehicles"),
     icon: Truck,
+    group: "work",
+  },
+  {
+    href: "/dashboard/admin/driver-requests",
+    label: t("nav.driverHireRequests"),
+    icon: User,
     group: "work",
   },
   {

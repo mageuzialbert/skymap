@@ -54,6 +54,13 @@ export interface RequestDraft {
   packageDetails: string;
   serviceDetails: string;
   errandReason: string;
+  /** Kind of errand chosen on the Running Errands menu (fixed English label);
+   *  empty when the errand flow was opened another way. */
+  errandType: string;
+  /** How soon a menu-started errand is wanted, sent as a line of text.
+   *  'scheduled' makes scheduledAt compulsory; such an errand never uses
+   *  scheduleLater - a filled-in scheduledAt is its schedule. */
+  errandPriority: 'normal' | 'urgent' | 'scheduled';
 
   photo: DraftPhoto | null;
 
@@ -105,6 +112,8 @@ export function freshDraft(profile: BusinessProfile | null): RequestDraft {
     packageDetails: '',
     serviceDetails: '',
     errandReason: '',
+    errandType: '',
+    errandPriority: 'normal',
     photo: null,
     scheduleLater: false,
     scheduledAt: '',
@@ -117,7 +126,9 @@ export function freshDraft(profile: BusinessProfile | null): RequestDraft {
  *  screen with one control on it. */
 export function stepsFor(service: ServiceTypeKey | null): StepId[] {
   if (!service) return [];
-  return service === 'errand' ? ['where', 'confirm'] : ['where', 'details', 'confirm'];
+  return service === 'errand' || service === 'delivery'
+    ? ['where', 'confirm']
+    : ['where', 'details', 'confirm'];
 }
 
 export interface Issue {
@@ -139,7 +150,9 @@ export function validateStep(step: StepId, d: RequestDraft): Issue[] {
 
   if (step === 'where') {
     if (!d.pickup.address) issues.push({ field: 'pickup', messageKey: E('pickupRequired') });
-    if (!d.dropoff.address) {
+    // An errand picked from the Running Errands menu may happen in one place
+    // (an inspection, a payment), so its destination is optional.
+    if (!d.dropoff.address && !(svc === 'errand' && d.errandType)) {
       issues.push({
         field: 'dropoff',
         messageKey: E(svc === 'errand' ? 'errandDestinationRequired' : 'dropoffRequired'),
@@ -148,13 +161,21 @@ export function validateStep(step: StepId, d: RequestDraft): Issue[] {
     if (svc === 'delivery' && !isUsablePhone(d.dropoff.phone)) {
       issues.push({ field: 'recipientPhone', messageKey: E('recipientPhoneRequired') });
     }
+    if (svc === 'errand' && d.errandType) {
+      // Schedule and priority sit on this page for a menu-started errand.
+      if (d.errandPriority === 'scheduled' && !d.scheduledAt) {
+        issues.push({ field: 'scheduledAt', messageKey: E('scheduleTimeRequired') });
+      } else if (d.scheduledAt && new Date(d.scheduledAt).getTime() <= Date.now()) {
+        issues.push({ field: 'scheduledAt', messageKey: E('scheduleTimePast') });
+      }
+    }
     if (svc === 'errand' && !d.errandReason.trim()) {
       issues.push({ field: 'errandReason', messageKey: E('errandReasonRequired') });
     }
   }
 
   if (step === 'details') {
-    if ((svc === 'delivery' || svc === 'ride') && !d.vehicleTypeId) {
+    if (svc === 'ride' && !d.vehicleTypeId) {
       issues.push({ field: 'vehicle', messageKey: E('vehicleRequired') });
     }
     if (svc === 'hire') {
@@ -206,14 +227,16 @@ export function buildPayload(d: RequestDraft): Record<string, any> {
   const svc = d.service;
   const payload: Record<string, any> = {
     service_type: svc,
-    vehicle_type_id: svc === 'delivery' || svc === 'ride' ? d.vehicleTypeId : null,
+    vehicle_type_id: svc === 'ride' ? d.vehicleTypeId : null,
     pickup_address: d.pickup.address,
     pickup_latitude: d.pickup.latitude,
     pickup_longitude: d.pickup.longitude,
     pickup_name: d.pickup.name,
     pickup_phone: d.pickup.phone ? normalizeTzPhone(d.pickup.phone) : d.pickup.phone,
     scheduled_pickup_at:
-      d.scheduleLater && d.scheduledAt ? new Date(d.scheduledAt).toISOString() : null,
+      (svc === 'errand' && d.errandType ? d.scheduledAt : d.scheduleLater && d.scheduledAt)
+        ? new Date(d.scheduledAt).toISOString()
+        : null,
     dropoff_address: d.dropoff.address,
     dropoff_latitude: d.dropoff.latitude,
     dropoff_longitude: d.dropoff.longitude,
@@ -227,7 +250,16 @@ export function buildPayload(d: RequestDraft): Record<string, any> {
   } else if (svc === 'ride') {
     payload.service_details = d.serviceDetails || null;
   } else if (svc === 'errand') {
-    payload.service_details = d.errandReason || null;
+    // The errand kind leads the block, in fixed English like the hire details,
+    // so staff see it whatever language the customer used.
+    payload.service_details =
+      [
+        d.errandType && `Errand type: ${d.errandType}`,
+        d.errandType && `Priority: ${d.errandPriority === 'urgent' ? 'Urgent' : d.errandPriority === 'scheduled' ? 'Scheduled' : 'Normal'}`,
+        d.errandReason,
+      ]
+        .filter(Boolean)
+        .join('\n') || null;
     payload.package_image_url = d.photo?.uploadedUrl || null;
   } else if (svc === 'hire') {
     payload.hire_vehicle_id = d.hireVehicleId;

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useLoadScript, GoogleMap, Marker, DirectionsRenderer } from '@react-google-maps/api';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import type { Map as LeafletMap } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import {
   AlertCircle,
   CalendarClock,
@@ -19,7 +20,6 @@ import { splitAddress } from '@/lib/address';
 import { BUCKET_DOT, BUCKET_TEXT, statusBucket, statusLabelKey } from '@/lib/deliveryStatus';
 import { useT } from '@/lib/i18n';
 import { cardClass, sectionLabel } from '@/lib/ui';
-import { MAPS_API_KEY, MAPS_LIBRARIES } from '@/lib/maps';
 
 interface Delivery {
   id: string;
@@ -46,7 +46,7 @@ interface Delivery {
   } | null;
 }
 
-const mapContainerStyle = { width: '100%', height: '100%' };
+const geoapifyKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || '';
 const defaultCenter = { lat: -6.7924, lng: 39.2083 };
 
 /**
@@ -57,18 +57,19 @@ const defaultCenter = { lat: -6.7924, lng: 39.2083 };
  * responsive code that still cost a nested grid. Status now comes from the
  * shared helper rather than a sixth private colour map.
  */
-export default function DeliveryDetails({ delivery }: { delivery: Delivery }) {
+export default function DeliveryDetails({
+  delivery,
+  showServiceBadge = true,
+}: {
+  delivery: Delivery;
+  /** The service pill beside the status. Staff need it to tell requests
+   *  apart; the customer's own booking page leaves it off. */
+  showServiceBadge?: boolean;
+}) {
   const t = useT();
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: MAPS_API_KEY,
-    libraries: MAPS_LIBRARIES,
-  });
-
-  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
-
   const pickupLocation = useMemo(
     () =>
-      delivery.pickup_latitude && delivery.pickup_longitude
+      delivery.pickup_latitude != null && delivery.pickup_longitude != null
         ? { lat: Number(delivery.pickup_latitude), lng: Number(delivery.pickup_longitude) }
         : null,
     [delivery.pickup_latitude, delivery.pickup_longitude]
@@ -76,27 +77,11 @@ export default function DeliveryDetails({ delivery }: { delivery: Delivery }) {
 
   const dropoffLocation = useMemo(
     () =>
-      delivery.dropoff_latitude && delivery.dropoff_longitude
+      delivery.dropoff_latitude != null && delivery.dropoff_longitude != null
         ? { lat: Number(delivery.dropoff_latitude), lng: Number(delivery.dropoff_longitude) }
         : null,
     [delivery.dropoff_latitude, delivery.dropoff_longitude]
   );
-
-  const mapCenter = useMemo(() => pickupLocation || defaultCenter, [pickupLocation]);
-
-  useEffect(() => {
-    if (!isLoaded || !pickupLocation || !dropoffLocation) return;
-    new google.maps.DirectionsService().route(
-      {
-        origin: pickupLocation,
-        destination: dropoffLocation,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK) setDirections(result);
-      }
-    );
-  }, [isLoaded, pickupLocation, dropoffLocation]);
 
   const tone = statusBucket(delivery.status);
   const created = new Date(delivery.created_at).toLocaleString([], {
@@ -112,7 +97,7 @@ export default function DeliveryDetails({ delivery }: { delivery: Delivery }) {
       {/* Where it stands */}
       <section className={`${cardClass} p-4 sm:p-5`}>
         <div className="flex flex-wrap items-center gap-2">
-          <ServiceBadge serviceType={delivery.service_type} />
+          {showServiceBadge && <ServiceBadge serviceType={delivery.service_type} />}
           <span
             className={`inline-flex items-center gap-1.5 text-[13px] font-semibold ${BUCKET_TEXT[tone]}`}
           >
@@ -133,33 +118,7 @@ export default function DeliveryDetails({ delivery }: { delivery: Delivery }) {
       <section>
         <h2 className={sectionLabel}>{t('components.deliveryDetails.routeMap')}</h2>
         <div className={`${cardClass} overflow-hidden`}>
-          {loadError ? (
-            <div className="flex items-start gap-2.5 bg-amber-50 p-4 text-[13px] text-amber-800">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{t('components.deliveryDetails.mapLoadError')}</span>
-            </div>
-          ) : !isLoaded ? (
-            <div className="flex h-[220px] items-center justify-center bg-gray-50">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <div className="h-[220px] sm:h-[280px]">
-              <GoogleMap
-                mapContainerStyle={mapContainerStyle}
-                zoom={12}
-                center={mapCenter}
-                options={{
-                  disableDefaultUI: true,
-                  zoomControl: true,
-                  gestureHandling: 'cooperative',
-                }}
-              >
-                {pickupLocation && <Marker position={pickupLocation} label="A" />}
-                {dropoffLocation && <Marker position={dropoffLocation} label="B" />}
-                {directions && <DirectionsRenderer directions={directions} />}
-              </GoogleMap>
-            </div>
-          )}
+          <GeoapifyRouteMap pickup={pickupLocation} dropoff={dropoffLocation} />
 
           <Stop
             which="pickup"
@@ -261,6 +220,68 @@ export default function DeliveryDetails({ delivery }: { delivery: Delivery }) {
 }
 
 /** One end of the journey: marker, address, and who is there. */
+type RoutePoint = { lat: number; lng: number };
+
+function GeoapifyRouteMap({ pickup, dropoff }: { pickup: RoutePoint | null; dropoff: RoutePoint | null }) {
+  const t = useT();
+  const container = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (!geoapifyKey || !container.current) { setLoading(false); setFailed(true); return; }
+    let cancelled = false;
+    let map: LeafletMap | undefined;
+    const controller = new AbortController();
+    setLoading(true); setFailed(false);
+
+    async function loadMap() {
+      try {
+        const L = await import('leaflet');
+        if (cancelled || !container.current) return;
+        const currentMap = L.map(container.current, { scrollWheelZoom: false }).setView(pickup || dropoff || defaultCenter, 13);
+        map = currentMap;
+        L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${encodeURIComponent(geoapifyKey)}`, {
+          maxZoom: 20,
+          attribution: 'Powered by <a href="https://www.geoapify.com/">Geoapify</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).on('tileerror', () => { if (!cancelled) setFailed(true); }).addTo(currentMap);
+        const stops = [pickup, dropoff].filter((point): point is RoutePoint => point !== null);
+        stops.forEach((point) => {
+          L.circleMarker(point, { radius: 9, color: '#ffffff', weight: 3, fillColor: '#0b5a54', fillOpacity: 1 })
+            .bindTooltip(point === pickup ? 'A' : 'B', { permanent: true, direction: 'top' }).addTo(currentMap);
+        });
+        if (stops.length === 2) currentMap.fitBounds(L.latLngBounds(stops), { padding: [30, 30], maxZoom: 16 });
+        if (pickup && dropoff) {
+          const params = new URLSearchParams({ waypoints: `${pickup.lat},${pickup.lng}|${dropoff.lat},${dropoff.lng}`, mode: 'drive', apiKey: geoapifyKey });
+          const response = await fetch(`https://api.geoapify.com/v1/routing?${params}`, { signal: controller.signal });
+          if (!response.ok) throw new Error('Route request failed');
+          const route = await response.json();
+          if (cancelled) return;
+          if (!route.features?.length) throw new Error('Route unavailable');
+          const line = L.geoJSON(route, { style: { color: '#0b5a54', weight: 5 } }).addTo(currentMap);
+          currentMap.fitBounds(line.getBounds().extend(L.latLngBounds(stops)), { padding: [30, 30], maxZoom: 16 });
+        }
+      } catch {
+        if (!cancelled) setFailed(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    loadMap();
+    return () => { cancelled = true; controller.abort(); map?.remove(); };
+  }, [pickup, dropoff]);
+
+  return (
+    <>
+      {failed && <div className="flex items-start gap-2.5 bg-amber-50 p-4 text-[13px] text-amber-800"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /><span>{t('components.deliveryDetails.mapLoadError')}</span></div>}
+      <div className="relative z-0 h-[220px] sm:h-[280px]">
+        <div ref={container} className="absolute inset-0" />
+        {loading && <div className="pointer-events-none absolute inset-0 z-[500] flex items-center justify-center bg-white/60"><Loader2 aria-label={t('common.loading')} className="h-8 w-8 animate-spin text-primary" /></div>}
+      </div>
+    </>
+  );
+}
+
 function Stop({
   which,
   label,

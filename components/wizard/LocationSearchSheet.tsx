@@ -40,6 +40,7 @@ export default function LocationSearchSheet({
   onOpenMap,
   title,
   showMyLocation = true,
+  worldwide = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -49,6 +50,7 @@ export default function LocationSearchSheet({
   title: string;
   /** Only the pickup field offers "use my location". */
   showMyLocation?: boolean;
+  worldwide?: boolean;
 }) {
   const t = useT();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -62,10 +64,11 @@ export default function LocationSearchSheet({
     ready,
     value,
     setValue,
-    suggestions: { status, data },
+    suggestions: { status, data, loading: searchingPlaces },
     clearSuggestions,
   } = usePlacesAutocomplete({
-    requestOptions: { componentRestrictions: { country: 'tz' } },
+    requestOptions: worldwide ? {} : { componentRestrictions: { country: 'tz' } },
+    cache: worldwide ? false : 86400,
     debounce: 300,
   });
 
@@ -89,10 +92,10 @@ export default function LocationSearchSheet({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  async function pickSuggestion(description: string) {
+  async function pickSuggestion(description: string, placeId: string) {
     onPick(description, null, null);
     try {
-      const results = await getGeocode({ address: description });
+      const results = await getGeocode({ placeId });
       const { lat, lng } = getLatLng(results[0]);
       onPick(description, lat, lng);
     } catch {
@@ -198,14 +201,18 @@ export default function LocationSearchSheet({
             </button>
           ))
         ) : searching ? (
-          status === 'OK' && data.length > 0 ? (
+          searchingPlaces ? (
+            <div className="flex justify-center py-10" role="status">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" aria-label={t('common.loading')} />
+            </div>
+          ) : status === 'OK' && data.length > 0 ? (
             data.map(({ place_id, description }) => {
               const { title: name, detail } = splitAddress(description);
               return (
                 <button
                   key={place_id}
                   type="button"
-                  onClick={() => pickSuggestion(description)}
+                  onClick={() => pickSuggestion(description, place_id)}
                   className={`${rowClass} w-full rounded-xl text-left`}
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-500">

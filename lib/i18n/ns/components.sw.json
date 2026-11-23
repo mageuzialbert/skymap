@@ -232,6 +232,7 @@
       "capacity": "{{value}} {{unit}}"
     },
     "rideWizard": {
+      "geoapify": {"missingKey": "Utafutaji wa maeneo bado haujawekwa. Tafadhali wasiliana na usaidizi.", "error": "Imeshindikana kupakia maeneo au ramani. Tafadhali jaribu tena."},
       "choosePeopleOrLoad": "Kwanza chagua unachobeba, kisha chagua gari",
       "carryPeople": "Kubeba Abiria",
       "carryLoads": "Kubeba Mizigo",
@@ -295,7 +296,7 @@
           "whereTitle": "Kifurushi kinakwenda wapi?",
           "whereSubtitle": "Mahali pa kuchukua, kufikisha na anayepokea.",
           "detailsTitle": "Tunatuma nini?",
-          "detailsSubtitle": "Chagua chombo na ueleze kifurushi."
+          "detailsSubtitle": "Eleza kifurushi."
         },
         "ride": {
           "whereTitle": "Unakwenda wapi?",

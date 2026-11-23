@@ -232,6 +232,7 @@
       "capacity": "{{value}} {{unit}}"
     },
     "rideWizard": {
+      "geoapify": {"missingKey": "Location search is not configured yet. Please contact support.", "error": "Unable to load locations or the map. Please try again."},
       "choosePeopleOrLoad": "First pick what you're carrying, then a vehicle",
       "carryPeople": "Carrying People",
       "carryLoads": "Carrying Loads",
@@ -295,7 +296,7 @@
           "whereTitle": "Where is the parcel going?",
           "whereSubtitle": "Pick-up, drop-off and who is receiving it.",
           "detailsTitle": "What are we sending?",
-          "detailsSubtitle": "Choose a vehicle and describe the parcel."
+          "detailsSubtitle": "Describe the parcel."
         },
         "ride": {
           "whereTitle": "Where are you going?",

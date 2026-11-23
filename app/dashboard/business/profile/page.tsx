@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useLoadScript } from '@react-google-maps/api';
 import { supabase } from '@/lib/supabase';
 import { resetPassword } from '@/lib/auth';
 import { Save, Loader2, Upload, X, Lock } from 'lucide-react';
@@ -9,7 +8,6 @@ import { useT } from '@/lib/i18n';
 import Alert from '@/components/common/Alert';
 import { cardClass, inputClass, inputReadOnly, pageTitle, pillPrimary, sectionTitle } from '@/lib/ui';
 import LocationPicker from '@/components/common/LocationPicker';
-import { MAPS_API_KEY, MAPS_LIBRARIES } from '@/lib/maps';
 
 interface BusinessProfile {
   name: string;
@@ -64,10 +62,6 @@ export default function BusinessProfilePage() {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
 
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: MAPS_API_KEY,
-    libraries: MAPS_LIBRARIES,
-  });
 
   useEffect(() => {
     loadProfile();
@@ -542,16 +536,9 @@ export default function BusinessProfilePage() {
         <div>
           <h2 className={`${sectionTitle} mb-4`}>{t('business.profile.addressInfo')}</h2>
 
-          {loadError && (
-            <Alert tone="warning" className="mb-4">
-              {t('business.profile.mapsLoadError')}
-            </Alert>
-          )}
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              {isLoaded ? (
-                <LocationPicker
+              <LocationPicker
                   label={t('business.profile.businessAddress')}
                   value={profile.address || ''}
                   onChange={(address, lat, lng) => setProfile({ 
@@ -562,25 +549,6 @@ export default function BusinessProfilePage() {
                   })}
                   defaultLocation={profile.latitude && profile.longitude ? { lat: profile.latitude, lng: profile.longitude } : undefined}
                 />
-              ) : loadError ? (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('business.profile.businessAddress')}
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.address || ''}
-                    onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                    className={inputClass}
-                    placeholder={t('business.profile.streetAddress')}
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center p-4">
-                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                  <span className="ml-2 text-gray-500 text-sm">{t('business.profile.loadingMaps')}</span>
-                </div>
-              )}
             </div>
 
             <div>

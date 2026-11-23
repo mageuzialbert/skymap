@@ -1,0 +1,209 @@
+{
+  "nav": {
+    "driverRequests": "My Driver Requests",
+    "driverHireRequests": "Driver Requests"
+  },
+  "driverHire": {
+    "steps": {
+      "category": {
+        "title": "Find a Professional Driver",
+        "subtitle": "Need someone to drive your vehicle? Tell us about your vehicle and trip, and our team will help you find a suitable professional driver."
+      },
+      "transmission": {
+        "title": "Select Transmission Type",
+        "subtitle": "Which gearbox does your vehicle have?"
+      },
+      "when": {
+        "title": "When Do You Need a Driver?",
+        "subtitle": "Choose your travel date and departure time."
+      },
+      "trip": {
+        "title": "Tell Us More About Your Trip",
+        "subtitle": "Where the driver should meet you and where you are going."
+      },
+      "review": {
+        "title": "Review Your Request",
+        "subtitle": "Check the details before you submit."
+      }
+    },
+    "categories": {
+      "light": {
+        "title": "Light Vehicle (Gari Ndogo)",
+        "short": "Light vehicle",
+        "examples": "Sedan, hatchback, SUV, pickup, minivan and other light vehicles"
+      },
+      "heavy": {
+        "title": "Heavy Vehicle (Gari Kubwa)",
+        "short": "Heavy vehicle",
+        "examples": "Heavy trucks, container trucks, semi-trailers, fuel tankers, cargo trucks and other heavy vehicles"
+      }
+    },
+    "vehicleTypeLabel": "Vehicle type (optional)",
+    "vehicleTypes": {
+      "sedan": "Sedan",
+      "hatchback": "Hatchback",
+      "suv": "SUV",
+      "pickup": "Pickup",
+      "minivan": "Minivan",
+      "otherLight": "Other",
+      "heavyTruck": "Heavy truck",
+      "container": "Container truck",
+      "semiTrailer": "Semi-trailer",
+      "tanker": "Fuel tanker",
+      "cargo": "Cargo truck",
+      "otherHeavy": "Other"
+    },
+    "transmissions": {
+      "manual": {
+        "title": "Manual",
+        "subtitle": "Gear stick and clutch"
+      },
+      "automatic": {
+        "title": "Automatic",
+        "subtitle": "No clutch pedal"
+      },
+      "any": {
+        "title": "Not sure / not applicable",
+        "subtitle": "Our team will confirm with you by phone"
+      }
+    },
+    "when": {
+      "departure": "Departure",
+      "return": "Return (optional)",
+      "returnHint": "Leave empty for a one-way trip."
+    },
+    "fields": {
+      "travelDate": "Travel date",
+      "departureTime": "Departure time",
+      "returnDate": "Return date",
+      "returnTime": "Return time",
+      "return": "Return",
+      "pickup": "Pickup location",
+      "destination": "Destination",
+      "passengers": "Passengers",
+      "duration": "Trip duration",
+      "info": "Additional information",
+      "category": "Vehicle category",
+      "vehicleType": "Vehicle type",
+      "transmission": "Transmission",
+      "reference": "Reference number",
+      "submitted": "Submitted",
+      "status": "Status",
+      "customerName": "Customer",
+      "phone": "Phone",
+      "email": "Email"
+    },
+    "trip": {
+      "searchPlaceholder": "Search for a place",
+      "optional": "Optional details",
+      "durationPlaceholder": "e.g. 2 days",
+      "infoPlaceholder": "Special requirements, trip arrangements…",
+      "infoHint": "Please provide any additional information that will help our team understand your driver requirements."
+    },
+    "review": {
+      "note": "Submitting sends a request to our team. It does not confirm a booking: we will call you to discuss driver options and price. No payment is needed now."
+    },
+    "clear": "Clear",
+    "edit": "Edit",
+    "submit": "Submit Driver Request",
+    "continue": "Continue",
+    "errors": {
+      "categoryRequired": "Choose a vehicle category",
+      "transmissionInvalid": "Choose a valid transmission type",
+      "transmissionRequired": "Choose a transmission type",
+      "departureDateRequired": "Choose your travel date",
+      "departureTimeRequired": "Choose your departure time",
+      "departureInPast": "Departure must be in the future",
+      "returnDateRequired": "Choose a return date for the return time",
+      "returnInvalid": "Check the return date and time",
+      "returnBeforeDeparture": "Return must be after departure",
+      "pickupRequired": "Enter the pickup location",
+      "destinationRequired": "Enter the destination",
+      "passengersInvalid": "Enter a valid number of passengers",
+      "submitFailed": "Could not submit your request. Please try again.",
+      "invalid": "Please check the request details.",
+      "INTERNAL": "Something went wrong. Please try again."
+    },
+    "success": {
+      "title": "Request Submitted Successfully!",
+      "message": "Your driver request has been received. Our team will review your request and contact you by phone to discuss the available driver options and service arrangements.",
+      "viewRequests": "View My Requests",
+      "backHome": "Back to Home"
+    },
+    "status": {
+      "SUBMITTED": "Submitted",
+      "UNDER_REVIEW": "Under review",
+      "CONTACTED": "Contacted",
+      "DRIVER_ARRANGEMENT": "Arranging a driver",
+      "CONFIRMED": "Confirmed",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "statusHelp": {
+      "SUBMITTED": "We have received your request and will review it shortly.",
+      "UNDER_REVIEW": "Our team is reviewing your request.",
+      "CONTACTED": "Our team has contacted you about this request.",
+      "DRIVER_ARRANGEMENT": "We are arranging a suitable driver for you.",
+      "CONFIRMED": "The driver arrangement has been agreed.",
+      "COMPLETED": "This service has been completed.",
+      "CANCELLED": "This request was cancelled."
+    },
+    "sections": {
+      "vehicle": "Vehicle",
+      "trip": "Trip",
+      "progress": "Progress",
+      "request": "Request",
+      "customer": "Customer"
+    },
+    "list": {
+      "title": "My Driver Requests",
+      "subtitle": "Requests you have sent for a professional driver.",
+      "loadFailed": "Could not load your requests.",
+      "emptyTitle": "No driver requests yet",
+      "emptyBody": "Need someone to drive your vehicle? Send a request from the home screen.",
+      "newRequest": "Go to Home",
+      "from": "From"
+    },
+    "detail": {
+      "notFound": "Request not found.",
+      "cancelFailed": "Could not cancel this request. Please call us.",
+      "cancel": "Cancel request",
+      "cancelTitle": "Cancel this request?",
+      "cancelMessage": "Our team will stop arranging a driver for this trip.",
+      "cancelConfirm": "Yes, cancel",
+      "cancelKeep": "Keep it"
+    },
+    "admin": {
+      "title": "Driver Requests",
+      "subtitle": "Customers asking for a professional driver for their own vehicle. Review, call the customer and update the status.",
+      "loadFailed": "Could not load requests.",
+      "saveFailed": "Could not save.",
+      "statusSaved": "Status updated.",
+      "notesSaved": "Notes saved.",
+      "all": "All",
+      "searchPlaceholder": "Reference, customer name or phone",
+      "any": "Any",
+      "newestFirst": "Newest first",
+      "oldestFirst": "Oldest first",
+      "count": "{{n}} requests",
+      "clearFilters": "Clear",
+      "emptyFiltered": "No requests match these filters",
+      "emptyTitle": "No driver requests yet",
+      "emptyBody": "New requests from customers will appear here.",
+      "unknownCustomer": "Unknown customer",
+      "updateStatus": "Update status",
+      "statusLocked": "This request is finished; its status can no longer change.",
+      "newStatus": "New status",
+      "chooseStatus": "Choose…",
+      "statusNote": "Note for the history (optional)",
+      "saveStatus": "Save status",
+      "internalNotes": "Internal notes",
+      "notesPlaceholder": "Only the admin team sees these notes.",
+      "saveNotes": "Save notes",
+      "history": "Status history",
+      "byCustomer": "Customer",
+      "byAdmin": "Admin"
+    },
+    "vehicleTypeChoose": "Choose vehicle type"
+  }
+}

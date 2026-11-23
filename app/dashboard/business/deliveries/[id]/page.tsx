@@ -111,7 +111,7 @@ export default function BusinessDeliveryDetailsPage({ params }: { params: { id: 
 
       {hireInfo?.hireVehicle && <HireVehicleCard info={hireInfo} />}
 
-      <DeliveryDetails delivery={delivery} />
+      <DeliveryDetails delivery={delivery} showServiceBadge={false} />
     </div>
   );
 }

@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  History,
   ChevronRight,
   ArrowRight,
   MapPinned,
@@ -21,8 +20,8 @@ import {
 import ServiceIcon, { SERVICE_ICONS } from '@/components/common/ServiceIcon';
 import type { ServiceTypeKey } from '@/lib/serviceTypes';
 import { ACTIVE_STATUSES, statusLabelKey } from '@/lib/deliveryStatus';
-import { splitAddress } from '@/lib/address';
 import { supabase } from '@/lib/supabase';
+import { normalizeTzPhone } from '@/lib/phone';
 import { useT } from '@/lib/i18n';
 
 export interface RecentDestination {
@@ -33,6 +32,7 @@ export interface RecentDestination {
 
 interface ActiveDelivery {
   id: string;
+  simulated?: boolean;
   status: string;
   service_type: string | null;
   dropoff_name: string | null;
@@ -53,7 +53,7 @@ const POPULAR_LOCATIONS: { id: string; icon: any; address: string }[] = [
 ];
 
 /**
- * The six photo tiles on the home screen. The app has four request flows, so
+ * The seven photo tiles on the home screen. The app has four request flows, so
  * two tiles share one: "Running Errands" opens the errand flow and "Heavy
  * Freights" opens vehicle hire. Labels live under business.home.tiles.<id>.
  */
@@ -61,11 +61,12 @@ const POPULAR_LOCATIONS: { id: string; icon: any; address: string }[] = [
 // is set - a white glyph image in its place (for icons Lucide does not have).
 const HOME_TILES: { id: string; service: ServiceTypeKey; icon?: any; iconImage?: string }[] = [
   { id: 'delivery', service: 'delivery', icon: SERVICE_ICONS.Package },
-  { id: 'hire', service: 'hire', icon: Car },
-  { id: 'ride', service: 'ride', iconImage: '/icons/services/driver-white.png' },
   { id: 'errands', service: 'errand', icon: FileText },
-  { id: 'rider', service: 'errand', icon: Fuel },
+  { id: 'ride', service: 'ride', iconImage: '/icons/services/driver-white.png' },
+  { id: 'hire', service: 'hire', icon: Car },
+  { id: 'requestRide', service: 'ride', icon: Car },
   { id: 'freight', service: 'hire', icon: Truck },
+  { id: 'rider', service: 'errand', icon: Fuel },
 ];
 
 /**
@@ -76,9 +77,15 @@ const HOME_TILES: { id: string; service: ServiceTypeKey; icon?: any; iconImage?:
  */
 export default function ServiceHome({
   onChooseService,
+  onOpenErrands,
+  onOpenDriverHire,
   onPickRecent,
 }: {
   onChooseService: (key: ServiceTypeKey) => void;
+  /** Opens the list of errand kinds; used by the Running Errands tile. */
+  onOpenErrands?: () => void;
+  /** Starts a driver request; used by the Find a Driver tile. */
+  onOpenDriverHire?: () => void;
   /** The "Where to?" / "Later" bar was removed from this screen; the props
    *  stay optional so the wizard that passes them needs no change. */
   onWhereTo?: () => void;
@@ -86,10 +93,20 @@ export default function ServiceHome({
   onPickRecent: (d: RecentDestination) => void;
 }) {
   const t = useT();
-  const [recents, setRecents] = useState<RecentDestination[]>([]);
   const [active, setActive] = useState<ActiveDelivery[]>([]);
+  const [showDemo, setShowDemo] = useState(false);
+  const visibleActive: ActiveDelivery[] = showDemo
+    ? [...active, {
+        id: 'demo-in-transit',
+        simulated: true,
+        status: 'IN_TRANSIT',
+        service_type: 'delivery',
+        dropoff_name: 'Demo delivery · Mlimani City',
+        dropoff_address: null,
+      }]
+    : active;
 
-  // Recent drop-offs and anything still on the road come straight from the
+  // Anything still on the road comes straight from the
   // browser client: RLS already limits `deliveries` to the signed-in user's
   // own business, so no API route is needed.
   useEffect(() => {
@@ -101,6 +118,14 @@ export default function ServiceHome({
         } = await supabase.auth.getUser();
         if (!user || !alive) return;
 
+        const { data: profile } = await supabase
+          .from('users')
+          .select('phone')
+          .eq('id', user.id)
+          .single();
+        if (!alive) return;
+        setShowDemo(normalizeTzPhone(profile?.phone || '') === '+255617350700');
+
         const { data: business } = await supabase
           .from('businesses')
           .select('id')
@@ -108,43 +133,19 @@ export default function ServiceHome({
           .single();
         if (!business || !alive) return;
 
-        const [{ data: history }, { data: onTheRoad }] = await Promise.all([
-          supabase
-            .from('deliveries')
-            .select('dropoff_address, dropoff_latitude, dropoff_longitude, created_at')
-            .eq('business_id', business.id)
-            .not('dropoff_address', 'is', null)
-            .order('created_at', { ascending: false })
-            .limit(20),
-          supabase
-            .from('deliveries')
-            .select('id, status, service_type, dropoff_name, dropoff_address')
-            .eq('business_id', business.id)
-            .in('status', ACTIVE_STATUSES)
-            .order('created_at', { ascending: false })
-            .limit(2),
-        ]);
+        const { data: onTheRoad } = await supabase
+          .from('deliveries')
+          .select('id, status, service_type, dropoff_name, dropoff_address')
+          .eq('business_id', business.id)
+          .in('status', ACTIVE_STATUSES)
+          .order('created_at', { ascending: false })
+          .limit(2);
         if (!alive) return;
 
         setActive(onTheRoad || []);
 
-        // Most recent wins; the same place is often used many times over.
-        const seen = new Set<string>();
-        const unique: RecentDestination[] = [];
-        for (const row of history || []) {
-          const address = (row.dropoff_address || '').trim();
-          if (!address || seen.has(address.toLowerCase())) continue;
-          seen.add(address.toLowerCase());
-          unique.push({
-            address,
-            latitude: row.dropoff_latitude != null ? Number(row.dropoff_latitude) : null,
-            longitude: row.dropoff_longitude != null ? Number(row.dropoff_longitude) : null,
-          });
-          if (unique.length === 3) break;
-        }
-        setRecents(unique);
       } catch {
-        // A missing history is not an error worth showing - the section just hides.
+        // A failed lookup is not an error worth showing - the section just hides.
       }
     })();
     return () => {
@@ -186,59 +187,24 @@ export default function ServiceHome({
         </div>
       </section>
 
-      {/* Anything already on the road. The pulsing dot is the only motion on
-          this screen, and it is here because the state is genuinely live. */}
-      {active.length > 0 && (
-        <section className="mt-4">
-          <h2 className="mb-2 ml-1 text-[17px] font-semibold text-primary">
-            {t('business.home.activeNow')}
-          </h2>
-          <ul className="overflow-hidden rounded-[28px] bg-primary text-white shadow-lg shadow-primary/20">
-            {active.map((d, i) => (
-              <li key={d.id}>
-                <Link
-                  href={`/dashboard/business/deliveries/${d.id}`}
-                  className="flex min-h-[5rem] items-center gap-4 px-5 py-3 transition-colors active:bg-primary-dark"
-                >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10">
-                    <ServiceIcon serviceType={d.service_type} className="h-6 w-6" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[17px] font-semibold">
-                      {d.dropoff_name || d.dropoff_address || t('business.home.whereTo')}
-                    </span>
-                    <span className="mt-0.5 flex items-center gap-2 text-[15px] text-white/85">
-                      <span className="relative flex h-2.5 w-2.5 shrink-0">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300/70 motion-reduce:hidden" />
-                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-300 ring-2 ring-white/80" />
-                      </span>
-                      {t(statusLabelKey(d.status))}
-                    </span>
-                  </span>
-                  <span className="inline-flex shrink-0 items-center gap-1.5 text-[16px] font-medium">
-                    {t('business.home.track')}
-                    <ChevronRight className="h-5 w-5" />
-                  </span>
-                </Link>
-                {i < active.length - 1 && <span className="ml-[5.25rem] block h-px bg-white/15" />}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       {/* Services: photo cards, two per row, each with a floating label. */}
       <div className="mt-3 grid grid-cols-2 gap-2">
         {HOME_TILES.map(({ id, service, icon: Icon, iconImage }) => (
           <button
             key={id}
             type="button"
-            onClick={() => onChooseService(service)}
-            className="group overflow-hidden rounded-2xl bg-white text-left shadow-md shadow-slate-900/10 ring-1 ring-slate-900/5 transition active:scale-[0.98]"
+            onClick={() =>
+              id === 'errands' && onOpenErrands
+                ? onOpenErrands()
+                : id === 'ride' && onOpenDriverHire
+                  ? onOpenDriverHire()
+                  : onChooseService(service)
+            }
+            className={`group overflow-hidden rounded-2xl bg-white text-left shadow-md shadow-slate-900/10 ring-1 ring-slate-900/5 transition active:scale-[0.98] ${id === 'delivery' ? 'col-span-2 w-[calc((100%_-_0.5rem)/2)] justify-self-center' : ''}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`/services/home/${id}.webp`}
+              src={id === 'requestRide' ? '/services/home/request-ride.webp' : id === 'hire' ? '/services/home/hire.webp?v=comfort-2' : id === 'ride' ? '/services/home/ride.webp?v=chauffeur' : `/services/home/${id}.webp`}
               alt=""
               loading="lazy"
               // Height follows the screen: the three rows share whatever is
@@ -270,46 +236,6 @@ export default function ServiceHome({
           </button>
         ))}
       </div>
-
-      {/* Somewhere sent to before. Hidden entirely on a new account. */}
-      {recents.length > 0 && (
-        <section className="mt-4">
-          <h2 className="mb-1 ml-1 text-[15px] font-medium text-gray-500">
-            {t('business.home.recent')}
-          </h2>
-          <ul>
-            {recents.map((d) => {
-              const { title, detail } = splitAddress(d.address);
-              return (
-                <li key={d.address}>
-                  <button
-                    type="button"
-                    onClick={() => onPickRecent(d)}
-                    className="flex min-h-[4rem] w-full items-center gap-4 rounded-2xl px-1 text-left transition-colors hover:bg-gray-50 active:bg-gray-100"
-                  >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-100 text-slate-700">
-                      <History className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      {/* Place names run long ("Julius Nyerere International
-                          Convention Centre"), so wrap to two lines rather than
-                          cutting the name off mid-word. */}
-                      <span className="block line-clamp-2 text-[16px] font-semibold leading-tight text-slate-900">
-                        {title}
-                      </span>
-                      {detail && (
-                        <span className="mt-0.5 block truncate text-[14px] text-gray-500">
-                          {detail}
-                        </span>
-                      )}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
 
       {/* Track Your Order: one tap to the activity list, where every order
           and its live status is. */}

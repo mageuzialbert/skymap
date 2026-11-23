@@ -23,6 +23,7 @@ export default function LocationField({
   address,
   onOpen,
   error,
+  disabled = false,
 }: {
   which: 'pickup' | 'dropoff';
   label: string;
@@ -30,6 +31,7 @@ export default function LocationField({
   address: string;
   onOpen: () => void;
   error?: string | null;
+  disabled?: boolean;
 }) {
   const errorId = useId();
   const { title, detail } = splitAddress(address || '');
@@ -41,8 +43,9 @@ export default function LocationField({
       <button
         type="button"
         onClick={onOpen}
+        disabled={disabled}
         aria-describedby={error ? errorId : undefined}
-        className={`flex min-h-[3.5rem] w-full items-center gap-3 rounded-xl border bg-white px-3 py-2.5 text-left transition-colors active:bg-gray-50 ${
+        className={`flex min-h-[3.5rem] w-full items-center gap-3 rounded-xl border bg-white px-3 py-2.5 text-left transition-colors active:bg-gray-50 disabled:opacity-60 ${
           error ? 'border-red-300' : 'border-gray-300'
         }`}
       >

@@ -14,17 +14,19 @@ import { cardClass, sectionLabel } from '@/lib/ui';
 export default function FieldGroup({
   label,
   padded = true,
+  compact = false,
   children,
 }: {
   label?: string;
   padded?: boolean;
+  compact?: boolean;
   children: ReactNode;
 }) {
   return (
     <section>
       {label && <h2 className={sectionLabel}>{label}</h2>}
-      <div className={`${cardClass} overflow-hidden ${padded ? 'p-4 sm:p-5' : ''}`}>
-        {padded ? <div className="space-y-4">{children}</div> : children}
+      <div className={`${cardClass} overflow-hidden ${padded ? (compact ? 'p-3' : 'p-4 sm:p-5') : ''}`}>
+        {padded ? <div className={compact ? "space-y-2" : "space-y-4"}>{children}</div> : children}
       </div>
     </section>
   );

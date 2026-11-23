@@ -20,6 +20,8 @@ import staffEn from './ns/staff.en.json';
 import staffSw from './ns/staff.sw.json';
 import componentsEn from './ns/components.en.json';
 import componentsSw from './ns/components.sw.json';
+import driverHireEn from './ns/driverHire.en.json';
+import driverHireSw from './ns/driverHire.sw.json';
 
 export type Locale = 'en' | 'sw';
 
@@ -48,8 +50,8 @@ function deepMerge(...sources: any[]): any {
 }
 
 const DICTIONARIES: Record<Locale, any> = {
-  en: deepMerge(en, shellEn, authEn, adminEn, businessEn, riderEn, staffEn, componentsEn),
-  sw: deepMerge(sw, shellSw, authSw, adminSw, businessSw, riderSw, staffSw, componentsSw),
+  en: deepMerge(en, shellEn, authEn, adminEn, businessEn, riderEn, staffEn, componentsEn, driverHireEn),
+  sw: deepMerge(sw, shellSw, authSw, adminSw, businessSw, riderSw, staffSw, componentsSw, driverHireSw),
 };
 const STORAGE_KEY = 'skymap_locale';
 

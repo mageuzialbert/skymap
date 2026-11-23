@@ -1,0 +1,209 @@
+{
+  "nav": {
+    "driverRequests": "Maombi Yangu ya Dereva",
+    "driverHireRequests": "Maombi ya Dereva"
+  },
+  "driverHire": {
+    "steps": {
+      "category": {
+        "title": "Tafuta Dereva Mtaalamu",
+        "subtitle": "Unahitaji mtu wa kuendesha gari lako? Tueleze kuhusu gari na safari yako, na timu yetu itakusaidia kupata dereva anayefaa."
+      },
+      "transmission": {
+        "title": "Chagua Aina ya Gia",
+        "subtitle": "Gari lako lina gia ya aina gani?"
+      },
+      "when": {
+        "title": "Unahitaji Dereva Lini?",
+        "subtitle": "Chagua tarehe ya safari na muda wa kuondoka."
+      },
+      "trip": {
+        "title": "Tueleze Zaidi Kuhusu Safari Yako",
+        "subtitle": "Mahali dereva atakapokukuta na unakoelekea."
+      },
+      "review": {
+        "title": "Kagua Ombi Lako",
+        "subtitle": "Hakiki taarifa kabla ya kutuma."
+      }
+    },
+    "categories": {
+      "light": {
+        "title": "Gari Ndogo",
+        "short": "Gari ndogo",
+        "examples": "Sedan, hatchback, SUV, pickup, minivan na magari mengine madogo"
+      },
+      "heavy": {
+        "title": "Gari Kubwa",
+        "short": "Gari kubwa",
+        "examples": "Malori makubwa, malori ya kontena, semi-trela, magari ya mafuta, malori ya mizigo na magari mengine makubwa"
+      }
+    },
+    "vehicleTypeLabel": "Aina ya gari (si lazima)",
+    "vehicleTypes": {
+      "sedan": "Sedan",
+      "hatchback": "Hatchback",
+      "suv": "SUV",
+      "pickup": "Pickup",
+      "minivan": "Minivan",
+      "otherLight": "Nyingine",
+      "heavyTruck": "Lori kubwa",
+      "container": "Lori la kontena",
+      "semiTrailer": "Semi-trela",
+      "tanker": "Gari la mafuta",
+      "cargo": "Lori la mizigo",
+      "otherHeavy": "Nyingine"
+    },
+    "transmissions": {
+      "manual": {
+        "title": "Manual",
+        "subtitle": "Gia ya mkono na klachi"
+      },
+      "automatic": {
+        "title": "Automatic",
+        "subtitle": "Haina klachi"
+      },
+      "any": {
+        "title": "Sina uhakika / haihusiki",
+        "subtitle": "Timu yetu itathibitisha nawe kwa simu"
+      }
+    },
+    "when": {
+      "departure": "Kuondoka",
+      "return": "Kurudi (si lazima)",
+      "returnHint": "Acha wazi kama ni safari ya kwenda tu."
+    },
+    "fields": {
+      "travelDate": "Tarehe ya safari",
+      "departureTime": "Muda wa kuondoka",
+      "returnDate": "Tarehe ya kurudi",
+      "returnTime": "Muda wa kurudi",
+      "return": "Kurudi",
+      "pickup": "Mahali pa kuanzia",
+      "destination": "Unakoenda",
+      "passengers": "Abiria",
+      "duration": "Muda wa safari",
+      "info": "Maelezo ya ziada",
+      "category": "Kundi la gari",
+      "vehicleType": "Aina ya gari",
+      "transmission": "Gia",
+      "reference": "Namba ya kumbukumbu",
+      "submitted": "Limetumwa",
+      "status": "Hali",
+      "customerName": "Mteja",
+      "phone": "Simu",
+      "email": "Barua pepe"
+    },
+    "trip": {
+      "searchPlaceholder": "Tafuta mahali",
+      "optional": "Taarifa za hiari",
+      "durationPlaceholder": "mf. siku 2",
+      "infoPlaceholder": "Mahitaji maalum, mpangilio wa safari…",
+      "infoHint": "Tafadhali toa maelezo yoyote ya ziada yatakayoisaidia timu yetu kuelewa mahitaji yako ya dereva."
+    },
+    "review": {
+      "note": "Kutuma kunapeleka ombi kwa timu yetu. Hakuthibitishi huduma: tutakupigia simu kujadili madereva waliopo na bei. Hakuna malipo yanayohitajika sasa."
+    },
+    "clear": "Futa",
+    "edit": "Badili",
+    "submit": "Tuma Ombi la Dereva",
+    "continue": "Endelea",
+    "errors": {
+      "categoryRequired": "Chagua kundi la gari",
+      "transmissionInvalid": "Chagua aina sahihi ya gia",
+      "transmissionRequired": "Chagua aina ya gia",
+      "departureDateRequired": "Chagua tarehe ya safari",
+      "departureTimeRequired": "Chagua muda wa kuondoka",
+      "departureInPast": "Muda wa kuondoka lazima uwe wa baadaye",
+      "returnDateRequired": "Chagua tarehe ya kurudi",
+      "returnInvalid": "Hakiki tarehe na muda wa kurudi",
+      "returnBeforeDeparture": "Kurudi lazima kuwe baada ya kuondoka",
+      "pickupRequired": "Weka mahali pa kuanzia",
+      "destinationRequired": "Weka unakoenda",
+      "passengersInvalid": "Weka idadi sahihi ya abiria",
+      "submitFailed": "Imeshindikana kutuma ombi. Tafadhali jaribu tena.",
+      "invalid": "Tafadhali hakiki taarifa za ombi.",
+      "INTERNAL": "Hitilafu imetokea. Tafadhali jaribu tena."
+    },
+    "success": {
+      "title": "Ombi Limetumwa!",
+      "message": "Ombi lako la dereva limepokelewa. Timu yetu italipitia na kukupigia simu kujadili madereva waliopo na mpangilio wa huduma.",
+      "viewRequests": "Tazama Maombi Yangu",
+      "backHome": "Rudi Mwanzo"
+    },
+    "status": {
+      "SUBMITTED": "Limetumwa",
+      "UNDER_REVIEW": "Linapitiwa",
+      "CONTACTED": "Umepigiwa simu",
+      "DRIVER_ARRANGEMENT": "Tunapanga dereva",
+      "CONFIRMED": "Limethibitishwa",
+      "COMPLETED": "Limekamilika",
+      "CANCELLED": "Limeghairiwa"
+    },
+    "statusHelp": {
+      "SUBMITTED": "Tumepokea ombi lako na tutalipitia hivi karibuni.",
+      "UNDER_REVIEW": "Timu yetu inapitia ombi lako.",
+      "CONTACTED": "Timu yetu imewasiliana nawe kuhusu ombi hili.",
+      "DRIVER_ARRANGEMENT": "Tunakupangia dereva anayefaa.",
+      "CONFIRMED": "Mpangilio wa dereva umekubaliwa.",
+      "COMPLETED": "Huduma hii imekamilika.",
+      "CANCELLED": "Ombi hili limeghairiwa."
+    },
+    "sections": {
+      "vehicle": "Gari",
+      "trip": "Safari",
+      "progress": "Maendeleo",
+      "request": "Ombi",
+      "customer": "Mteja"
+    },
+    "list": {
+      "title": "Maombi Yangu ya Dereva",
+      "subtitle": "Maombi uliyotuma ya dereva mtaalamu.",
+      "loadFailed": "Imeshindikana kupakia maombi yako.",
+      "emptyTitle": "Bado hakuna maombi ya dereva",
+      "emptyBody": "Unahitaji mtu wa kuendesha gari lako? Tuma ombi kutoka ukurasa wa mwanzo.",
+      "newRequest": "Nenda Mwanzo",
+      "from": "Kutoka"
+    },
+    "detail": {
+      "notFound": "Ombi halijapatikana.",
+      "cancelFailed": "Imeshindikana kughairi ombi. Tafadhali tupigie simu.",
+      "cancel": "Ghairi ombi",
+      "cancelTitle": "Ghairi ombi hili?",
+      "cancelMessage": "Timu yetu itaacha kupanga dereva kwa safari hii.",
+      "cancelConfirm": "Ndiyo, ghairi",
+      "cancelKeep": "Liache"
+    },
+    "admin": {
+      "title": "Driver Requests",
+      "subtitle": "Customers asking for a professional driver for their own vehicle. Review, call the customer and update the status.",
+      "loadFailed": "Could not load requests.",
+      "saveFailed": "Could not save.",
+      "statusSaved": "Status updated.",
+      "notesSaved": "Notes saved.",
+      "all": "All",
+      "searchPlaceholder": "Reference, customer name or phone",
+      "any": "Any",
+      "newestFirst": "Newest first",
+      "oldestFirst": "Oldest first",
+      "count": "{{n}} requests",
+      "clearFilters": "Clear",
+      "emptyFiltered": "No requests match these filters",
+      "emptyTitle": "No driver requests yet",
+      "emptyBody": "New requests from customers will appear here.",
+      "unknownCustomer": "Unknown customer",
+      "updateStatus": "Update status",
+      "statusLocked": "This request is finished; its status can no longer change.",
+      "newStatus": "New status",
+      "chooseStatus": "Choose…",
+      "statusNote": "Note for the history (optional)",
+      "saveStatus": "Save status",
+      "internalNotes": "Internal notes",
+      "notesPlaceholder": "Only the admin team sees these notes.",
+      "saveNotes": "Save notes",
+      "history": "Status history",
+      "byCustomer": "Customer",
+      "byAdmin": "Admin"
+    },
+    "vehicleTypeChoose": "Chagua aina ya gari"
+  }
+}
