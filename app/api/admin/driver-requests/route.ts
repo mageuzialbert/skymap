@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser, supabaseAdmin } from '@/lib/auth-server';
 import { customersFor } from '@/lib/driverHire-server';
 
+// Reads the session cookie, so it can never be prerendered at build time.
+export const dynamic = 'force-dynamic';
+
 // GET - every driver request, for administrators.
 // Filters: q (reference, customer name or phone), category, transmission,
 // status, date (travel date, YYYY-MM-DD), sort (newest | oldest).

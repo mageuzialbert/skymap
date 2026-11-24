@@ -92,9 +92,9 @@ export default function DriverRequestsPage() {
                   <User className="h-[18px] w-[18px]" />
                 </span>
               }
-              title={r.destination}
+              title={r.destination || t(`driverHire.categories.${r.vehicle_category}.title`)}
               trailing={r.reference_number}
-              subtitle={`${t('driverHire.list.from')} ${r.pickup_location}`}
+              subtitle={r.pickup_location ? `${t('driverHire.list.from')} ${r.pickup_location}` : undefined}
               meta={formatDateAndTime(r.departure_date, r.departure_time)}
               status={{ ...statusTone(r.status), label: t(statusLabelKey(r.status)) }}
             />

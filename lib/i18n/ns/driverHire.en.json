@@ -28,12 +28,12 @@
     },
     "categories": {
       "light": {
-        "title": "Light Vehicle (Gari Ndogo)",
+        "title": "Light Vehicle Driver",
         "short": "Light vehicle",
         "examples": "Sedan, hatchback, SUV, pickup, minivan and other light vehicles"
       },
       "heavy": {
-        "title": "Heavy Vehicle (Gari Kubwa)",
+        "title": "Heavy Vehicle Driver",
         "short": "Heavy vehicle",
         "examples": "Heavy trucks, container trucks, semi-trailers, fuel tankers, cargo trucks and other heavy vehicles"
       }
@@ -205,5 +205,196 @@
       "byAdmin": "Admin"
     },
     "vehicleTypeChoose": "Choose vehicle type"
+  },
+  "vehicleHire": {
+    "title": "Vehicle Hire",
+    "tagline": "Your Journey, Your Choice",
+    "chooseCategory": "Choose a vehicle category",
+    "categories": {
+      "economy": {
+        "title": "Economy & Sedan",
+        "desc": "Small cars for everyday trips, town errands and personal use."
+      },
+      "suv": {
+        "title": "SUV & 4x4",
+        "desc": "For long trips, family, business and rough roads."
+      },
+      "vans": {
+        "title": "Vans & Minivans",
+        "desc": "For families, groups and carrying many people."
+      },
+      "luxury": {
+        "title": "Luxury & Executive",
+        "desc": "For special guests, leaders, meetings and premium occasions."
+      },
+      "pickup": {
+        "title": "Pickup & Utility Vehicles",
+        "desc": "For business, light loads and all kinds of work."
+      }
+    },
+    "formTitle": "Book Your Vehicle",
+    "reviewTitle": "Review Your Booking",
+    "sections": {
+      "rental": "Rental details",
+      "prefs": "Vehicle preferences",
+      "options": "Rental options"
+    },
+    "fields": {
+      "pickupLocation": "Pickup location",
+      "returnLocation": "Return location",
+      "pickupDate": "Pickup date",
+      "pickupTime": "Pickup time",
+      "returnDate": "Return date",
+      "returnTime": "Return time",
+      "category": "Vehicle category",
+      "transmission": "Transmission",
+      "passengers": "Number of passengers",
+      "rentalType": "Rental type",
+      "purpose": "Purpose of rental",
+      "requirements": "Additional requirements (optional)",
+      "pickup": "Pickup",
+      "return": "Return",
+      "vehicle": "Vehicle",
+      "price": "Price",
+      "total": "Estimated total"
+    },
+    "transmissions": {
+      "automatic": "Automatic",
+      "manual": "Manual",
+      "any": "Any"
+    },
+    "rentalTypes": {
+      "self": "Self drive (without driver)",
+      "driver": "With driver"
+    },
+    "purposeChoose": "Select purpose",
+    "purposes": {
+      "personal": "Personal use",
+      "business": "Business",
+      "family": "Family trip",
+      "tourism": "Tourism / safari",
+      "event": "Wedding or event",
+      "airport": "Airport transfer",
+      "other": "Other"
+    },
+    "searchPlaceholder": "Search for a place",
+    "continue": "Continue",
+    "submit": "Submit Booking Request",
+    "edit": "Edit",
+    "errors": {
+      "pickupLocation": "Enter the pickup location",
+      "returnLocation": "Enter the return location",
+      "pickupDate": "Choose the pickup date and time",
+      "pickupPast": "Pickup must be in the future",
+      "returnDate": "Choose the return date and time",
+      "returnBefore": "Return must be after pickup",
+      "passengers": "Enter a valid number of passengers",
+      "submitFailed": "Could not submit your booking. Please try again.",
+      "chooseVehicle": "Choose a vehicle"
+    },
+    "vehiclesTitle": "Available Vehicles",
+    "available": "Available",
+    "perDay": "/ day",
+    "seats": "{{n}} seats",
+    "daysTotal": "Estimated total for {{n}} day(s)",
+    "noVehicles": "No vehicles match your request right now",
+    "noVehiclesBody": "Continue to send your request and our team will find a vehicle for you."
+  },
+  "freight": {
+    "title": "Heavy Freight",
+    "tagline": "Reliable Heavy Transport & Logistics Solutions",
+    "services": "Our Heavy Freight Services",
+    "categories": {
+      "container": {
+        "title": "Container Transport",
+        "desc": "20 ft, 40 ft and other containers."
+      },
+      "fuel": {
+        "title": "Fuel & Liquid Transport",
+        "desc": "Fuel and permitted liquids in special tankers."
+      },
+      "machinery": {
+        "title": "Heavy Machinery",
+        "desc": "Excavators, bulldozers, generators and plant."
+      },
+      "tipper": {
+        "title": "Tipper Trucks",
+        "desc": "Sand, gravel, stones and building materials."
+      },
+      "general": {
+        "title": "General Heavy Cargo",
+        "desc": "Large business, industrial and wholesale goods."
+      },
+      "oversized": {
+        "title": "Oversized & Special Cargo",
+        "desc": "Loads needing special trucks and permits."
+      },
+      "mixer": {
+        "title": "Concrete Mixer",
+        "desc": "Ready-mix concrete delivered to your site."
+      },
+      "coldchain": {
+        "title": "Cold Chain Transport",
+        "desc": "Fish, meat, dairy and other chilled or frozen goods."
+      }
+    },
+    "formTitle": "Heavy Freight Booking",
+    "reviewTitle": "Review Your Request",
+    "sections": {
+      "cargo": "Cargo information",
+      "route": "Transport route",
+      "truck": "Truck requirements",
+      "extra": "Additional information"
+    },
+    "fields": {
+      "category": "Cargo category",
+      "description": "Cargo description",
+      "weight": "Estimated weight (tonnes)",
+      "dimensions": "Cargo dimensions (optional)",
+      "container": "Container size",
+      "pickup": "Pickup location",
+      "delivery": "Delivery location",
+      "date": "Transport date",
+      "time": "Preferred loading time",
+      "truckType": "Preferred truck type",
+      "trucks": "Number of trucks",
+      "photo": "Cargo photo (optional)",
+      "instructions": "Special instructions",
+      "when": "Transport date"
+    },
+    "containers": {
+      "20": "20 FT",
+      "40": "40 FT",
+      "other": "Other"
+    },
+    "truckChoose": "Not sure – advise me",
+    "trucks": {
+      "semi": "Semi Trailer",
+      "container": "Container Truck",
+      "tanker": "Fuel Tanker",
+      "flatbed": "Flatbed Truck",
+      "lowbed": "Lowbed Trailer",
+      "tipper": "Tipper Truck",
+      "mixer": "Concrete Mixer"
+    },
+    "addPhoto": "Add a photo",
+    "uploading": "Uploading…",
+    "removePhoto": "Remove photo",
+    "dimensionsPlaceholder": "e.g. 6m x 2.4m x 2.6m",
+    "searchPlaceholder": "Search for a place",
+    "continue": "Continue",
+    "submit": "Submit Freight Request",
+    "edit": "Edit",
+    "errors": {
+      "description": "Describe the cargo",
+      "weight": "Enter the estimated weight in tonnes",
+      "pickup": "Enter the pickup location",
+      "delivery": "Enter the delivery location",
+      "date": "Choose the transport date",
+      "datePast": "The transport date must not be in the past",
+      "trucks": "Enter the number of trucks",
+      "uploadFailed": "Could not upload the photo",
+      "submitFailed": "Could not submit your request. Please try again."
+    }
   }
 }

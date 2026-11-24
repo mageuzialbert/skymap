@@ -62,7 +62,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Destination is required for a ride', code: 'dropoffRequired' }, { status: 400 });
       }
     } else if (service_type === 'hire') {
-      if (!hire_vehicle_id) {
+      // A rental or heavy freight request names a vehicle category, not
+      // one vehicle from the catalog; the team matches a vehicle afterwards.
+      if (!hire_vehicle_id && !((hire_category === 'rental' || hire_category === 'freight') && service_details)) {
         return NextResponse.json({ error: 'Please choose a vehicle to hire', code: 'hireVehicleRequired' }, { status: 400 });
       }
     } else if (service_type === 'errand') {

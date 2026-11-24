@@ -290,7 +290,7 @@ export default function AdminDriverRequestsPage() {
               onClick={() => open(r.id)}
               title={r.customer.name || r.customer.phone || t('driverHire.admin.unknownCustomer')}
               trailing={r.reference_number}
-              subtitle={`${t(`driverHire.categories.${r.vehicle_category}.short`)} · ${r.pickup_location} → ${r.destination}`}
+              subtitle={[t(`driverHire.categories.${r.vehicle_category}.short`), r.vehicle_type, r.pickup_location && `${r.pickup_location} → ${r.destination}`].filter(Boolean).join(' · ')}
               meta={formatDateAndTime(r.departure_date, r.departure_time)}
               status={{ ...statusTone(r.status), label: t(statusLabelKey(r.status)) }}
             />

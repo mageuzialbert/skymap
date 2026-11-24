@@ -7,6 +7,9 @@ import {
   type VehicleCategory,
 } from '@/lib/driverHire';
 
+// Reads the session cookie, so it can never be prerendered at build time.
+export const dynamic = 'force-dynamic';
+
 // Columns a customer may see. `admin_notes` is internal and never leaves the
 // server on this route.
 const CLIENT_COLUMNS =
@@ -93,10 +96,10 @@ export async function POST(request: NextRequest) {
       departure_time: String(body.departure_time).slice(0, 5),
       return_date: body.return_date || null,
       return_time: body.return_date && body.return_time ? String(body.return_time).slice(0, 5) : null,
-      pickup_location: clean(body.pickup_location, 500)!,
+      pickup_location: clean(body.pickup_location, 500) || '',
       pickup_latitude: coord(body.pickup_latitude),
       pickup_longitude: coord(body.pickup_longitude),
-      destination: clean(body.destination, 500)!,
+      destination: clean(body.destination, 500) || '',
       destination_latitude: coord(body.destination_latitude),
       destination_longitude: coord(body.destination_longitude),
       passenger_count: passengerCount,

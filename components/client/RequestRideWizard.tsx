@@ -10,6 +10,8 @@ import HireVehicleSelector from '@/components/client/HireVehicleSelector';
 import ServiceHome from '@/components/client/ServiceHome';
 import ErrandMenu, { ERRAND_TYPES } from '@/components/client/ErrandMenu';
 import DriverHireWizard from '@/components/client/DriverHireWizard';
+import VehicleHireWizard from '@/components/client/VehicleHireWizard';
+import FreightWizard from '@/components/client/FreightWizard';
 import ContactCard from '@/components/wizard/ContactCard';
 import FieldGroup from '@/components/wizard/FieldGroup';
 import LocationPicker from '@/components/common/LocationPicker';
@@ -63,6 +65,9 @@ export default function RequestRideWizard({ profile }: WizardProps) {
   const [errandMenu, setErrandMenu] = useState(false);
   // Find a Driver is its own request flow (the customer's vehicle, our driver).
   const [driverHire, setDriverHire] = useState(false);
+  // Vehicle Hire (renting a vehicle) is its own flow too.
+  const [vehicleHire, setVehicleHire] = useState(false);
+  const [freight, setFreight] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const steps = stepsFor(draft.service);
@@ -233,6 +238,22 @@ export default function RequestRideWizard({ profile }: WizardProps) {
   }
 
   // ---------------------------------------------------------------- home
+  if ((!svc || !currentStep) && freight) {
+    return (
+      <div ref={rootRef} className="w-full">
+        <FreightWizard profile={profile} onExit={() => setFreight(false)} />
+      </div>
+    );
+  }
+
+  if ((!svc || !currentStep) && vehicleHire) {
+    return (
+      <div ref={rootRef} className="w-full">
+        <VehicleHireWizard profile={profile} onExit={() => setVehicleHire(false)} />
+      </div>
+    );
+  }
+
   if ((!svc || !currentStep) && driverHire) {
     return (
       <div ref={rootRef} className="w-full">
@@ -262,6 +283,8 @@ export default function RequestRideWizard({ profile }: WizardProps) {
           onChooseService={(key) => chooseService(key)}
           onOpenErrands={() => setErrandMenu(true)}
           onOpenDriverHire={() => setDriverHire(true)}
+          onOpenVehicleHire={() => setVehicleHire(true)}
+          onOpenFreight={() => setFreight(true)}
           onWhereTo={() => chooseService('ride', { focusDropoff: true })}
           onScheduleLater={() => chooseService('ride', { scheduleLater: true })}
           onPickRecent={(d) =>

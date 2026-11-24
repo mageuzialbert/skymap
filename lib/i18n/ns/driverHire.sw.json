@@ -28,12 +28,12 @@
     },
     "categories": {
       "light": {
-        "title": "Gari Ndogo",
+        "title": "Dereva wa Gari Ndogo",
         "short": "Gari ndogo",
         "examples": "Sedan, hatchback, SUV, pickup, minivan na magari mengine madogo"
       },
       "heavy": {
-        "title": "Gari Kubwa",
+        "title": "Dereva wa Gari Kubwa",
         "short": "Gari kubwa",
         "examples": "Malori makubwa, malori ya kontena, semi-trela, magari ya mafuta, malori ya mizigo na magari mengine makubwa"
       }
@@ -205,5 +205,196 @@
       "byAdmin": "Admin"
     },
     "vehicleTypeChoose": "Chagua aina ya gari"
+  },
+  "vehicleHire": {
+    "title": "Kukodi Gari",
+    "tagline": "Safari Yako, Chaguo Lako",
+    "chooseCategory": "Chagua kundi la gari",
+    "categories": {
+      "economy": {
+        "title": "Economy & Sedan",
+        "desc": "Magari madogo kwa safari za kawaida, shughuli za mjini na matumizi binafsi."
+      },
+      "suv": {
+        "title": "SUV & 4x4",
+        "desc": "Kwa safari za mbali, familia, biashara na maeneo magumu."
+      },
+      "vans": {
+        "title": "Vans & Minivans",
+        "desc": "Kwa familia, makundi na usafiri wa watu wengi."
+      },
+      "luxury": {
+        "title": "Luxury & Executive",
+        "desc": "Kwa wageni maalumu, viongozi, mikutano na shughuli za kifahari."
+      },
+      "pickup": {
+        "title": "Pickup & Utility Vehicles",
+        "desc": "Kwa biashara, mizigo midogo na shughuli mbalimbali."
+      }
+    },
+    "formTitle": "Kodi Gari Lako",
+    "reviewTitle": "Kagua Ombi Lako",
+    "sections": {
+      "rental": "Taarifa za kukodi",
+      "prefs": "Mapendeleo ya gari",
+      "options": "Chaguo za kukodi"
+    },
+    "fields": {
+      "pickupLocation": "Mahali pa kuchukua gari",
+      "returnLocation": "Mahali pa kurudisha gari",
+      "pickupDate": "Tarehe ya kuchukua",
+      "pickupTime": "Muda wa kuchukua",
+      "returnDate": "Tarehe ya kurudisha",
+      "returnTime": "Muda wa kurudisha",
+      "category": "Kundi la gari",
+      "transmission": "Gia",
+      "passengers": "Idadi ya abiria",
+      "rentalType": "Aina ya kukodi",
+      "purpose": "Madhumuni ya kukodi",
+      "requirements": "Mahitaji ya ziada (si lazima)",
+      "pickup": "Kuchukua",
+      "return": "Kurudisha",
+      "vehicle": "Gari",
+      "price": "Bei",
+      "total": "Makadirio ya jumla"
+    },
+    "transmissions": {
+      "automatic": "Automatic",
+      "manual": "Manual",
+      "any": "Yoyote"
+    },
+    "rentalTypes": {
+      "self": "Kujiendesha (bila dereva)",
+      "driver": "Pamoja na dereva"
+    },
+    "purposeChoose": "Chagua madhumuni",
+    "purposes": {
+      "personal": "Matumizi binafsi",
+      "business": "Biashara",
+      "family": "Safari ya familia",
+      "tourism": "Utalii / safari",
+      "event": "Harusi au sherehe",
+      "airport": "Usafiri wa uwanja wa ndege",
+      "other": "Nyingine"
+    },
+    "searchPlaceholder": "Tafuta mahali",
+    "continue": "Endelea",
+    "submit": "Tuma Ombi la Kukodi",
+    "edit": "Badili",
+    "errors": {
+      "pickupLocation": "Weka mahali pa kuchukua gari",
+      "returnLocation": "Weka mahali pa kurudisha gari",
+      "pickupDate": "Chagua tarehe na muda wa kuchukua",
+      "pickupPast": "Muda wa kuchukua lazima uwe wa baadaye",
+      "returnDate": "Chagua tarehe na muda wa kurudisha",
+      "returnBefore": "Kurudisha lazima kuwe baada ya kuchukua",
+      "passengers": "Weka idadi sahihi ya abiria",
+      "submitFailed": "Imeshindikana kutuma ombi. Tafadhali jaribu tena.",
+      "chooseVehicle": "Chagua gari"
+    },
+    "vehiclesTitle": "Magari Yanayopatikana",
+    "available": "Linapatikana",
+    "perDay": "/ siku",
+    "seats": "Siti {{n}}",
+    "daysTotal": "Makadirio ya jumla kwa siku {{n}}",
+    "noVehicles": "Hakuna gari linalolingana na ombi lako kwa sasa",
+    "noVehiclesBody": "Endelea kutuma ombi lako na timu yetu itakutafutia gari."
+  },
+  "freight": {
+    "title": "Mizigo Mizito",
+    "tagline": "Usafirishaji wa Mizigo Mizito wa Kuaminika",
+    "services": "Huduma Zetu za Mizigo Mizito",
+    "categories": {
+      "container": {
+        "title": "Usafirishaji wa Makontena",
+        "desc": "Makontena ya futi 20, 40 na mengineyo."
+      },
+      "fuel": {
+        "title": "Mafuta na Vimiminika",
+        "desc": "Mafuta na vimiminika vinavyoruhusiwa kwa magari maalumu."
+      },
+      "machinery": {
+        "title": "Mitambo Mizito",
+        "desc": "Excavator, bulldozer, jenereta na vifaa vizito."
+      },
+      "tipper": {
+        "title": "Malori ya Tipper",
+        "desc": "Mchanga, kokoto, mawe na vifaa vya ujenzi."
+      },
+      "general": {
+        "title": "Mizigo Mizito ya Jumla",
+        "desc": "Mizigo mikubwa ya biashara, viwandani na bidhaa za jumla."
+      },
+      "oversized": {
+        "title": "Mizigo Mikubwa Maalumu",
+        "desc": "Mizigo inayohitaji magari na vibali maalumu."
+      },
+      "mixer": {
+        "title": "Lori la Zege",
+        "desc": "Zege iliyochanganywa hadi eneo lako la ujenzi."
+      },
+      "coldchain": {
+        "title": "Usafirishaji wa Baridi",
+        "desc": "Samaki, nyama, maziwa na bidhaa nyingine za baridi."
+      }
+    },
+    "formTitle": "Ombi la Mizigo Mizito",
+    "reviewTitle": "Kagua Ombi Lako",
+    "sections": {
+      "cargo": "Taarifa za mzigo",
+      "route": "Njia ya usafirishaji",
+      "truck": "Mahitaji ya lori",
+      "extra": "Taarifa za ziada"
+    },
+    "fields": {
+      "category": "Aina ya mzigo",
+      "description": "Maelezo ya mzigo",
+      "weight": "Makadirio ya uzito (tani)",
+      "dimensions": "Vipimo vya mzigo (si lazima)",
+      "container": "Ukubwa wa kontena",
+      "pickup": "Mahali pa kuchukua",
+      "delivery": "Mahali pa kufikisha",
+      "date": "Tarehe ya usafirishaji",
+      "time": "Muda wa kupakia",
+      "truckType": "Aina ya lori unayopendelea",
+      "trucks": "Idadi ya malori",
+      "photo": "Picha ya mzigo (si lazima)",
+      "instructions": "Maelekezo maalumu",
+      "when": "Tarehe ya usafirishaji"
+    },
+    "containers": {
+      "20": "Futi 20",
+      "40": "Futi 40",
+      "other": "Nyingine"
+    },
+    "truckChoose": "Sina uhakika – nishauri",
+    "trucks": {
+      "semi": "Semi Trela",
+      "container": "Lori la Kontena",
+      "tanker": "Lori la Mafuta",
+      "flatbed": "Lori la Flatbed",
+      "lowbed": "Trela ya Lowbed",
+      "tipper": "Lori la Tipper",
+      "mixer": "Lori la Zege (Concrete Mixer)"
+    },
+    "addPhoto": "Ongeza picha",
+    "uploading": "Inapakia…",
+    "removePhoto": "Ondoa picha",
+    "dimensionsPlaceholder": "mf. 6m x 2.4m x 2.6m",
+    "searchPlaceholder": "Tafuta mahali",
+    "continue": "Endelea",
+    "submit": "Tuma Ombi la Mzigo",
+    "edit": "Badili",
+    "errors": {
+      "description": "Eleza mzigo",
+      "weight": "Weka makadirio ya uzito kwa tani",
+      "pickup": "Weka mahali pa kuchukua",
+      "delivery": "Weka mahali pa kufikisha",
+      "date": "Chagua tarehe ya usafirishaji",
+      "datePast": "Tarehe ya usafirishaji isiwe iliyopita",
+      "trucks": "Weka idadi ya malori",
+      "uploadFailed": "Imeshindikana kupakia picha",
+      "submitFailed": "Imeshindikana kutuma ombi. Tafadhali jaribu tena."
+    }
   }
 }

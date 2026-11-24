@@ -299,12 +299,7 @@ export function validateDriverRequest(
     }
   }
 
-  if (!(input.pickup_location || '').trim()) {
-    issues.push({ field: 'pickup', code: 'pickupRequired' });
-  }
-  if (!(input.destination || '').trim()) {
-    issues.push({ field: 'destination', code: 'destinationRequired' });
-  }
+  // Pickup and destination are not asked for: the team gets them on the call.
 
   const pc = input.passenger_count;
   if (pc !== null && pc !== undefined && pc !== '') {

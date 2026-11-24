@@ -14,7 +14,6 @@ import {
   Building2,
   FileText,
   Car,
-  Fuel,
   Truck,
 } from 'lucide-react';
 import ServiceIcon, { SERVICE_ICONS } from '@/components/common/ServiceIcon';
@@ -61,12 +60,11 @@ const POPULAR_LOCATIONS: { id: string; icon: any; address: string }[] = [
 // is set - a white glyph image in its place (for icons Lucide does not have).
 const HOME_TILES: { id: string; service: ServiceTypeKey; icon?: any; iconImage?: string }[] = [
   { id: 'delivery', service: 'delivery', icon: SERVICE_ICONS.Package },
-  { id: 'errands', service: 'errand', icon: FileText },
-  { id: 'ride', service: 'ride', iconImage: '/icons/services/driver-white.png' },
-  { id: 'hire', service: 'hire', icon: Car },
   { id: 'requestRide', service: 'ride', icon: Car },
+  { id: 'ride', service: 'ride', iconImage: '/icons/services/driver-white.png' },
+  { id: 'errands', service: 'errand', icon: FileText },
+  { id: 'hire', service: 'hire', icon: Car },
   { id: 'freight', service: 'hire', icon: Truck },
-  { id: 'rider', service: 'errand', icon: Fuel },
 ];
 
 /**
@@ -79,6 +77,8 @@ export default function ServiceHome({
   onChooseService,
   onOpenErrands,
   onOpenDriverHire,
+  onOpenVehicleHire,
+  onOpenFreight,
   onPickRecent,
 }: {
   onChooseService: (key: ServiceTypeKey) => void;
@@ -86,6 +86,10 @@ export default function ServiceHome({
   onOpenErrands?: () => void;
   /** Starts a driver request; used by the Find a Driver tile. */
   onOpenDriverHire?: () => void;
+  /** Starts a vehicle rental request; used by the Vehicle Hire tile. */
+  onOpenVehicleHire?: () => void;
+  /** Starts a heavy freight request; used by the Heavy Freights tile. */
+  onOpenFreight?: () => void;
   /** The "Where to?" / "Later" bar was removed from this screen; the props
    *  stay optional so the wizard that passes them needs no change. */
   onWhereTo?: () => void;
@@ -198,13 +202,17 @@ export default function ServiceHome({
                 ? onOpenErrands()
                 : id === 'ride' && onOpenDriverHire
                   ? onOpenDriverHire()
+                  : id === 'hire' && onOpenVehicleHire
+                    ? onOpenVehicleHire()
+                    : id === 'freight' && onOpenFreight
+                      ? onOpenFreight()
                   : onChooseService(service)
             }
-            className={`group overflow-hidden rounded-2xl bg-white text-left shadow-md shadow-slate-900/10 ring-1 ring-slate-900/5 transition active:scale-[0.98] ${id === 'delivery' ? 'col-span-2 w-[calc((100%_-_0.5rem)/2)] justify-self-center' : ''}`}
+            className={`group overflow-hidden rounded-2xl bg-white text-left shadow-md shadow-slate-900/10 ring-1 ring-slate-900/5 transition active:scale-[0.98]`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={id === 'requestRide' ? '/services/home/request-ride.webp' : id === 'hire' ? '/services/home/hire.webp?v=comfort-2' : id === 'ride' ? '/services/home/ride.webp?v=chauffeur' : `/services/home/${id}.webp`}
+              src={id === 'freight' ? '/services/freight/hero.webp' : id === 'requestRide' ? '/services/home/request-ride.webp' : id === 'hire' ? '/services/home/hire.webp?v=comfort-2' : id === 'ride' ? '/services/home/ride.webp?v=chauffeur' : `/services/home/${id}.webp`}
               alt=""
               loading="lazy"
               // Height follows the screen: the three rows share whatever is

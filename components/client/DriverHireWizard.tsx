@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { AlertCircle, Check, CheckCircle2, User, X } from 'lucide-react';
+import { AlertCircle, Car, Check, CheckCircle2, Truck, User, X } from 'lucide-react';
 import FieldGroup from '@/components/wizard/FieldGroup';
 import LocationPicker from '@/components/common/LocationPicker';
-import { OptionGroup, OptionRow } from '@/components/wizard/OptionGroup';
+import { OptionRow } from '@/components/wizard/OptionGroup';
 import StepIndicator from '@/components/wizard/StepIndicator';
 import WizardFooter from '@/components/wizard/WizardFooter';
 import { useT } from '@/lib/i18n';
@@ -56,8 +56,8 @@ const STEP_FIELDS: Record<StepId, DriverRequestField[]> = {
 };
 
 const CATEGORY_IMAGE: Record<VehicleCategory, string> = {
-  light: '/services/home/hire.webp',
-  heavy: '/services/home/freight.webp',
+  light: '/services/home/ride.webp?v=chauffeur',
+  heavy: '/services/home/truck-driver.webp',
 };
 
 interface Place {
@@ -144,7 +144,7 @@ export default function DriverHireWizard({
     departureTime: '',
     returnDate: '',
     returnTime: '',
-    pickup: { ...emptyPlace, address: profile?.address || '' },
+    pickup: { ...emptyPlace },
     destination: { ...emptyPlace },
     passengers: '',
     duration: '',
@@ -158,19 +158,9 @@ export default function DriverHireWizard({
 
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
 
-  // The profile can arrive after the first render; fill the pick-up only if
-  // the customer has not typed one yet.
-  useEffect(() => {
-    if (profile?.address) {
-      setDraft((d) =>
-        d.pickup.address ? d : { ...d, pickup: { ...emptyPlace, address: profile.address } }
-      );
-    }
-  }, [profile?.address]);
-
   // A category with no transmission choices skips that question.
   const steps: StepId[] = useMemo(() => {
-    const all: StepId[] = ['category', 'transmission', 'when', 'trip', 'review'];
+    const all: StepId[] = ['category', 'transmission', 'when', 'review'];
     if (draft.category && TRANSMISSION_RULES[draft.category].options.length === 0) {
       return all.filter((s) => s !== 'transmission');
     }
@@ -322,9 +312,12 @@ export default function DriverHireWizard({
         {/* ------------------------------------------------ 1. category */}
         {current === 'category' && (
           <>
-            <div data-field="category" role="radiogroup" className="grid gap-3">
+            {/* Two photo cards side by side, in the look of the home screen
+                tiles: photo, then a label strip with the icon circle. */}
+            <div data-field="category" role="radiogroup" className="grid grid-cols-2 gap-3">
               {VEHICLE_CATEGORIES.map((cat) => {
                 const selected = draft.category === cat;
+                const Icon = cat === 'light' ? Car : Truck;
                 return (
                   <button
                     key={cat}
@@ -338,29 +331,42 @@ export default function DriverHireWizard({
                           : { category: cat, vehicleType: '', transmission: '' }
                       )
                     }
-                    className={`relative flex overflow-hidden rounded-2xl border text-left transition-colors ${
-                      selected
-                        ? 'border-primary bg-primary/5'
-                        : 'border-gray-200 bg-white active:bg-gray-50'
+                    className={`relative overflow-hidden rounded-3xl bg-white text-left shadow-md shadow-slate-900/10 transition active:scale-[0.98] ${
+                      selected ? 'ring-2 ring-primary' : 'ring-1 ring-slate-900/5'
                     }`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={CATEGORY_IMAGE[cat]}
-                      alt=""
-                      className="h-20 w-28 shrink-0 object-cover"
-                    />
-                    <span className="flex min-w-0 flex-1 items-center p-3 pr-9">
-                      <span className="block text-[16px] font-bold leading-tight text-gray-900">
-                        {t(`driverHire.categories.${cat}.title`)}
+                    <span className="relative block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={CATEGORY_IMAGE[cat]}
+                        alt=""
+                        className="h-36 w-full object-cover"
+                      />
+                      <span
+                        aria-hidden
+                        className={`absolute inset-0 transition-colors ${
+                          selected ? 'bg-primary/15' : 'bg-gradient-to-t from-slate-900/25 to-transparent'
+                        }`}
+                      />
+                      <span
+                        className={`absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full border-2 shadow-sm ${
+                          selected ? 'border-white bg-primary text-white' : 'border-white bg-white/70'
+                        }`}
+                      >
+                        {selected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
                       </span>
                     </span>
-                    <span
-                      className={`absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full border ${
-                        selected ? 'border-primary bg-primary text-white' : 'border-gray-300 bg-white'
-                      }`}
-                    >
-                      {selected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+                    <span className="relative mx-2 -mt-5 mb-2 flex flex-col items-center gap-1.5 rounded-2xl bg-white px-2 pb-2.5 pt-0 text-center shadow-sm ring-1 ring-slate-900/5">
+                      <span
+                        className={`-mt-4 flex h-9 w-9 items-center justify-center rounded-full text-white ring-4 ring-white ${
+                          selected ? 'bg-primary' : 'bg-primary-dark'
+                        }`}
+                      >
+                        <Icon className="h-[18px] w-[18px]" />
+                      </span>
+                      <span className="block text-[14px] font-bold leading-tight tracking-tight text-slate-900">
+                        {t(`driverHire.categories.${cat}.title`)}
+                      </span>
                     </span>
                   </button>
                 );
@@ -392,18 +398,43 @@ export default function DriverHireWizard({
         {/* -------------------------------------------- 2. transmission */}
         {current === 'transmission' && rule && (
           <div data-field="transmission">
-            <OptionGroup columns={2}>
-              {rule.options.map((tx) => (
-                <OptionRow
-                  key={tx}
-                  selected={draft.transmission === tx}
-                  onSelect={() => set({ transmission: tx })}
-                  layout="tile"
-                  icon={<span className="text-[15px] font-bold">{tx === 'manual' ? 'M' : 'A'}</span>}
-                  title={t(`driverHire.transmissions.${tx}.title`)}
-                />
-              ))}
-            </OptionGroup>
+            {/* Same card as the vehicle step, with a drawn gear lever in
+                place of a photo: an H-gate for manual, P-R-N-D for automatic. */}
+            <div role="radiogroup" className="grid grid-cols-2 gap-3">
+              {rule.options.map((tx) => {
+                const selected = draft.transmission === tx;
+                return (
+                  <button
+                    key={tx}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => set({ transmission: tx })}
+                    className={`relative overflow-hidden rounded-3xl bg-white text-left shadow-md shadow-slate-900/10 transition active:scale-[0.98] ${
+                      selected ? 'ring-2 ring-primary' : 'ring-1 ring-slate-900/5'
+                    }`}
+                  >
+                    <span
+                      className={`relative flex h-36 items-center justify-center bg-gradient-to-br transition-colors ${
+                        selected ? 'from-primary to-primary-dark' : 'from-primary-dark to-slate-900'
+                      }`}
+                    >
+                      <GearGraphic kind={tx} />
+                      <span
+                        className={`absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full border-2 shadow-sm ${
+                          selected ? 'border-white bg-white text-primary' : 'border-white/70 bg-white/20'
+                        }`}
+                      >
+                        {selected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+                      </span>
+                    </span>
+                    <span className="relative mx-2 -mt-5 mb-2 block rounded-2xl bg-white px-2 py-2.5 text-center text-[15px] font-bold leading-tight tracking-tight text-slate-900 shadow-sm ring-1 ring-slate-900/5">
+                      {t(`driverHire.transmissions.${tx}.title`)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
             {!rule.required && (
               <div className="mt-3">
                 <OptionRow
@@ -607,30 +638,16 @@ export default function DriverHireWizard({
                 value={formatDateAndTime(draft.returnDate, draft.returnTime)}
                 onEdit={edit('when')}
               />
-              <Row
-                label={t('driverHire.fields.pickup')}
-                value={draft.pickup.address}
-                onEdit={edit('trip')}
-              />
-              <Row
-                label={t('driverHire.fields.destination')}
-                value={draft.destination.address}
-                onEdit={edit('trip')}
-              />
-              <Row
-                label={t('driverHire.fields.passengers')}
-                value={draft.passengers}
-                onEdit={edit('trip')}
-              />
-              <Row
-                label={t('driverHire.fields.duration')}
-                value={draft.duration}
-                onEdit={edit('trip')}
-              />
-              <Row
-                label={t('driverHire.fields.info')}
+            </FieldGroup>
+            <FieldGroup label={t('driverHire.fields.info')}>
+              <textarea
+                id="dhInfoReview"
                 value={draft.info}
-                onEdit={edit('trip')}
+                onChange={(e) => set({ info: e.target.value.slice(0, 2000) })}
+                placeholder={t('driverHire.trip.infoPlaceholder')}
+                aria-label={t('driverHire.fields.info')}
+                className={textareaClass}
+                disabled={submitting}
               />
             </FieldGroup>
           </>
@@ -660,12 +677,55 @@ export default function DriverHireWizard({
 
 /* -------------------------------------------------------------------------- */
 
+/** A gear lever seen from above: the H-gate with a knob for manual, the
+ *  P-R-N-D column with the D lit for automatic. Drawn in white for the dark
+ *  panel it sits on. */
+function GearGraphic({ kind }: { kind: 'manual' | 'automatic' }) {
+  if (kind === 'manual') {
+    return (
+      <svg viewBox="0 0 80 80" className="h-20 w-20 text-white" fill="none" aria-hidden>
+        <path
+          d="M20 18v44M40 18v44M60 18v44M20 40h40"
+          stroke="currentColor"
+          strokeOpacity="0.55"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+        <circle cx="20" cy="18" r="9" fill="#facc15" />
+        <text x="20" y="22" textAnchor="middle" fontSize="11" fontWeight="700" fill="#0f172a">
+          1
+        </text>
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 80 80" className="h-20 w-20 text-white" fill="none" aria-hidden>
+      <rect x="27" y="6" width="26" height="68" rx="13" stroke="currentColor" strokeOpacity="0.55" strokeWidth="4" />
+      {['P', 'R', 'N', 'D'].map((l, i) => (
+        <g key={l}>
+          {l === 'D' && <circle cx="40" cy={19 + i * 14} r="7.5" fill="#facc15" />}
+          <text
+            x="40"
+            y={23 + i * 14}
+            textAnchor="middle"
+            fontSize="11"
+            fontWeight="700"
+            fill={l === 'D' ? '#0f172a' : 'currentColor'}
+          >
+            {l}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 /**
  * A date or time, shown our way (dd/mm/yyyy, 24-hour). The native input is
  * kept for its picker but made invisible and laid over a box that prints the
  * value, because a native date input uses the browser's own order.
  */
-function PickerField({
+export function PickerField({
   id,
   type,
   value,
